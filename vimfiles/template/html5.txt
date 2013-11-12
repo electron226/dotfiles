@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <title></title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link type="text/css" rel="stylesheet" href="">
+    <script type="text/javascript" src=""></script>
+</head>
+<body>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+snippet inc
+abbr    #include <>
+alias   #inc, #include
+    #include <${1:iostream}>${0}
+    
+snippet class
+    class ${1:class_name} {
+        public:
+            $1() {}
+            virtual ~$1() {}
+            
+            ${2}
+        private:
+            ${3}
+    };
+    
+snippet classi
+abbr    class inheritance
+    class ${1:class_name} : ${2:public} ${3} {
+        public:
+            $1() {}
+            virtual ~$1() {}
+            
+            ${4}
+        private:
+            ${5}
+    };
+    
+snippet class2
+abbr    class protected plus
+    class ${1:class_name} {
+        public:
+            $1() {}
+            virtual ~$1() {}
+            
+            ${2}
+        protected:
+            ${3}
+        private:
+            ${4}
+    };
+
+snippet class2i
+abbr    class protected inheritance
+    class ${1:class_name} : ${2:public} ${3} {
+        public:
+            $1() {}
+            virtual ~$1() {}
+            
+            ${5}
+        protected:
+            ${6}
+        private:
+            ${7}
+    };
+
+snippet cout
+abbr    cout << {input} << endl
+    std::cout << ${1:input} << std::endl;
+    
+snippet cerr
+abbr    cerr << {input} << endl
+    std::cerr << ${1:input} << std::endl;
+    
+snippet rangefor
+abbr    range-base for
+    for (auto ${1:variable} : ${2:container}) {
+        ${3:process}
+    }
+    
+snippet lambda
+alias   lambda
+abbr    [] -> {type} {}
+    [${1:capture}](${2:arguments}) -> ${3:return_type} { return ${4:process} }
+    
+snippet static_cast
+alias   scast
+    static_cast<${1:type}> (${2:value})${3}
+  
+snippet dynamic_cast
+alias   dcast
+    dynamic_cast<${1:type}> (${2:value})${3}
+    
+snippet reinterpret_cast
+alias rcast
+    reinterpret_cast<${1:type}> (${2:value})${3}
+    
+snippet const_cast
+alias ccast
+    const_cast<${1:type}> (${2:value})${3}
+    
+snippet vector
+alias vec
+    std::vector<${1:type}> ${2:name};
+    ${3}
+    
+snippet list
+alias li
+    std::list<${1:type}> ${2:name};
+    ${3}
+    
+snippet template_class
+alias template
+    template <class ${1:T>

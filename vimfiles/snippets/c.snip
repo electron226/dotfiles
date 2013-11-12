@@ -1,0 +1,114 @@
+snippet     main
+abbr        int main(int argc, char *argv[])
+    int main(int argc, char *argv[])
+    {
+		${0}
+		return 0;
+    }
+
+snippet     wmain
+abbr        int WINAPI WinMain() {}
+    int WINAPI WinMain(
+        HINSTANCE hInstance, HINSTANCE hPrevInstance,
+        LPSTR lpCmdLine, int nCmdShow)
+    {
+		${0}
+		return 0;
+    }
+    
+snippet     wregist
+abbr        WNDCLASSEX wcex = {}, RegisterClassEX(&wcex)
+    WNDCLASSEX wcex = { sizeof(WNDCLASSEX) };
+
+    wcex.style         = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc   = WndProc;
+    wcex.cbClsExtra    = 0;
+    wcex.cbWndExtra    = 0;
+    wcex.hInstance     = hInstance;
+    wcex.hIcon         = LoadIcon(hInstance, MAKEINTRESOURCE(${1:IDI_APPLICATION}));
+    wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = static_cast<HBRUSH> (GetStockObject(WHITE_BRUSH));
+    wcex.lpszMenuName  = MAKEINTRESOURCE(${0:RESOURCE_NAME});
+    wcex.lpszClassName = szWindowClass;
+    wcex.hIconSm       = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(${2:IDI_APPLICATION}));
+
+    ATOM atom = RegisterClassEx(&wcex);
+    if (!atom) {
+        return 1;
+    }
+    
+snippet     wcreatewin
+abbr        HWND hWnd = CreateWindowEx()
+    HWND hWnd = CreateWindowEx(
+            NULL, ${1:classname}, {$:2title}, WS_OVERLAPPEDWINDOW,
+            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+            NULL, NULL, hInstance, NULL);
+    if (!hWnd) {
+        return 1;
+    }
+
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
+        
+snippet     wcreatewindpi
+abbr        HWND hWnd = CreateWindowEx(), High DPI
+    HWND hWnd = CreateWindowEx(
+            NULL, ${1:classname}, {$:2title}, WS_OVERLAPPEDWINDOW,
+            CW_USEDEFAULT, CW_USEDEFAULT,
+            static_cast<UINT_PTR> (std::ceil(${3:512.f} * ${5:dpiX} / 96.f)), 
+            static_cast<UINT_PTR> (std::ceil(${4:512.f} * ${6:dpiY} / 96.f)),
+            NULL, NULL, hInstance, NULL);
+    if (!hWnd) {
+        return 1;
+    }
+
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
+
+snippet     wwmain
+abbr        int WINAPI wWinMain() {}
+    int WINAPI wWinMain(
+        HINSTANCE hInstance, HINSTANCE hPrevInstance,
+        LPWSTR lpCmdLine, int nCmdShow)
+    {
+		${0}
+		return 0;
+    }
+    
+snippet     msgloop
+abbr        while (true) { if (GetMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {} }
+    while (true) {
+        if (GetMessage(&msg, NULL, 0, 0) > 0) {${0}
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+    
+snippet     msgloopp
+abbr        while (true) { if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {} }
+    while (true) {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+            fRet = GetMessage(&msg, NULL, 0, 0);
+            // 0 == WM_QUIT, 1 == ERROR
+            if (fRet == 0 || fRet == -1) {
+                break;
+            }
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        } else {
+            ${0}
+        }
+    }
+    
+snippet     function
+alias       func
+abbr        func() {}
+    ${1:void} ${2:func_name}(${3})
+    {
+        ${0}
+    }
+    
+snippet     normal_cast
+alias       cast
+    (${1:type})${2:value}
