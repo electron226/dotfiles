@@ -1,24 +1,16 @@
 " -------------------------------------------------------
 " switch.vim
 " -------------------------------------------------------
-let s:bundle = neobundle#get("switch.vim")
-function! s:bundle.hooks.on_source(bundle)
-    nmap - :Switch<CR>
-    let g:switch_custom_definitions =
-                \ [
-                \   [ 'TRUE', 'FALSE' ]
-                \ ]
-endfunction
-unlet s:bundle
+nmap - :Switch<CR>
+let g:switch_custom_definitions =
+            \ [
+            \   [ 'TRUE', 'FALSE' ]
+            \ ]
 
 " -------------------------------------------------------
 " Gundo
 " -------------------------------------------------------
-let s:bundle = neobundle#get("gundo.vim")
-function! s:bundle.hooks.on_source(bundle)
-    nmap <Leader>g :GundoToggle<CR>
-endfunction
-unlet s:bundle
+nmap <Leader>g :GundoToggle<CR>
 
 " -------------------------------------------------------
 " vim-easymotion
@@ -36,30 +28,36 @@ vmap gx <Plug>(openbrowser-smart-search)
 " -------------------------------------------------------
 " MultipleSearch
 " -------------------------------------------------------
-let s:bundle = neobundle#get("MultipleSearch")
-function! s:bundle.hooks.on_source(bundle)
-    let g:MultipleSearchMaxColors = 8
-    let g:MultipleSearchColorSequence =
-                \ "red, yellow, blue, green, magenta, cyan, gray, brown"
-    let g:MultipleSearchTextColorSequence =
-                \ "white, black, white, black, white, black, black, white"
-endfunction
-unlet s:bundle
+let g:MultipleSearchMaxColors = 8
+let g:MultipleSearchColorSequence =
+            \ "red, yellow, blue, green, magenta, cyan, gray, brown"
+let g:MultipleSearchTextColorSequence =
+            \ "white, black, white, black, white, black, black, white"
 
 " -------------------------------------------------------
 " vim-textmanip
 " -------------------------------------------------------
-let g:textmanip_enable_mappings = 1
-
 " 選択したテキストの移動
-vmap <C-j> <Plug>(textmanip-move-down)
-vmap <C-k> <Plug>(textmanip-move-up)
-vmap <C-h> <Plug>(textmanip-move-left)
-vmap <C-l> <Plug>(textmanip-move-right)
+xmap <C-j> <Plug>(textmanip-move-down)
+xmap <C-k> <Plug>(textmanip-move-up)
+xmap <C-h> <Plug>(textmanip-move-left)
+xmap <C-l> <Plug>(textmanip-move-right)
 
 " 行の複製
-vmap <C-o> <Plug>(textmanip-duplicate-down)
-nmap <C-o> <Plug>(textmanip-duplicate-down)
+xmap <C-d> <Plug>(textmanip-duplicate-down)
+nmap <C-d> <Plug>(textmanip-duplicate-down)
+xmap <C-D> <Plug>(textmanip-duplicate-up)
+nmap <C-D> <Plug>(textmanip-duplicate-up)
+
+" toggle insert/replace with <F10>
+"nmap <F10> <Plug>(textmanip-toggle-mode)
+"xmap <F10> <Plug>(textmanip-toggle-mode)
+
+" use allow key to force replace movement
+xmap  <Up>     <Plug>(textmanip-move-up-r)
+xmap  <Down>   <Plug>(textmanip-move-down-r)
+xmap  <Left>   <Plug>(textmanip-move-left-r)
+xmap  <Right>  <Plug>(textmanip-move-right-r)
 
 " -------------------------------------------------------
 " vim-indent-guides
@@ -77,18 +75,18 @@ nmap <Leader>j <Plug>(altr-back)
 
 " Javascript(jasmine)
 call altr#define('public/javascripts/%.js',
-                \ 'spec/javascripts/%Spec.js',
-                \ 'spec/javascripts/helpers/%Helper.js'
-                \ )
+            \ 'spec/javascripts/%Spec.js',
+            \ 'spec/javascripts/helpers/%Helper.js'
+            \ )
 
 " For Ruby tdd(RSpec)
 call altr#define('%.rb', 'spec/%_spec.rb')
 
 " For rails tdd(RSpec)
 call altr#define('app/models/%.rb',
-                \ 'spec/models/%_spec.rb',
-                \ 'spec/factories/%s.rb'
-                \ )
+            \ 'spec/models/%_spec.rb',
+            \ 'spec/factories/%s.rb'
+            \ )
 call altr#define('app/controllers/%.rb', 'spec/controllers/%_spec.rb')
 call altr#define('app/helpers/%.rb', 'spec/helpers/%_spec.rb')
 
@@ -132,35 +130,27 @@ let g:user_emmet_settings = {
 " -------------------------------------------------------
 " vim-jsdoc
 " -------------------------------------------------------
-let s:bundle = neobundle#get("vim-jsdoc")
-function! s:bundle.hooks.on_source(bundle)
-    autocmd FileType html,javascript,coffee call s:jsdoc()
-    function! s:jsdoc()
-        nmap <Leader>d :JsDoc<CR>
-    endfunction
+autocmd FileType html,javascript,coffee call s:jsdoc()
+function! s:jsdoc()
+    nmap <Leader>d :JsDoc<CR>
 endfunction
-unlet s:bundle
 
 " -------------------------------------------------------
 " DoxygenToolkit.vim
 " -------------------------------------------------------
-let s:bundle = neobundle#get("DoxygenToolkit.vim")
-function! s:bundle.hooks.on_source(bundle)
-    autocmd FileType c,cpp,python call s:doxygen()
-    function! s:doxygen()
-        nmap <Leader>d :Dox<CR>
-        nmap <Leader>da :DoxAuthor<CR>
-        nmap <Leader>dl :DoxLic<CR>
-        nmap <Leader>du :DoxUndoc<CR>
-        nmap <Leader>db :DoxBlock<CR>
+autocmd FileType c,cpp,python call s:doxygen()
+function! s:doxygen()
+    nmap <Leader>d :Dox<CR>
+    nmap <Leader>da :DoxAuthor<CR>
+    nmap <Leader>dl :DoxLic<CR>
+    nmap <Leader>du :DoxUndoc<CR>
+    nmap <Leader>db :DoxBlock<CR>
 
-        autocmd FileType c,cpp call s:doxygen_cpp()
-        function! s:doxygen_cpp()
-            let g:DoxygenToolkit_returnTag="@retval "
-        endfunction
+    autocmd FileType c,cpp call s:doxygen_cpp()
+    function! s:doxygen_cpp()
+        let g:DoxygenToolkit_returnTag="@retval "
     endfunction
 endfunction
-unlet s:bundle
 
 " -------------------------------------------------------
 " simple-javascript-indenter
@@ -189,14 +179,14 @@ endfunction
 " Vimproc
 " -------------------------------------------------------
 if has('mac')
-   let g:vimproc_dll_path =
-               \ $MY_VIMRUNTIME . '/bundle/vimproc/autoload/vimproc_mac.so'
+    let g:vimproc_dll_path =
+                \ $MY_VIMRUNTIME . '/bundle/vimproc/autoload/vimproc_mac.so'
 elseif has('win64')
-   let g:vimproc_dll_path =
-               \ $MY_VIMRUNTIME . '/bundle/vimproc/autoload/vimproc_win64.dll'
+    let g:vimproc_dll_path =
+                \ $MY_VIMRUNTIME . '/bundle/vimproc/autoload/vimproc_win64.dll'
 elseif has('win32')
-   let g:vimproc_dll_path =
-               \ $MY_VIMRUNTIME . '/bundle/vimproc/autoload/vimproc_win32.dll'
+    let g:vimproc_dll_path =
+                \ $MY_VIMRUNTIME . '/bundle/vimproc/autoload/vimproc_win32.dll'
 endif
 
 " -------------------------------------------------------
@@ -267,92 +257,78 @@ let g:SrcExpl_pluginList = [
 " -------------------------------------------------------
 " vimfiler
 " -------------------------------------------------------
-let s:bundle = neobundle#get("vimfiler")
-function! s:bundle.hooks.on_source(bundle)
-    " vimデフォルトのエクスプローラをvimfilerで置き換える
-    let g:vimfiler_as_default_explorer = 1
+" vimデフォルトのエクスプローラをvimfilerで置き換える
+let g:vimfiler_as_default_explorer = 1
 
-    " セーフモード無効
-    let g:vimfiler_safe_mode_by_default = 0
+" セーフモード無効
+let g:vimfiler_safe_mode_by_default = 0
 
-    "普通に開く
-    nnoremap <silent> <Leader>fn :<C-u>VimFiler<CR>
+"普通に開く
+nnoremap <silent> <Leader>fn :<C-u>VimFiler<CR>
 
-    "現在開いているバッファのディレクトリを開く
-    nnoremap <silent> <Leader>fd :<C-u>VimFilerBufferDir -quit<CR>
+"現在開いているバッファのディレクトリを開く
+nnoremap <silent> <Leader>fd :<C-u>VimFilerBufferDir -quit<CR>
 
-    "現在開いているバッファをIDE風に開く
-    "nnoremap <silent> ,f :<C-u>VimFilerBufferDir
-    "            \  -split -simple -direction=botright -winwidth=35 -no-quit<CR>
-    nnoremap <silent> <Leader>f :<C-u>VimFilerBufferDir
-                                \ -split -simple -winwidth=30 -no-quit<CR>
-endfunction
-unlet s:bundle
+"現在開いているバッファをIDE風に開く
+"nnoremap <silent> ,f :<C-u>VimFilerBufferDir
+"            \  -split -simple -direction=botright -winwidth=35 -no-quit<CR>
+nnoremap <silent> <Leader>f :<C-u>VimFilerBufferDir
+            \ -split -simple -winwidth=30 -no-quit<CR>
 
 " -------------------------------------------------------
 " unite.vim
 " -------------------------------------------------------
-let s:bundle = neobundle#get("unite.vim")
-function! s:bundle.hooks.on_source(bundle)
-    " 入力モードで開始する
-    let g:unite_enable_start_insert=1
+" 入力モードで開始する
+let g:unite_enable_start_insert=1
 
-    " ウインドウ一覧
-    nnoremap <silent> <Leader>uw :<C-u>Unite window<CR>
-    " バッファ一覧
-    nnoremap <silent> <Leader>ub :<C-u>Unite buffer<CR>
-    " ブックマーク一覧
-    nnoremap <silent> <Leader>uk :<C-u>Unite bookmark<CR>
-    " ファイル一覧
-    nnoremap <silent> <Leader>uf
-                \ :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
-    " レジスタ一覧
-    nnoremap <silent> <Leader>ur :<C-u>Unite -buffer-name=register register<CR>
-    " 最近使用したファイル一覧
-    nnoremap <silent> <Leader>um :<C-u>Unite file_mru<CR>
-    " 全部乗せ
-    nnoremap <silent> <Leader>ua :<C-u>UniteWithBufferDir
-                \ -buffer-name=files buffer file_mru bookmark file<CR>
+" ウインドウ一覧
+nnoremap <silent> <Leader>uw :<C-u>Unite window<CR>
+" バッファ一覧
+nnoremap <silent> <Leader>ub :<C-u>Unite buffer<CR>
+" ブックマーク一覧
+nnoremap <silent> <Leader>uk :<C-u>Unite bookmark<CR>
+" ファイル一覧
+nnoremap <silent> <Leader>uf
+            \ :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
+" レジスタ一覧
+nnoremap <silent> <Leader>ur :<C-u>Unite -buffer-name=register register<CR>
+" 最近使用したファイル一覧
+nnoremap <silent> <Leader>um :<C-u>Unite file_mru<CR>
+" 全部乗せ
+nnoremap <silent> <Leader>ua :<C-u>UniteWithBufferDir
+            \ -buffer-name=files buffer file_mru bookmark file<CR>
 
-    " カーソル下のキーワードを含む行を表示
-    nnoremap <silent> <Leader>ul :<C-u>UniteWithCursorWord -no-quit line<CR>
+" カーソル下のキーワードを含む行を表示
+nnoremap <silent> <Leader>ul :<C-u>UniteWithCursorWord -no-quit line<CR>
 
-    " unite.vim上でのキーマッピング
-    autocmd FileType unite call s:unite_my_settings()
-    function! s:unite_my_settings()
-        " 単語単位からパス単位で削除するように変更
-        "imap <buffer> <C-w> <Plug>(unite_delete_backward_path)
+" unite.vim上でのキーマッピング
+autocmd FileType unite call s:unite_my_settings()
+function! s:unite_my_settings()
+    " 単語単位からパス単位で削除するように変更
+    "imap <buffer> <C-w> <Plug>(unite_delete_backward_path)
 
-        " ウィンドウを分割して開く
-        nmap <silent> <buffer> <expr> <C-j> unite#do_action('split')
-        imap <silent> <buffer> <expr> <C-j> unite#do_action('split')
+    " ウィンドウを分割して開く
+    nmap <silent> <buffer> <expr> <C-j> unite#do_action('split')
+    imap <silent> <buffer> <expr> <C-j> unite#do_action('split')
 
-        " ウィンドウを縦に分割して開く
-        nmap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
-        imap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
+    " ウィンドウを縦に分割して開く
+    nmap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
+    imap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
 
-        " ESCキーを2回押すと終了する
-        nmap <silent><buffer> <ESC><ESC> q
-        imap <silent><buffer> <ESC><ESC> <ESC>q
-    endfunction
+    " ESCキーを2回押すと終了する
+    nmap <silent><buffer> <ESC><ESC> q
+    imap <silent><buffer> <ESC><ESC> <ESC>q
 endfunction
-unlet s:bundle
 
 " -------------------------------------------------------
 " unite-build
 " -------------------------------------------------------
-"let s:bundle = neobundle#get("unite-build")
-"function! s:bundle.hooks.on_source(bundle)
 "    nnoremap <silent> <Leader>ubu :<C-u>Unite build<CR>
 "    nnoremap <silent> <Leader>ubut :<C-u>Unite build:!<CR>
-"endfunction
-"unlet s:bundle
 
 " -------------------------------------------------------
 " unite-tag
 " -------------------------------------------------------
-"let s:bundle = neobundle#get("unite-tag")
-"function! s:bundle.hooks.on_source(bundle)
 "    nnoremap <silent> <Leader>ut :<C-u>Unite tag<CR>
 "    nnoremap <silent> <Leader>utf :<C-u>Unite tag/file<CR>
 "    nnoremap <silent> <Leader>uti :<C-u>Unite tag/include<CR>
@@ -376,41 +352,27 @@ unlet s:bundle
 "    " boost::array<std::stirng... → boost::array で絞り込み
 "    noremap <silent> G<C-]> :<C-u>execute "PopupTags "
 "        \.substitute(<SID>get_func_name(expand('<cWORD>')), '\:', '\\\:', "g")<CR>
-"endfunction
-"unlet s:bundle
 
 " -------------------------------------------------------
 " unite-gtag
 " -------------------------------------------------------
-"let s:bundle = neobundle#get("unite-gtags")
-"function! s:bundle.hooks.on_source(bundle)
 "    nnoremap <silent> <Leader>ugt :<C-u>Unite gtags/context<CR>
 "    nnoremap <silent> <Leader>ugtr :<C-u>Unite gtags/ref<CR>
 "    nnoremap <silent> <Leader>ugtd :<C-u>Unite gtags/def<CR>
 "    nnoremap <silent> <Leader>ugtg :<C-u>Unite gtags/grep<CR>
 "    nnoremap <silent> <Leader>ugta :<C-u>Unite gtags/completion<CR>
-"endfunction
-"unlet s:bundle
 
 " -------------------------------------------------------
 " unite-outline
 " -------------------------------------------------------
-"let s:bundle = neobundle#get("unite-outline")
-"function! s:bundle.hooks.on_source(bundle)
 "    nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
-"endfunction
-"unlet s:bundle
 
 " -------------------------------------------------------
 " unite-grep
 " -------------------------------------------------------
-"let s:bundle = neobundle#get("unite-grep")
-"function! s:bundle.hooks.on_source(bundle)
 "    " unite-grepのキーマップ
 "    " 選択した文字列をunite-grep
 "    vnoremap /g y:Unite grep::-iHRn:<C-R>=escape(@", '\\.*$^[]')<CR><CR>
-"endfunction
-"unlet s:bundle
 
 " -------------------------------------------------------
 " neocomplete
@@ -442,10 +404,10 @@ endif
 
 " Define dictionary.
 let g:neocomplete#sources#dictionary#dictionaries = {
-    \ 'default' : '',
-    \ 'vimshell' : $HOME.'/.vimshell_hist',
-    \ 'scheme' : $HOME.'/.gosh_completions'
-    \ }
+            \ 'default' : '',
+            \ 'vimshell' : $HOME.'/.vimshell_hist',
+            \ 'scheme' : $HOME.'/.gosh_completions'
+            \ }
 
 " Define keyword.
 if !exists('g:neocomplete#keyword_patterns')
@@ -459,7 +421,7 @@ if has('win32') || has('win64') || has('win32unix')
     if isdirectory(expand('$MINGW_HOME'))
         let s:mingw_path = expand('$MINGW_HOME')
     else
-        let s:mingw_path = 'f:/local/mingw-w64'
+        let s:mingw_path = 'f:/local/mingw64'
     endif
     let s:mingw_build_target = 'x86_64-w64-mingw32'
     let s:mingw_gcc_version = '4.7.0'
@@ -467,17 +429,16 @@ if has('win32') || has('win64') || has('win32unix')
     " Windows
     let s:include_paths_cpp = [
                 \ expand(s:mingw_path . '/' . s:mingw_build_target . '/include'),
+                \ expand(s:mingw_path . '/include/c++' . '/' . s:mingw_gcc_version),
                 \ expand(s:mingw_path . '/lib/gcc/' . s:mingw_build_target . '/' . s:mingw_gcc_version . '/include'),
                 \ expand(s:mingw_path . '/lib/gcc/' . s:mingw_build_target . '/' . s:mingw_gcc_version . '/include-fixed'),
-                \ expand('F:/local/lib/gmock-1.7.0/include'),
-                \ expand('F:/local/lib/gtest-1.7.0/include'),
                 \ ]
-"                \ expand('C:/Program Files (x86)/AMD APP/include'),
+    "                \ expand('C:/Program Files (x86)/AMD APP/include'),
 
-"                \ expand('C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include'),
-"                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/shared'),
-"                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/um'),
-"                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/winrt'),
+    "                \ expand('C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include'),
+    "                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/shared'),
+    "                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/um'),
+    "                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/winrt'),
 elseif has('macunix')
     " OS X
     let s:include_paths_cpp = [
@@ -539,9 +500,9 @@ inoremap <expr><C-l>     neocomplete#complete_common_string()
 " <CR>: close popup and save indent.
 inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
 function! s:my_cr_function()
-  return neocomplete#smart_close_popup() . "\<CR>"
-  " For no inserting <CR> key.
-  "return pumvisible() ? neocomplete#close_popup() : "\<CR>"
+    return neocomplete#smart_close_popup() . "\<CR>"
+    " For no inserting <CR> key.
+    "return pumvisible() ? neocomplete#close_popup() : "\<CR>"
 endfunction
 " <TAB>: completion.
 inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
@@ -581,7 +542,7 @@ autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 
 " Enable heavy omni completion.
 if !exists('g:neocomplete#sources#omni#input_patterns')
-  let g:neocomplete#sources#omni#input_patterns = {}
+    let g:neocomplete#sources#omni#input_patterns = {}
 endif
 let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
 let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
@@ -618,7 +579,7 @@ xmap <C-m>     <Plug>(neosnippet_expand_target)
 
 " For snippet_complete marker.
 if has('conceal')
-  set conceallevel=2 concealcursor=i
+    set conceallevel=2 concealcursor=i
 endif
 
 if !exists("g:neosnippet#snippets_directory")
@@ -642,68 +603,143 @@ endfor
 " -------------------------------------------------------
 " clang_complete
 " -------------------------------------------------------
-let s:bundle = neobundle#get("clang_complete")
-function! s:bundle.hooks.on_source(bundle)
-    let g:neocomplete#force_overwrite_completefunc = 1
+let g:neocomplete#force_overwrite_completefunc = 1
 
-    if !exists('g:neocomplete#force_omni_input_patterns')
-        let g:neocomplete#force_omni_input_patterns = {}
-    endif
-    let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-    let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-    let g:neocomplete#force_omni_input_patterns.objc = '[^.[:digit:] *\t]\%(\.\|->\)'
-    let g:neocomplete#force_omni_input_patterns.objcpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+if !exists('g:neocomplete#force_omni_input_patterns')
+    let g:neocomplete#force_omni_input_patterns = {}
+endif
+let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+let g:neocomplete#force_omni_input_patterns.objc = '[^.[:digit:] *\t]\%(\.\|->\)'
+let g:neocomplete#force_omni_input_patterns.objcpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
 
-    let g:clang_auto_select=0
-    let g:clang_complete_auto=0
+let g:clang_auto_select=0
+let g:clang_complete_auto=0
 
-    let g:clang_use_library=1
-    let g:clang_debug=0
+let g:clang_use_library=1
+let g:clang_debug=0
 
-    " s:clang_path = Path in clang.dll or libclang.so or libclang.dll
-    if isdirectory(expand('$LLVM_HOME'))
-        let s:clang_path = expand('$LLVM_HOME/bin')
+" s:clang_path = Path in clang.dll or libclang.so or libclang.dll
+if isdirectory(expand('$LLVM_HOME'))
+    let s:clang_path = expand('$LLVM_HOME/bin')
+else
+    if has('win32') || has('win64') || has('win32unix')
+        " Windows
+        let s:clang_path = expand('F:/local/llvm/build/bin')
     else
-        if has('win32') || has('win64') || has('win32unix')
-            " Windows
-            let s:clang_path = expand('F:/local/llvm/build/bin')
-        else
-            " OS X | UNIX | Ubuntu
-            let s:clang_path = expand('/usr/local/bin')
-        endif
+        " OS X | UNIX | Ubuntu
+        let s:clang_path = expand('/usr/local/bin')
     endif
+endif
 
-    if !isdirectory(s:clang_path) ||
-                \ !(filereadable(expand(s:clang_path . '/libclang.dll')) ||
-                \ filereadable(expand(s:clang_path . '/libclang.so'))) ||
-                \ !filereadable(expand(s:clang_path . '/clang.exe'))
-        echo "Can't detect libclang.dll or libclang.so -&gt; " . s:clang_path
-    endif
-    let g:clang_library_path = s:clang_path
-    let g:clang_exec = expand(s:clang_path . '/clang.exe')
+if !isdirectory(s:clang_path) ||
+            \ !(filereadable(expand(s:clang_path . '/libclang.dll')) ||
+            \ filereadable(expand(s:clang_path . '/libclang.so'))) ||
+            \ !filereadable(expand(s:clang_path . '/clang.exe'))
+    echo "Can't detect libclang.dll or libclang.so -&gt; " . s:clang_path
+endif
+let g:clang_library_path = s:clang_path
+let g:clang_exec = expand(s:clang_path . '/clang.exe')
 
-    " Build msvc
-    "let g:clang_user_options =
-    "            \ '"' . s:include_paths_string . '"' .
-    "            \ ' 2> NUL || exit 0"'
-    " Build mingw64
-    let g:clang_user_options =
-                \ '"' . s:include_paths_string . '"' .
-                \ ' -std=c++11 -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
-                \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
-                \ ' -include malloc.h'
-endfunction
-unlet s:bundle
+" Build msvc
+"let g:clang_user_options =
+"            \ '"' . s:include_paths_string . '"' .
+"            \ ' 2> NUL || exit 0"'
+" Build mingw64
+let g:clang_user_options =
+            \ '"' . s:include_paths_string . '"' .
+            \ ' -std=c++11 -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
+            \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
+            \ ' -include malloc.h'
+
+" -------------------------------------------------------
+" vim-marching
+" -------------------------------------------------------
+" clang コマンドの設定
+let g:marching_clang_command = g:clang_exec
+
+" オプションを追加する場合
+let g:marching_clang_command_option="-std=c++11"
+
+" インクルードディレクトリのパスを設定
+let g:marching_include_paths = s:include_paths_cpp
+
+" neocomplete.vim と併用して使用する場合
+let g:marching_enable_neocomplete = 1
+
+if !exists('g:neocomplete#force_omni_input_patterns')
+    let g:neocomplete#force_omni_input_patterns = {}
+endif
+
+let g:neocomplete#force_omni_input_patterns.cpp =
+            \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+
+" 処理のタイミングを制御する
+" 短いほうがより早く補完ウィンドウが表示される
+set updatetime=200
+
+" オムニ補完時に補完ワードを挿入したくない場合
+imap <buffer> <C-x><C-o> <Plug>(marching_start_omni_complete)
+
+" キャッシュを削除してからオムに補完を行う
+imap <buffer> <C-x><C-x><C-o> <Plug>(marching_force_start_omni_complete)
+
+" 非同期ではなくて、同期処理でコード補完を行う場合
+let g:marching_backend = "sync_clang_command"
+
+" -------------------------------------------------------
+" vim-clang-format
+" -------------------------------------------------------
+autocmd FileType c,cpp,objc nmap <buffer><leader>cf :<C-u>ClangFormat<CR>
+autocmd FileType c,cpp,objc vmap <buffer><leader>cf :ClangFormat<CR>
+" base style.
+" llvm, google, chromium, or mozilla
+"let g:clang_format#code_style = 'google'
+
+" Coding style options as dictionary.
+let g:clang_format#style_options = {
+            \ "AccessModifierOffset" : -4,
+            \ "AllowShortIfStatementsOnASingleLine" : "true",
+            \ "AlwaysBreakTemplateDeclarations" : "true",
+            \ "Standard" : "C++11",
+            \ "BreakBeforeBraces" : "Stroustrup"}
+
+" -------------------------------------------------------
+" vim-stargate
+" -------------------------------------------------------
+if has('win32') || has('win64')
+    " インクルードディレクトリのパスを設定
+    let g:stargate#include_paths = {
+                \	"cpp" : [
+                \		"F:/local/Lua/include",
+                \       "F:/local/lib/boost/include/boost-1_55",
+                \       "F:/local/lib/gmock-1.7.0/include",
+                \       "F:/local/lib/gtest-1.7.0/include",
+                \       "F:/local/lib/igloo-igloo.1.1.1",
+                \       "F:/local/lib/opencv/build/include",
+                \       "F:/local/lib/SDL2-2.0.1/include",
+                \       "F:/local/lib/wtl81_12085/Include"
+                \	]
+                \}
+else
+    let g:stargate#include_paths = {
+                \	"cpp" : filter(
+                \		split(glob('/usr/include/c++/*'), '\n') +
+                \		split(glob('/usr/include/*/c++/*'), '\n') +
+                \		split(glob('/usr/include/*/'), '\n'),
+                \		'isdirectory(v:val)')
+                \}
+endif
 
 " -------------------------------------------------------
 " OmniSharp
 " -------------------------------------------------------
-let s:bundle = neobundle#get("Omnisharp")
-function! s:bundle.hooks.on_source(bundle)
+autocmd FileType cs call s:csharp_settings()
+function! s:csharp_settings()
     let g:neocomplete#force_overwrite_completefunc = 1
 
     if !exists('g:neocomplete#force_omni_input_patterns')
-      let g:neocomplete#force_omni_input_patterns = {}
+        let g:neocomplete#force_omni_input_patterns = {}
     endif
     let g:neocomplete#force_omni_input_patterns.cs = '.*'
 
@@ -761,10 +797,10 @@ function! s:bundle.hooks.on_source(bundle)
     nnoremap <leader>ss :OmniSharpStartServer<cr>
     nnoremap <leader>sp :OmniSharpStopServer<cr>
     nnoremap <leader>th :OmniSharpHighlightTypes<cr>
+
     "Don't ask to save when changing buffers (i.e. when jumping to a type definition)
     set hidden
 endfunction
-unlet s:bundle
 
 " -------------------------------------------------------
 " jedi.vim
@@ -832,7 +868,7 @@ let g:quickrun_config = {
             \     "hook/quickfix_replate_tempname_to_bufnr/priority_exit" : -10,
             \     "outputter/buffer/split": "botright",
             \ },
-\ }
+            \ }
 
 let s:clangcpp_cmdopt = '--std=c++11'
 if has('unix') || has('macunix')

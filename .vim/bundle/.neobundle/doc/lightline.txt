@@ -4,7 +4,7 @@ Version: 0.0
 Author: itchyny (https://github.com/itchyny)
 License: MIT License
 Repository: https://github.com/itchyny/lightline.vim
-Last Change: 2013/09/12 12:55:19.
+Last Change: 2014/01/27 08:47:37.
 
 CONTENTS					*lightline-contents*
 
@@ -14,6 +14,7 @@ Option					|lightline-option|
 Font					|lightline-font|
 Function				|lightline-function|
 Component Expansion			|lightline-component-expansion|
+Colorscheme				|lightline-colorscheme|
 Examples				|lightline-examples|
 Nice Examples				|lightline-nice-examples|
 Powerful Example			|lightline-powerful-example|
@@ -157,6 +158,11 @@ OPTIONS						*lightline-option*
 				[[ left ], [ middle ], [ right ]]
 		The component in this dictionary has priority over
 		|g:lightline.component| and |g:lightline.component_function|.
+		Note that the return string is appended to the statusline
+		string without any conversion. So you should replace all the
+		% signs with %%. Otherwise, lightline will be disabled in case
+		the text has a % sign.
+		(example: return substitute(text, '%', '%%', 'g')).
 		See |lightline-component-expansion| for more detail.
 >
 		let g:lightline.component_expand = {
@@ -190,8 +196,8 @@ OPTIONS						*lightline-option*
 	g:lightline.colorscheme			*g:lightline.colorscheme*
 		The colorscheme for lightline.vim.
 		Currently, wombat, solarized, powerline, jellybeans, Tomorrow,
-		Tomorrow_Night, Tomorrow_Night_Blue, Tomorrow_Night_Eighties
-		and landscape are available.
+		Tomorrow_Night, Tomorrow_Night_Blue, Tomorrow_Night_Eighties,
+		landscape and 16color are available.
 		The default value is:
 >
 		let g:lightline.colorscheme = 'default'
@@ -231,12 +237,20 @@ OPTIONS						*lightline-option*
 		let g:lightline.separator = { 'left': '', 'right': '' }
 		let g:lightline.subseparator = { 'left': '|', 'right': '|' }
 <
+	g:lightline.tabline_separator			*g:lightline.tabline_separator*
+	g:lightline.tabline_subseparator		*g:lightline.tabline_subseparator*
+		Dictionaries to store separators for the tabline.
+		The default value is
+>
+		let g:lightline.tabline_separator = g:lightline.separator
+		let g:lightline.tabline_subseparator = g:lightline.subseparator
+<
 	g:lightline.enable			*g:lightline.enable*
 		A dictionary to specify which feature is turned on.
 		The default value is
 >
 		let g:lightline.enable = {
-		    \ 'statusline': 1
+		    \ 'statusline': 1,
 		    \ 'tabline': 1
 		    \ }
 <
@@ -332,6 +346,15 @@ Exposed functions for lightline.vim.
 	lightline#update_once()			*lightline#update_once()*
 		Updates the statuslines only once.
 
+	lightline#enable()			*lightline#enable()*
+		Enables |lightline|.
+
+	lightline#disable()			*lightline#disable()*
+		Disables |lightline|.
+
+	lightline#toggle()			*lightline#toggle()*
+		Toggles |lightline|.
+
 	lightline#link([mode])			*lightline#link()*
 		Creates links of the highlight groups for the active window.
 		This function accepts an optional argument. It should be one
@@ -354,6 +377,8 @@ Exposed functions for lightline.vim.
 		then the left sub-separator is used. Otherwise, the right
 		sub-separator is used.
 
+	lightline#palette()			*lightline#palette()*
+		Returns the palette data.
 
 ==============================================================================
 COMPONENT EXPANSION				*lightline-component-expansion*
@@ -425,11 +450,11 @@ the example A.
 	      \                          [ 'fileformat', 'fileencoding', 'filetype' ] ]
 <
 The colors are ([fgcolor, bgcolor):
+>
 	(0) [ 'lineinfo', 'syntastic' ]                   ---  s:p.normal.right[0] = ['gray5', 'gray10']
 	(1) [ 'percent' ]                                 ---  s:p.normal.right[1] = ['gray9', 'gray4']
 	(2) [ 'fileformat', 'fileencoding', 'filetype' ]  ---  s:p.normal.right[2] = ['gray8', 'gray2']
-
-
+<
 Recall the example B.
 >
 	" Example B
@@ -492,6 +517,99 @@ In summary, when a function in |g:lightline.component_expand| returns an
 array of three elements, the first element and the last element remains as a
 part of existing component group. And the middle element goes up to new
 component group.
+------------------------------------------------------------------------------
+COLORSCHEME					*lightline-colorscheme*
+You can configure the colorscheme of lightline. For example,
+>
+	let g:lightline = {
+		\ 'colorscheme': 'wombat',
+		\ }
+<
+The colorscheme files are found in the directory
+
+	lightline.vim/autoload/lightline/colorscheme/
+
+In each file, one global variable is defined. For example, in the landscape.vim
+file, you see
+>
+	let g:lightline#colorscheme#landscape#palette = s:p
+<
+In the file, the colors for the landscape colorscheme are defined. For example,
+>
+	let s:p.normal.left = [ ['#0000ff', '#ffffff', 21, 231, 'bold' ], [ '#ffffff', '#0000ff', 231, 21 ] ]
+<
+defines the colors for the components on the left hand side, in normal mode.
+>
+	let s:p.tabline.tabsel = [ [ '#dadada', '#121212', 253, 233 ] ]
+<
+defines the colors for the selected tab in tabline. In general, each palette
+follows the following style:
+>
+	let s:p.{mode}.{where} = [ [ {guifg}, {guibg}, {cuifg}, {cuibg} ], ... ]
+<
+
+
+Now, you can create your own colorscheme for lightline. Create a
+yourcolorscheme.vim at
+
+	{one of the paths in &rtp}/autoload/lightline/colorscheme/yourcolorscheme.vim
+
+The following code gives the minimal palette definition for lightline.
+>
+	let s:p = {'normal': {}}
+	let s:p.normal.left = [ [ ... ] ]
+	let s:p.normal.right = [ [ ... ] ]
+	let s:p.normal.middle = [ [ ... ] ]
+	let g:lightline#colorscheme#yourcolorscheme#palette = s:p
+<
+And if you add the colorscheme configuration to your .vimrc(_vimrc),
+>
+	let g:lightline = {
+		\ 'colorscheme': 'yourcolorscheme',
+		\ }
+<
+you find it possible to change the lightline colors as you wish.
+
+Moreover, if you want to change the colors based on the mode of vim, write
+something like this:
+>
+	let s:p.insert.left = [ [ ... ] ]
+	let s:p.insert.right = [ [ ... ] ]
+	let s:p.replace.left = [ [ ... ] ]
+	let s:p.replace.right = [ [ ... ] ]
+	...
+	...
+<
+For expanded components, you are recommended to define the following two
+colors.
+>
+	let s:p.normal.error = [ [ ... ] ]
+	let s:p.normal.warning = [ [ ... ] ]
+<
+For the complete list of components the color of which you should define in
+your colorscheme, see the colorscheme files in lightline.
+
+It is sometimes painful to write all the colors for both gui and cui.
+Actually, lightline has some useful functions for writing colorschemes. For
+example, see
+	lightline.vim/autoload/lightline/colorscheme/Tomorrow_Night.vim
+this colorscheme is defined using only gui color numbers. And convert to the
+normal colorscheme form using:
+>
+	let g:lightline#colorscheme#Tomorrow_Night#palette = lightline#colorscheme#fill(s:p)
+<
+This function fills the cui colors for a palette which has only gui colors, or
+vice varsa. However, note that using the convenient function sources an
+additional Vim script file (autoload/lightline/colorscheme.vim), which causes
+a little slow down. If you want to avoid this situation, write all the colors
+as done in autoload/lightline/colorscheme/landscape.vim; firstly create the
+colorscheme using the fill function, and see the result, in a sense, the
+compiled version of your colorscheme.
+>
+	echo g:lightline#colorscheme#yourcolorscheme#palette 
+<
+Then copy and paste the result to the colorscheme file.
+
 ==============================================================================
 
 EXAMPLES					*lightline-examples*
@@ -692,15 +810,15 @@ For users who uses lots of plugins:
 	endfunction
 	
 	function! MyFileformat()
-	  return winwidth('.') > 70 ? &fileformat : ''
+	  return winwidth(0) > 70 ? &fileformat : ''
 	endfunction
 	
 	function! MyFiletype()
-	  return winwidth('.') > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
+	  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
 	endfunction
 	
 	function! MyFileencoding()
-	  return winwidth('.') > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
+	  return winwidth(0) > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
 	endfunction
 	
 	function! MyMode()
@@ -713,7 +831,7 @@ For users who uses lots of plugins:
 	        \ &ft == 'unite' ? 'Unite' :
 	        \ &ft == 'vimfiler' ? 'VimFiler' :
 	        \ &ft == 'vimshell' ? 'VimShell' :
-	        \ winwidth('.') > 60 ? lightline#mode() : ''
+	        \ winwidth(0) > 60 ? lightline#mode() : ''
 	endfunction
 	
 	function! CtrlPMark()
@@ -802,9 +920,24 @@ Problem 11:				|lightline-problem-11|
 	Cool statusline disappears in |CtrlP|, |Tagbar| buffers.
 
 Problem 12:				|lightline-problem-12|
-	How to change the lightline colorscheme on the fly.
+	How to make the plus sign red like |powerline|?
 
 Problem 13:				|lightline-problem-13|
+	How to change the lightline colorscheme on the fly.
+
+Problem 14:				|lightline-problem-14|
+	The 'E541' warning appears on the right hand side.
+	Many components disable the statusline of lightline.
+
+Problem 15:				|lightline-problem-15|
+	Do not deal with the tabline.
+	Do not use the fancy separators in the tabline.
+
+Problem 16:				|lightline-problem-16|
+	When changed the component to a function component to an expanding
+	component, the statusline of lightline is sometimes disabled.
+
+Problem 17:				|lightline-problem-17|
 	Found a bug of this plugin.
 	Got many errors while using this plugin.
 	Vim hangs while using this plugin.
@@ -1008,6 +1141,30 @@ Problem 11:					*lightline-problem-11*
 		these plugins.
 
 Problem 12:					*lightline-problem-12*
+	How to make the plus sign red like |powerline|?
+
+		Use the following setings.
+>
+		let g:lightline = {
+		      \ 'component': {
+		      \   'modified': '%#ModifiedColor#%{MyModified()}',
+		      \ }
+		      \ }
+		function! MyModified()
+		  let map = { 'V': 'n', "\<C-v>": 'n', 's': 'n', 'v': 'n', "\<C-s>": 'n', 'c': 'n', 'R': 'n'}
+		  let mode = get(map, mode()[0], mode()[0])
+		  let bgcolor = {'n': [240, '#585858'], 'i': [31, '#0087af']}
+		  let color = get(bgcolor, mode, bgcolor.n)
+		  exe printf('hi ModifiedColor ctermfg=196 ctermbg=%d guifg=#ff0000 guibg=%s term=bold cterm=bold',
+			\ color[0], color[1])
+		  return &modified ? '+' : &modifiable ? '' : '-'
+		endfunction
+<
+		It's surely complicated. There's no easy API to do a thing
+		like this. But it means that your request does not match
+		the spirit of lightline.
+
+Problem 13:					*lightline-problem-13*
 	How to change the lightline colorscheme on the fly.
 
 		Add the following settings to your .vimrc(_vimrc).
@@ -1033,7 +1190,56 @@ Problem 12:					*lightline-problem-12*
 		  endtry
 		endfunction
 <
-Problem 13:					*lightline-problem-13*
+Problem 14:					*lightline-problem-14*
+	The 'E541' warning appears on the right hand side.
+	Many components disable the statusline of lightline.
+		
+		The number of items in statusline/tabline is limited to 80
+		(see |E541|). You cannot register too much components.
+
+Problem 15:					*lightline-problem-15*
+	Do not deal with the tabline.
+	Do not use the fancy separators in the tabline.
+
+		You can disable the tabline feature of lightline.vim using:
+>
+		let g:lightline = {
+			\ 'enable': { 'tabline': 0 },
+			\ }
+<
+		If you don't like the separators in the tabline, use:
+>
+		let g:lightline = {
+			\ 'tabline_separator': { 'left': "", 'right': "" },
+			\ 'tabline_subseparator': { 'left': "", 'right': "" },
+			\ }
+<
+Problem 16:					*lightline-problem-16*
+	When changed the component to a function component to an expanding
+	component, the statusline of lightline is sometimes disabled.
+
+		When you changed from
+>
+			\ 'component_function': {
+			\   'my': 'My',
+			\ }
+<
+		to
+>
+			\ 'component_expand': {
+			\   'my': 'My',
+			\ }
+<
+		the statusline of lightline is disabled unexpectedly.
+		In such a case, the text returned by 'My' function may include
+		the '%' character. Replace all the '%' signs with '%%'.
+>
+		function My()
+		  ...
+		  return substitute(text, '%', '%%', 'g')
+		endfunction
+<
+Problem 17:					*lightline-problem-17*
 	Found a bug of this plugin.
 	Got many errors while using this plugin.
 	Vim hangs while using this plugin.

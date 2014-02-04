@@ -38,10 +38,12 @@ unite.vim
 vcscommand
 vim-alignta
 vim-altr
+vim-clang-format
 vim-coffee-script
 vim-css-color
 vim-css3-syntax
 vim-easymotion
+vim-expand-region
 vim-fugitive
 vim-hier
 vim-indent-guides
@@ -50,11 +52,14 @@ vim-jquery
 vim-jsdoc
 vim-less
 vim-makegreen
+vim-marching
 vim-ps1
 vim-quickrun
+vim-reunions
 vim-rooter
 vim-seek
 vim-smartinput
+vim-stargate
 vim-surround
 vim-textmanip
 vimfiler

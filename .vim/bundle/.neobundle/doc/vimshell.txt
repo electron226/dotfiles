@@ -1,6 +1,6 @@
 *vimshell.txt*	Powerful shell implemented by Vim script
 
-Version: 10.0
+Version: 11.1
 Author : Shougo <Shougo.Matsu@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -232,8 +232,8 @@ g:vimshell_no_default_keymappings
 		key mappings, so it is for hackers who have understood the
 		inner behaviors, and not recommended for newbies.
 
-g:vimshell_use_terminal_command
 					*g:vimshell_use_terminal_command*
+g:vimshell_use_terminal_command
 		When executes |vimshell-internal-shell|, this option set
 		terminal program execute shell.
 		"ckw -e" in Windows, "gnome-terminal -e" in Linux,
@@ -241,11 +241,14 @@ g:vimshell_use_terminal_command
 		
 		Initial value is an empty string.
 
-g:vimshell_temporary_directory		*g:vimshell_temporary_directory*
-		Sets a temporary directory used by vimshell.  And history file
-		is saved in this directory.
+g:vimshell_data_directory		*g:vimshell_data_directory*
+		Specify directories to store vimshell configurations.  And
+		history file is saved in this directory.
 
-		Initial value is "expand('~/.vimshell')".
+		Initial value is "expand('~/.cache/vimshell')".
+
+g:vimshell_temporary_directory		*g:vimshell_temporary_directory*
+		Note: It is deprecated name.
 
 g:vimshell_max_command_history		*g:vimshell_max_command_history*
 		Maximum number of entries in history.
@@ -270,8 +273,8 @@ g:vimshell_escape_colors			*g:vimshell_escape_colors*
 
 		Initial value is written in plugin/vimshell.vim.
 
-g:vimshell_disable_escape_highlight
 					*g:vimshell_disable_escape_highlight*
+g:vimshell_disable_escape_highlight
 		This value controls whether vimshell highlights escape
 		sequences.  Disabling this function make vimshell faster
 		because processing this is hard task.
@@ -341,8 +344,8 @@ g:vimshell_cd_command				*g:vimshell_cd_command*
 
 		Default value is "lcd".
 
-g:vimshell_no_save_history_commands
 					*g:vimshell_no_save_history_commands*
+g:vimshell_no_save_history_commands
 		This is a dictionary value that has keys of the command name
 		that vimshell doesn't save in history.
 
@@ -354,31 +357,44 @@ g:vimshell_scrollback_limit			*g:vimshell_scrollback_limit*
 
 		Default value is 1000.
 
-g:vimshell_enable_transient_user_prompt
 				*g:vimshell_enable_transient_user_prompt*
+g:vimshell_enable_transient_user_prompt
 		If it is non-zero, vimshell will delete user prompt and right
 		prompt line after executing |<Plug>(vimshell_enter)| .
 
 		Default value is 0.
 
-g:vimshell_execute_file_list
+					*g:vimshell_enable_start_insert*
+g:vimshell_enable_start_insert
+		If it is non-zero, vimshell will start in insert mode.
+
+		Default value is 1.
+
+					*g:vimshell_enable_stay_insert*
+g:vimshell_enable_stay_insert
+		If it is non-zero, vimshell will stay in insert mode after
+		the command executed.
+
+		Default value is 1.
+
 					*g:vimshell_execute_file_list*
+g:vimshell_execute_file_list
 		This is a dictionary value that has keys of the extensions
 		and values of command arguments.
 		This is used to define default file execution command.
 
 		Default value is {}.
 
-g:vimshell_interactive_no_save_history_commands
 			*g:vimshell_interactive_no_save_history_commands*
+g:vimshell_interactive_no_save_history_commands
 		This is a dictionary value which key is a command name that
 		won't be save on the history in |vimshell-internal-iexe|.
 		If there does not exist, it will be ignored.
 
 		Default value is {}.
 
-g:vimshell_interactive_update_time
 					*g:vimshell_interactive_update_time*
+g:vimshell_interactive_update_time
 		When |vimshell-internal-iexe| is in Insert mode, this value
 		controls the timing of auto update.
 		|vimshell-internal-iexe| changes 'updatetime' based on this
@@ -386,8 +402,8 @@ g:vimshell_interactive_update_time
 
 		Default value is 500.
 
-g:vimshell_interactive_command_options
 				*g:vimshell_interactive_command_options*
+g:vimshell_interactive_command_options
 		This is a dictionary variable with command name key.  The
 		command |vimshell-internal-iexe| runs take this as its option.
 		This option is used in such situation that you want to use a
@@ -397,8 +413,8 @@ g:vimshell_interactive_command_options
 		Default value is too complicated, so please refer
 		autoload/vimshell/commands/iexe.vim.
 
-g:vimshell_interactive_interpreter_commands
 				*g:vimshell_interactive_interpreter_commands*
+g:vimshell_interactive_interpreter_commands
 		This is a dictionary variable with filetype key and it is
 		assignments of an interpreter name without arguments of
 		|:VimShellInteractive|.
@@ -406,8 +422,8 @@ g:vimshell_interactive_interpreter_commands
 		Default value is too complicated, so please refer
 		autoload/vimshell/commands/iexe.vim.
 
-g:vimshell_interactive_encodings
 					*g:vimshell_interactive_encodings*
+g:vimshell_interactive_encodings
 		This is a dictionary variable with command name key and it is
 		assignments of an encoding for the command which vimshell
 		runs.
@@ -417,8 +433,8 @@ g:vimshell_interactive_encodings
 		Default value is complicated, so please refer
 		autoload/vimshell/plugin/vimshell.vim.
 
-g:vimshell_interactive_echoback_commands
 				*g:vimshell_interactive_echoback_commands*
+g:vimshell_interactive_echoback_commands
 		This is a dictionary variable with interpreter name key, and
 		if the value is 1, iexe doesn't echoback when
 		|vimshell-internal-iexe| is running, and otherwise
@@ -446,8 +462,8 @@ g:vimshell_terminal_commands			*g:vimshell_terminal_commands*
 		Default value is complicated, so please refer
 		autoload/vimshell/commands/iexe.vim.
 
-g:vimshell_interactive_cygwin_commands
 				*g:vimshell_interactive_cygwin_commands*
+g:vimshell_interactive_cygwin_commands
 		This is a dictionary variable with command name key, and the
 		value is an assignment of commands which runs via fakecygpty.
 		It is used when you launch some application that works only on
@@ -459,8 +475,8 @@ g:vimshell_interactive_cygwin_commands
 		Default value is complicated, so please refer
 		autoload/vimshell/commands/iexe.vim.
 
-g:vimshell_interactive_cygwin_path
 					*g:vimshell_interactive_cygwin_path*
+g:vimshell_interactive_cygwin_path
 		It is assigned to the pass vimshell refers when launching
 		programs via fakecygpty.
 		If the first argument of |vimshell-internal-iexe| is
@@ -470,15 +486,15 @@ g:vimshell_interactive_cygwin_path
 
 		Default value is 'c:/cygwin/bin'.
 
-g:vimshell_interactive_cygwin_home
 					*g:vimshell_interactive_cygwin_home*
+g:vimshell_interactive_cygwin_home
 		It is assigned to $HOME of the program launched via
 		fakecygpty.  Leavin '' means to use current $HOME.
 
 		Default value is ''.
 
-g:vimshell_interactive_monochrome_commands
 				*g:vimshell_interactive_monochrome_commands*
+g:vimshell_interactive_monochrome_commands
 		This is a dictionary variable with command name key, and the
 		value is an assignment of commands which you want to disable
 		highlighting.
@@ -486,7 +502,8 @@ g:vimshell_interactive_monochrome_commands
 		Default value is complicated, so please refer
 		autoload/vimshell/commands/iexe.vim.
 
-g:unite_source_vimshell_external_history_path	*g:unite_source_vimshell_external_history_path*
+				*g:unite_source_vimshell_external_history_path*
+g:unite_source_vimshell_external_history_path
 		It is assignment of a history file that
 		|vimshell/external_history| source recognizes.
 
@@ -514,22 +531,22 @@ Normal mode key mappings.
 <Plug>(vimshell_enter)				*<Plug>(vimshell_enter)*
 		Execute command line.
 
-<Plug>(vimshell_previous_prompt)
 					*<Plug>(vimshell_previous_prompt)*
+<Plug>(vimshell_previous_prompt)
 		Move to previous prompt from cursor.
 
 <Plug>(vimshell_next_prompt)			*<Plug>(vimshell_next_prompt)*
 		Move to next prompt from cursor.
 
-<Plug>(vimshell_delete_previous_output)
 				*<Plug>(vimshell_delete_previous_output)*
+<Plug>(vimshell_delete_previous_output)
 		Delete previous output form cursor.
 
 <Plug>(vimshell_paste_prompt)		*<Plug>(vimshell_paste_prompt)*
 		Paste cursor line to last prompt.
 
-<Plug>(vimshell_move_end_argument)
 					*<Plug>(vimshell_move_end_argument)*
+<Plug>(vimshell_move_end_argument)
 		Move to command end argument.
 
 <Plug>(vimshell_hide)				*<Plug>(vimshell_hide)*
@@ -548,12 +565,14 @@ Normal mode key mappings.
 		Terminate command.
 
 <Plug>(vimshell_insert_head)			*<Plug>(vimshell_insert_head)*
-<Plug>(vimshell_insert_enter)
 					*<Plug>(vimshell_insert_enter)*
-<Plug>(vimshell_append_enter)
+<Plug>(vimshell_insert_enter)
 					*<Plug>(vimshell_append_enter)*
+<Plug>(vimshell_append_enter)
 <Plug>(vimshell_append_end)			*<Plug>(vimshell_append_end)*
 		Enter insert mode.
+		Note: If your cursor is on previous prompt, vimshell will copy
+		the prompt automatically.
 
 <Plug>(vimshell_clear)				*<Plug>(vimshell_clear)*
 		Redraw vimshell buffer.
@@ -561,23 +580,23 @@ Normal mode key mappings.
 <Plug>(vimshell_move_head)			*<Plug>(vimshell_move_head)*
 		Move to head.
 
-<Plug>(vimshell_execute_by_background)
 				*<Plug>(vimshell_execute_by_background)*
+<Plug>(vimshell_execute_by_background)
 		Execute command by iexe.
 
 Visual mode key mappings.
-<Plug>(vimshell_select_previous_prompt)
 				*v_<Plug>(vimshell_select_previous_prompt)*
+<Plug>(vimshell_select_previous_prompt)
 		Select previous prompt from cursor.
 
-<Plug>(vimshell_select_next_prompt)
 				*v_<Plug>(vimshell_select_next_prompt)*
+<Plug>(vimshell_select_next_prompt)
 		Select next prompt from cursor.
 
 Insert mode key mappings.
 
-<Plug>(vimshell_command_complete)
 					*i_<Plug>(vimshell_command_complete)*
+<Plug>(vimshell_command_complete)
 		Start completion.
 
 <Plug>(vimshell_zsh_complete)		*i_<Plug>(vimshell_zsh_complete)*
@@ -586,26 +605,23 @@ Insert mode key mappings.
 		https://github.com/Shougo/unite.vim
 		Note: It does not work in Windows!
 
-<Plug>(vimshell_push_current_line)
 					*i_<Plug>(vimshell_push_current_line)*
+<Plug>(vimshell_push_current_line)
 		Push current line command to command line stack.
 
-<Plug>(vimshell_insert_last_word)
 					*i_<Plug>(vimshell_insert_last_word)*
+<Plug>(vimshell_insert_last_word)
 		Insert command last word.
-
-<Plug>(vimshell_run_help)			*i_<Plug>(vimshell_run_help)*
-		View internal command help.
 
 <Plug>(vimshell_move_head)			*i_<Plug>(vimshell_move_head)*
 		Move to line head.
 
-<Plug>(vimshell_delete_backward_line)
 				*i_<Plug>(vimshell_delete_backward_line)*
+<Plug>(vimshell_delete_backward_line)
 		Delete backward line from cursor.
 
-<Plug>(vimshell_delete_backward_word)
 				*i_<Plug>(vimshell_delete_backward_word)*
+<Plug>(vimshell_delete_backward_word)
 		Delete backward word from cursor.
 
 <Plug>(vimshell_enter)				*i_<Plug>(vimshell_enter)*
@@ -614,25 +630,25 @@ Insert mode key mappings.
 <Plug>(vimshell_interrupt)			*i_<Plug>(vimshell_interrupt)*
 		Send interrupt.
 
-<Plug>(vimshell_move_previous_window)
 				*i_<Plug>(vimshell_move_previous_window)*
+<Plug>(vimshell_move_previous_window)
 		Move to previous window.
 
-<Plug>(vimshell_delete_backward_char)
 				*i_<Plug>(vimshell_delete_backward_char)*
-<Plug>(vimshell_another_delete_backward_char)
+<Plug>(vimshell_delete_backward_char)
 			*i_<Plug>(vimshell_another_delete_backward_char)*
+<Plug>(vimshell_another_delete_backward_char)
 		Delete backward char from cursor.
 
-<Plug>(vimshell_delete_forward_line)
 				*i_<Plug>(vimshell_delete_forward_line)*
+<Plug>(vimshell_delete_forward_line)
 		Delete forward line from cursor.
 
 <Plug>(vimshell_clear)				*i_<Plug>(vimshell_clear)*
 		Redraw vimshell buffer.
 
-<Plug>(vimshell_execute_by_background)
 				*i_<Plug>(vimshell_execute_by_background)*
+<Plug>(vimshell_execute_by_background)
 		Execute command by iexe.
 
 <Plug>(vimshell_hide)				*i_<Plug>(vimshell_hide)*
@@ -645,6 +661,7 @@ Insert mode key mappings.
 		Execute vimshell history by unite interface.
 		Note: To use it, you must install |unite.vim| plugin.
 
+				*i_<Plug>(vimshell_history_neocomplete)*
 <Plug>(vimshell_history_neocomplete)
 		Execute vimshell history by neocomplete interface.
 		Note: To use it, you must install |neocomplete| plugin.
@@ -699,20 +716,20 @@ VIMSHELL INTERACTIVE BUFFER KEY MAPPINGS
 
 Normal mode key mappings.
 
-<Plug>(vimshell_int_execute_line)
 					*<Plug>(vimshell_int_execute_line)*
+<Plug>(vimshell_int_execute_line)
 		Execute cursor line.
 
-<Plug>(vimshell_int_previous_prompt)
 					*<Plug>(vimshell_int_previous_prompt)*
+<Plug>(vimshell_int_previous_prompt)
 		Move to previous prompt from cursor.
 
-<Plug>(vimshell_int_next_prompt)
 					*<Plug>(vimshell_int_next_prompt)*
+<Plug>(vimshell_int_next_prompt)
 		Move to next prompt from cursor.
 
-<Plug>(vimshell_int_paste_prompt)
 					*<Plug>(vimshell_int_paste_prompt)*
+<Plug>(vimshell_int_paste_prompt)
 		Paste cursor line to last prompt.
 
 <Plug>(vimshell_int_hangup)			*<Plug>(vimshell_int_hangup)*
@@ -721,26 +738,26 @@ Normal mode key mappings.
 <Plug>(vimshell_int_exit)			*<Plug>(vimshell_int_exit)*
 		Exit interactive buffer.
 
-<Plug>(vimshell_int_restart_command)
 					*<Plug>(vimshell_int_restart_command)*
+<Plug>(vimshell_int_restart_command)
 		Restart command.
 
-<Plug>(vimshell_int_change_line)
 					*<Plug>(vimshell_int_change_line)*
+<Plug>(vimshell_int_change_line)
 		Change whole line.
 
-<Plug>(vimshell_int_delete_line)
 					*<Plug>(vimshell_int_delete_line)*
+<Plug>(vimshell_int_delete_line)
 		Delete whole line.
 
-<Plug>(vimshell_int_insert_enter)
 					*<Plug>(vimshell_int_insert_enter)*
-<Plug>(vimshell_int_insert_head)
+<Plug>(vimshell_int_insert_enter)
 					*<Plug>(vimshell_int_insert_head)*
-<Plug>(vimshell_int_append_enter)
+<Plug>(vimshell_int_insert_head)
 					*<Plug>(vimshell_int_append_enter)*
-<Plug>(vimshell_int_append_end)
+<Plug>(vimshell_int_append_enter)
 					*<Plug>(vimshell_int_append_end)*
+<Plug>(vimshell_int_append_end)
 		Enter insert mode.
 
 <Plug>(vimshell_int_clear)			*<Plug>(vimshell_int_clear)*
@@ -748,45 +765,45 @@ Normal mode key mappings.
 
 Insert mode key mappings.
 
-<Plug>(vimshell_int_move_head)
 					*i_<Plug>(vimshell_int_move_head)*
+<Plug>(vimshell_int_move_head)
 		Move to line head.
 
-<Plug>(vimshell_int_delete_backward_line)
 				*i_<Plug>(vimshell_int_delete_backward_line)*
+<Plug>(vimshell_int_delete_backward_line)
 		Delete backward line from cursor.
 
-<Plug>(vimshell_int_delete_backward_word)
 				*i_<Plug>(vimshell_int_delete_backward_word)*
+<Plug>(vimshell_int_delete_backward_word)
 		Delete backward word from cursor.
 
-<Plug>(vimshell_int_execute_line)
 					*i_<Plug>(vimshell_int_execute_line)*
+<Plug>(vimshell_int_execute_line)
 		Execute current line.
 
-<Plug>(vimshell_int_delete_backward_char)
 				*i_<Plug>(vimshell_int_delete_backward_char)*
-<Plug>(vimshell_int_another_delete_backward_char)
+<Plug>(vimshell_int_delete_backward_char)
 			*i_<Plug>(vimshell_int_another_delete_backward_char)*
+<Plug>(vimshell_int_another_delete_backward_char)
 		Delete backward character from cursor.
 
-<Plug>(vimshell_int_send_input)
 					*i_<Plug>(vimshell_int_send_input)*
+<Plug>(vimshell_int_send_input)
 		Send user input.
 
-<Plug>(vimshell_int_interrupt)
 					*i_<Plug>(vimshell_int_interrupt)*
+<Plug>(vimshell_int_interrupt)
 		Send interrupt to command.
 
-<Plug>(vimshell_int_command_complete)
 				*i_<Plug>(vimshell_int_command_complete)*
+<Plug>(vimshell_int_command_complete)
 		Start completion.
 
-<Plug>(vimshell_int_delete_forward_line)
 				*i_<Plug>(vimshell_int_delete_forward_line)*
+<Plug>(vimshell_int_delete_forward_line)
 		Delete forward line from cursor.
-<Plug>(vimshell_int_history_unite)
 				*i_<Plug>(vimshell_int_history_unite)*
+<Plug>(vimshell_int_history_unite)
 		Execute vimshell history by unite interface.
 		Note: To use it, you must install |unite.vim| plugin.
 
@@ -861,13 +878,13 @@ vimshell#hook#set({hook-point}, {func-list})		*vimshell#hook#set()*
 vimshell#hook#get({hook-point})				*vimshell#hook#get()*
 		Returns {hook-point} hook as dictionary.
 
-vimshell#hook#add({hook-point}, {hook-name}, {func})
 							*vimshell#hook#add()*
+vimshell#hook#add({hook-point}, {hook-name}, {func})
 		Adds {hook-name} hook {func} in {hook-point}.  If {hook-name}
 		already exists, overwrite it.
 
-vimshell#hook#remove({hook-point}, {hook-name})
 						*vimshell#hook#remove()*
+vimshell#hook#remove({hook-point}, {hook-name})
 		Deletes {hook-name} function in {hook-point}.
 
 ------------------------------------------------------------------------------
@@ -938,12 +955,17 @@ OPTIONS 					*vimshell-options*
 		-project
 		Move to project directory.
 
+						*vimshell-options-quit*
+		-quit
+		Quit buffer after command finished.
+		If |vimshell-options-popup| is enabled, switch to previous
+		window.
+
 ==============================================================================
 EXAMPLES						*vimshell-examples*
 >
 	let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
 	"let g:vimshell_right_prompt = 'vcs#info("(%s)-[%b]", "(%s)-[%b|%a]")'
-	let g:vimshell_enable_smart_case = 1
 	
 	if has('win32') || has('win64')
 	  " Display user name on Windows.
@@ -1044,6 +1066,12 @@ echo [{argument}...]				*vimshell-internal-echo*
 
 eval {expression}				*vimshell-internal-eval*
 		Eval {expression} as vimshell script and print it.
+
+						*vimshell-internal-export*
+export [{variable-name}={value} , ...]
+		Change {variable-name} environment variable to {value}.
+		If the arguments is empty, print current environment variables.
+		You can use this command like other shells.
 
 exe [{option}...] {command} 			*vimshell-internal-exe*
 		Execute {command} with arguments.  Execute the external command
@@ -1582,6 +1610,10 @@ Note: |neocomplete| is required.
 >
 	imap <buffer><C-g> <Plug>(vimshell_history_neocomplete)
 <
+Q: vimshell does not use escape sequence color.
+
+A: To use escape sequence, you must enable |+conceal| feature. It is only Vim
+7.3 or above.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:isk+=-:

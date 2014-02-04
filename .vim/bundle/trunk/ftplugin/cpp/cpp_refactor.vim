@@ -5,7 +5,7 @@
 " 		<URL:http://code.google.com/p/lh-vim/>
 " Version:	1.0.0
 " Created:	10th Feb 2005
-" Last Update:	$Date: 2011-08-24 02:34:53 +0900 (水, 24 8 2011) $ (10th Feb 2005)
+" Last Update:	$Date: 2011-08-24 02:34:53 +0900 (2011/08/24 (水)) $ (10th Feb 2005)
 "------------------------------------------------------------------------
 " Description:	Some refactoring oriented mappings and commands
 " 

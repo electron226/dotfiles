@@ -66,6 +66,7 @@ NeoBundle 'tpope/vim-surround'
 NeoBundle 'YankRing.vim'
 NeoBundle 'sjl/gundo.vim'
 NeoBundle 'AndrewRadev/switch.vim'
+NeoBundle 'terryma/vim-expand-region'
 
 " Vim Action
 NeoBundle "Lokaltog/vim-easymotion"
@@ -122,13 +123,24 @@ NeoBundleLazy "http://lh-vim.googlecode.com/svn/refactor/trunk/", {
 
 " C++11
 NeoBundleLazy 'Rip-Rip/clang_complete', {
-            \   'autoload' : {
-            \       'filetypes' : [ 'c', 'cpp' ]
-            \    },
+            \   'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
             \    'depends' : [ "neocomplete" ]
             \ }
 NeoBundleLazy 'vim-jp/cpp-vim', {
 \     'autoload': { "filetypes": [ "c", "cpp" ] }
+\}
+NeoBundleLazy 'rhysd/vim-clang-format', {
+\     'autoload': { "filetypes": [ "c", "cpp", "objc" ] }
+\}
+NeoBundleLazy 'osyo-manga/vim-stargate', {
+\     'autoload': { "filetypes": [ "c", "cpp", "ruby", "python" ] }
+\}
+NeoBundleLazy 'osyo-manga/vim-reunions', {
+\     'autoload': { "filetypes": [ "c", "cpp" ] }
+\}
+NeoBundleLazy 'osyo-manga/vim-marching', {
+\     'autoload': { "filetypes": [ "c", "cpp" ] },
+\     'depends' : [ "vim-reunions" ]
 \}
 
 " C#
@@ -256,7 +268,7 @@ NeoBundleLazy 'PProvost/vim-ps1', {
 
 " ...
 
-filetype plugin indent on     " required!
+filetype plugin indent on " required!
 "
 " Brief help
 " :NeoBundleList          - list configured bundles

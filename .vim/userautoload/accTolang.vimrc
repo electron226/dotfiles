@@ -1,3 +1,20 @@
+" C++
+"名前空間の入力を簡単にする
+augroup cpp-namespace
+    autocmd!
+    autocmd FileType cpp inoremap <buffer><expr>; <SID>expand_namespace()
+augroup END
+function! s:expand_namespace()
+    let s = getline('.')[0:col('.')-1]
+    if s =~# '\<b;$'
+        return "\<BS>oost::"
+    elseif s =~# '\<s;$'
+        return "\<BS>td::"
+    else
+        return ';'
+    endif
+endfunction
+
 " NASM
 au BufRead,BufNewFile *.inc set filetype=nasm
 au BufRead,BufNewFile *.nasm set filetype=nasm

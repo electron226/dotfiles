@@ -1,5 +1,5 @@
 *refactor.txt*          Language independent refactoring helpers (v1.0.0)
-*refactor.vim*          For Vim version 7.x.    Last change: $Date: 2012-04-10 17:25:45 +0900 (火, 10 4 2012) $
+*refactor.vim*          For Vim version 7.x.    Last change: $Date: 2012-04-10 17:25:45 +0900 (2012/04/10 (火)) $
 
                         By Luc Hermitte
                         hermitte {at} free {dot} fr

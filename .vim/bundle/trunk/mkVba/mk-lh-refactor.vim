@@ -1,12 +1,12 @@
 "=============================================================================
-" $Id: mk-lh-refactor.vim 559 2012-04-10 08:25:45Z luc.hermitte $
+" $Id: mk-lh-refactor.vim 775 2014-01-20 18:18:45Z luc.hermitte@gmail.com $
 " File:		mkVba/mk-lh-refactor.vim                            {{{1
 " Author:	Luc Hermitte <EMAIL:hermitte {at} free {dot} fr>
 "		<URL:http://code.google.com/p/lh-vim/>
-" Version:	1.0.0
-let s:version = '1.0.0'
+" Version:	1.2.0
+let s:version = '1.2.0'
 " Created:	06th Nov 2007
-" Last Update:	$Date: 2012-04-10 17:25:45 +0900 (火, 10 4 2012) $
+" Last Update:	$Date: 2014-01-21 03:18:45 +0900 (2014/01/21 (火)) $
 "------------------------------------------------------------------------
 " Description:
 "       vimball archive builder for lh-refactor
@@ -30,6 +30,15 @@ finally
   let &rtp = save_rtp
 endtry
 finish
+autoload/lh/refactor/c.vim
+autoload/lh/refactor/cpp.vim
+autoload/lh/refactor/cs.vim
+autoload/lh/refactor/java.vim
+autoload/lh/refactor/javascript.vim
+autoload/lh/refactor/perl.vim
+autoload/lh/refactor/php.vim
+autoload/lh/refactor/sh.vim
+autoload/lh/refactor/vim.vim
 autoload/lh/refactor.vim
 doc/refactor.txt
 ftplugin/cpp/cpp_refactor.vim
