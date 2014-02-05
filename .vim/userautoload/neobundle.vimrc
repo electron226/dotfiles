@@ -36,6 +36,16 @@ NeoBundleLazy 'Shougo/vimshell', {
     \    'depends' : [ "vimproc" ]
     \ }
 
+" 入力支援
+NeoBundle 'Shougo/neocomplete'
+NeoBundle 'Shougo/neosnippet', { 'depends' : [ "neocomplete" ] }
+NeoBundle 'kana/vim-smartinput'
+NeoBundle 'tpope/vim-surround'
+NeoBundle 'YankRing.vim'
+NeoBundle 'sjl/gundo.vim'
+NeoBundle 'AndrewRadev/switch.vim'
+NeoBundle 'terryma/vim-expand-region'
+
 " Explorer
 NeoBundle 'Shougo/unite.vim'
 "NeoBundle 'Shougo/unite-build', { 'depends' : [ "unite.vim" ] }
@@ -57,16 +67,6 @@ NeoBundle "wincent/Command-T", {
 " Code Explorer
 NeoBundle 'majutsushi/tagbar'
 NeoBundle 'SrcExpl'
-
-" 入力支援
-NeoBundle 'Shougo/neocomplete'
-NeoBundle 'Shougo/neosnippet', { 'depends' : [ "neocomplete" ] }
-NeoBundle 'kana/vim-smartinput'
-NeoBundle 'tpope/vim-surround'
-NeoBundle 'YankRing.vim'
-NeoBundle 'sjl/gundo.vim'
-NeoBundle 'AndrewRadev/switch.vim'
-NeoBundle 'terryma/vim-expand-region'
 
 " Vim Action
 NeoBundle "Lokaltog/vim-easymotion"
@@ -122,7 +122,7 @@ NeoBundleLazy "http://lh-vim.googlecode.com/svn/refactor/trunk/", {
 \}
 
 " C++11
-NeoBundleLazy 'Rip-Rip/clang_complete', {
+NeoBundle 'Rip-Rip/clang_complete', {
             \   'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
             \    'depends' : [ "neocomplete" ]
             \ }
@@ -135,13 +135,13 @@ NeoBundleLazy 'rhysd/vim-clang-format', {
 NeoBundleLazy 'osyo-manga/vim-stargate', {
 \     'autoload': { "filetypes": [ "c", "cpp", "ruby", "python" ] }
 \}
-NeoBundleLazy 'osyo-manga/vim-reunions', {
-\     'autoload': { "filetypes": [ "c", "cpp" ] }
-\}
-NeoBundleLazy 'osyo-manga/vim-marching', {
-\     'autoload': { "filetypes": [ "c", "cpp" ] },
-\     'depends' : [ "vim-reunions" ]
-\}
+"NeoBundleLazy 'osyo-manga/vim-reunions', {
+"\     'autoload': { "filetypes": [ "c", "cpp" ] }
+"\}
+"NeoBundleLazy 'osyo-manga/vim-marching', {
+"\     'autoload': { "filetypes": [ "c", "cpp" ] },
+"\     'depends' : [ "vim-reunions", "neocomplete" ]
+"\}
 
 " C#
 NeoBundleLazy 'nosami/Omnisharp', {
@@ -150,7 +150,8 @@ NeoBundleLazy 'nosami/Omnisharp', {
 \     'windows': 'MSBuild.exe server/OmniSharp.sln /p:Platform="Any CPU"',
 \     'mac': 'xbuild server/OmniSharp.sln',
 \     'unix': 'xbuild server/OmniSharp.sln',
-\   }
+\   },
+\   'depends' : [ "neocomplete" ]
 \ }
 
 " Python
@@ -241,7 +242,6 @@ NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \     'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
 \}
 
-            
 " version management
 NeoBundle 'git://repo.or.cz/vcscommand.git'
 NeoBundle 'tpope/vim-fugitive'
@@ -251,7 +251,7 @@ NeoBundleLazy 'gregsexton/gitv', {
             \           'depends' : [ "vim-fugitive" ]
             \   }
             \ }
-            
+
 " Others
 "NeoBundleLazy 'opencl.vim', {
 "\     'autoload': { "filetypes": [ "opencl" ] }
@@ -262,9 +262,9 @@ NeoBundleLazy 'gregsexton/gitv', {
 NeoBundleLazy 'JSON.vim', {
 \     'autoload': { "filetypes": [ "json" ] }
 \}
-NeoBundleLazy 'PProvost/vim-ps1', {
-\     'autoload': { "filetypes": [ "ps1" ] }
-\}
+"NeoBundleLazy 'PProvost/vim-ps1', {
+"\     'autoload': { "filetypes": [ "ps1" ] }
+"\}
 
 " ...
 
