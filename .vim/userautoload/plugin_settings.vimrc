@@ -14,7 +14,7 @@ if has('win32') || has('win64') || has('win32unix')
         let s:mingw_path = 'f:/local/mingw64'
     endif
     let s:mingw_build_target = 'x86_64-w64-mingw32'
-    let s:mingw_gcc_version = '4.7.0'
+    let s:mingw_gcc_version = '4.8.2'
 
     " Windows
     let s:include_paths_cpp = filter(
@@ -42,9 +42,6 @@ if !isdirectory(expand('$BOOST_ROOT'))
     if has('win32') || has('win64')
         " Windows
         call add(s:include_paths_cpp, expand('f:/local/lib/boost/include/boost-1_55'))
-    elseif has('macunix')
-        " OS X
-        call add(s:include_paths_cpp, expand('/usr/include/boost'))
     else
         " Ubuntu
         call add(s:include_paths_cpp, expand('/usr/include/boost'))
@@ -56,9 +53,10 @@ endif
 " s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
 " be using clang_complete.
 if isdirectory(expand('$LLVM_HOME'))
-    let s:clang_path = expand('$LLVM_HOME/bin/Release')
+    let s:libclang_path = split(globpath('$LLVM_HOME', 'bin/**/libclang.*'), '\n')[0]
+    let s:clang_path = strpart(s:libclang_path, 0, match(s:libclang_path, 'libclang.*') - 1)
 else
-    if has('win32') || has('win64') || has('win32unix')
+    if has('win32') || has('win64')
         " Windows
         let s:clang_path = expand('F:/local/llvm/build/bin/Release')
     else
