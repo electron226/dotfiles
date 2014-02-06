@@ -1,4 +1,80 @@
 " -------------------------------------------------------
+" include paths use omni complements and other scripts.
+" -------------------------------------------------------
+" Define include Paths.
+if !exists('s:include_paths_cpp')
+    let s:include_paths_cpp = []
+endif
+
+if has('win32') || has('win64') || has('win32unix')
+    " mingw settings.
+    if isdirectory(expand('$MINGW_HOME'))
+        let s:mingw_path = expand('$MINGW_HOME')
+    else
+        let s:mingw_path = 'f:/local/mingw64'
+    endif
+    let s:mingw_build_target = 'x86_64-w64-mingw32'
+    let s:mingw_gcc_version = '4.7.0'
+
+    " Windows
+    let s:include_paths_cpp = filter(
+                \ [
+                \   'F:/local/lib/igloo-igloo.1.1.1',
+                \ ] +
+                \ split(glob('f:/local/lib/*/include'), '\n') +
+                \ split(glob(s:mingw_path . '/include/c++/*'), '\n') +
+                \ split(glob(s:mingw_path . '/include/*/c++/*'), '\n') +
+                \ split(glob(s:mingw_path . '/include/*'), '\n') +
+                \ split(glob(s:mingw_path . '/lib/gcc/' . s:mingw_build_target . '/' . s:mingw_gcc_version . '/*'), '\n') +
+                \ split(glob(s:mingw_path . '/' . s:mingw_build_target . '/include/*'), '\n'),
+                \ 'isdirectory(v:val)')
+else
+    " Linux
+    let s:include_paths_cpp = filter(
+                \ split(glob('/include/c++/*'), '\n') +
+                \ split(glob('/include/*/c++/*'), '\n') +
+                \ split(glob('/include/*'), '\n'),
+                \ 'isdirectory(v:val)')
+endif
+
+" Boost Path
+if !isdirectory(expand('$BOOST_ROOT'))
+    if has('win32') || has('win64')
+        " Windows
+        call add(s:include_paths_cpp, expand('f:/local/lib/boost/include/boost-1_55'))
+    elseif has('macunix')
+        " OS X
+        call add(s:include_paths_cpp, expand('/usr/include/boost'))
+    else
+        " Ubuntu
+        call add(s:include_paths_cpp, expand('/usr/include/boost'))
+    endif
+else
+    call add(s:include_paths_cpp, expand('$BOOST_ROOT') . '/include/boost-1_55')
+endif
+
+" s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
+" be using clang_complete.
+if isdirectory(expand('$LLVM_HOME'))
+    let s:clang_path = expand('$LLVM_HOME/bin/Release')
+else
+    if has('win32') || has('win64') || has('win32unix')
+        " Windows
+        let s:clang_path = expand('F:/local/llvm/build/bin/Release')
+    else
+        " OS X | UNIX | Ubuntu
+        let s:clang_path = expand('/usr/local/bin')
+    endif
+endif
+
+if !isdirectory(s:clang_path) ||
+            \ !(filereadable(expand(s:clang_path . '/libclang.dll')) ||
+            \ filereadable(expand(s:clang_path . '/libclang.so'))) ||
+            \ !filereadable(expand(s:clang_path . '/clang.exe'))
+    echo "Can't detect libclang.dll or libclang.so -&gt; " . s:clang_path
+endif
+
+" -------------------------------------------------------
 " Vimproc
 " -------------------------------------------------------
 if has('mac')
@@ -185,64 +261,6 @@ if !exists('g:neocomplete#keyword_patterns')
 endif
 let g:neocomplete#keyword_patterns['default'] = '\h\w*'
 
-" Define include Paths.
-if !exists('s:include_paths_cpp')
-    let s:include_paths_cpp = []
-endif
-
-if has('win32') || has('win64') || has('win32unix')
-    " mingw settings.
-    if isdirectory(expand('$MINGW_HOME'))
-        let s:mingw_path = expand('$MINGW_HOME')
-    else
-        let s:mingw_path = 'f:/local/mingw64'
-    endif
-    let s:mingw_build_target = 'x86_64-w64-mingw32'
-    let s:mingw_gcc_version = '4.7.0'
-
-    " Windows
-    let s:include_paths_cpp = filter(
-                \ [
-                \   'F:/local/lib/igloo-igloo.1.1.1',
-                \ ] +
-                \ split(glob('f:/local/lib/*/include'), '\n') +
-                \ split(glob(s:mingw_path . '/include/c++/*'), '\n') +
-                \ split(glob(s:mingw_path . '/include/*/c++/*'), '\n') +
-                \ split(glob(s:mingw_path . '/include/*'), '\n') +
-                \ split(glob(s:mingw_path . '/lib/gcc/' . s:mingw_build_target . '/' . s:mingw_gcc_version . '/*'), '\n') +
-                \ split(glob(s:mingw_path . '/' . s:mingw_build_target . '/include/*'), '\n'),
-                \ 'isdirectory(v:val)')
-    "                \ expand('C:/Program Files (x86)/AMD APP/include'),
-
-    "                \ expand('C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include'),
-    "                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/shared'),
-    "                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/um'),
-    "                \ expand('C:/Program Files (x86)/Windows Kits/8.1/Include/winrt'),
-else
-    " Linux
-    let s:include_paths_cpp = filter(
-                \ split(glob('/include/c++/*'), '\n') +
-                \ split(glob('/include/*/c++/*'), '\n') +
-                \ split(glob('/include/*'), '\n'),
-                \ 'isdirectory(v:val)')
-endif
-
-" Boost Path
-if !isdirectory(expand('$BOOST_ROOT'))
-    if has('win32') || has('win64')
-        " Windows
-        call add(s:include_paths_cpp, expand('f:/local/lib/boost/include/boost-1_55'))
-    elseif has('macunix')
-        " OS X
-        call add(s:include_paths_cpp, expand('/usr/include/boost'))
-    else
-        " Ubuntu
-        call add(s:include_paths_cpp, expand('/usr/include/boost'))
-    endif
-else
-    call add(s:include_paths_cpp, expand('$BOOST_ROOT') . '/include/boost-1_55')
-endif
-
 " Define include.
 let s:neocomplete_include_paths_cpp = join(s:include_paths_cpp, ',')
 
@@ -385,38 +403,21 @@ let g:clang_complete_auto=0
 let g:clang_use_library=1
 let g:clang_debug=1
 
-" s:clang_path = Path in clang.dll or libclang.so or libclang.dll
-if isdirectory(expand('$LLVM_HOME'))
-    let s:clang_path = expand('$LLVM_HOME/bin')
-else
-    if has('win32') || has('win64') || has('win32unix')
-        " Windows
-        let s:clang_path = expand('F:/local/llvm/build/bin')
-    else
-        " OS X | UNIX | Ubuntu
-        let s:clang_path = expand('/usr/local/bin')
-    endif
-endif
-
-if !isdirectory(s:clang_path) ||
-            \ !(filereadable(expand(s:clang_path . '/libclang.dll')) ||
-            \ filereadable(expand(s:clang_path . '/libclang.so'))) ||
-            \ !filereadable(expand(s:clang_path . '/clang.exe'))
-    echo "Can't detect libclang.dll or libclang.so -&gt; " . s:clang_path
-endif
 let g:clang_library_path = s:clang_path
 let g:clang_exec = expand(s:clang_path . '/clang.exe')
 
 " Build msvc
-"let g:clang_user_options =
-"            \ '"' . s:include_paths_string . '"' .
-"            \ ' 2> NUL || exit 0"'
-" Build mingw64
+" You must compile clang on msvc of 64 bit If you use windows of 64 bit.
 let g:clang_user_options =
             \ '"' . s:include_paths_string . '"' .
-            \ ' -std=c++11 -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
-            \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
-            \ ' -include malloc.h'
+            \ ' -std=c++11' .
+            \ ' 2> NUL || exit 0"'
+" Build mingw32
+"let g:clang_user_options =
+"            \ '"' . s:include_paths_string . '"' .
+"            \ ' -std=c++11 -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
+"            \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
+"            \ ' -include malloc.h'
 
 " -------------------------------------------------------
 " vim-marching
@@ -553,23 +554,19 @@ endfunction
 " jedi.vim
 " https://github.com/davidhalter/jedi-vim
 " -------------------------------------------------------
-let s:jedi = neobundle#get("jedi-vim")
-function! s:jedi.hooks.on_source(bundle)
-    autocmd FileType python call s:jedi_settings()
-    function! s:jedi_settings()
-        autocmd FileType python setlocal omnifunc=jedi#Complete
+autocmd FileType python call s:jedi_settings()
+function! s:jedi_settings()
+    autocmd FileType python setlocal omnifunc=jedi#Complete
 
-        let g:jedi#popup_on_dot = 0
+    let g:jedi#popup_on_dot = 0
 
-        let g:jedi#goto_command = "<leader>jg"
-        let g:jedi#get_definition_command = "<leader>jd"
-        let g:jedi#rename_command = "<leader>jr"
-        let g:jedi#related_names_command = "<leader>jn"
-        let g:jedi#pydoc = "K"
-        let g:jedi#autocompletion_command = "<C-Space>"
-    endfunction
+    let g:jedi#goto_command = "<leader>jg"
+    let g:jedi#get_definition_command = "<leader>jd"
+    let g:jedi#rename_command = "<leader>jr"
+    let g:jedi#related_names_command = "<leader>jn"
+    let g:jedi#pydoc = "K"
+    let g:jedi#autocompletion_command = "<C-Space>"
 endfunction
-unlet s:jedi
 
 " -------------------------------------------------------
 " javacomplate
