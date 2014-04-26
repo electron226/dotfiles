@@ -1,12 +1,12 @@
 "=============================================================================
-" $Id: mk-lh-refactor.vim 775 2014-01-20 18:18:45Z luc.hermitte@gmail.com $
+" $Id: mk-lh-refactor.vim 788 2014-03-06 12:45:35Z luc.hermitte@gmail.com $
 " File:		mkVba/mk-lh-refactor.vim                            {{{1
 " Author:	Luc Hermitte <EMAIL:hermitte {at} free {dot} fr>
 "		<URL:http://code.google.com/p/lh-vim/>
-" Version:	1.2.0
-let s:version = '1.2.0'
+" Version:	1.2.1
+let s:version = '1.2.1'
 " Created:	06th Nov 2007
-" Last Update:	$Date: 2014-01-21 03:18:45 +0900 (2014/01/21 (火)) $
+" Last Update:	$Date: 2014-03-06 21:45:35 +0900 (2014/03/06 (木)) $
 "------------------------------------------------------------------------
 " Description:
 "       vimball archive builder for lh-refactor

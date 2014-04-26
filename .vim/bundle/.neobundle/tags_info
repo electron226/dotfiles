@@ -33,6 +33,7 @@ simple-javascript-indenter
 switch.vim
 syntastic
 tagbar
+tern_for_vim
 trunk
 unite.vim
 vcscommand
@@ -45,6 +46,8 @@ vim-css3-syntax
 vim-easymotion
 vim-expand-region
 vim-fugitive
+vim-gocode
+vim-godef
 vim-hier
 vim-indent-guides
 vim-javascript-syntax
@@ -59,6 +62,7 @@ vim-smartinput
 vim-stargate
 vim-surround
 vim-textmanip
+vimdoc-ja
 vimfiler
 vimproc
 vimshell

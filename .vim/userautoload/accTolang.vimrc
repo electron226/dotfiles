@@ -1,3 +1,5 @@
+" the golang config is into plugin_settings.vim.
+
 " NASM
 au BufRead,BufNewFile *.inc set filetype=nasm
 au BufRead,BufNewFile *.nasm set filetype=nasm

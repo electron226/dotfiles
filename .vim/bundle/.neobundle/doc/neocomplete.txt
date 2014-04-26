@@ -49,7 +49,7 @@ Changelog		|neocomplete-changelog|
 INTRODUCTION					*neocomplete-introduction*
 
 *neocomplete* is the next generation auto completion framework and a superior
-successor of the neocomplcache plugin. It provides a keyword completion
+successor of the |neocomplcache| plugin. It provides a keyword completion
 system by maintaining a keyword cache of the current buffer. The neocomplete
 framework can be customized easily and has a lot more features than Vim's
 standard completion.
@@ -58,7 +58,7 @@ Note: neocomplete may consume more memory than other plugins do.
 
 Improvements in neocomplete in comparison to |neocomplcache|:
 
-1. Real fuzzy match behavior like |YouCompleteMe| in default.
+1. Real fuzzy match behavior like |YouCompleteMe| by default.
 2. Refactored source interface.
 3. Removed legacy interface.
 4. Requires |if_lua|.
@@ -89,7 +89,7 @@ For 64bit http://files.kaoriya.net/goto/vim73w64
 
 On Mac:
 
-You can get if_lua enabled MacVim versions here:
+You can get |if_lua| enabled MacVim versions here:
 
 https://github.com/zhaocai/macvim
 http://code.google.com/p/macvim-kaoriya/
@@ -113,7 +113,7 @@ step. The following steps show you the general process on how to build Vim:
 5. Install the package using your distributions package manager
 
 You can find detailed information on ho to configure and build Vim from source
-under following Link: http://vim.wikia.com/wiki/Building_Vim. Or follow the
+under following link: http://vim.wikia.com/wiki/Building_Vim. Or follow the
 guide on:
 https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source
 
@@ -163,8 +163,8 @@ further information in the vimproc documentation.
 						*neocomplete-snippets*
 
 If you like to use the snippet feature with neocomplete you need to install
-the neosnippet plugin. You can find it under:
-https://github.com/Shougo/neosnippet
+the neosnippet plugin (https://github.com/Shougo/neosnippet) or UltiSnips
+(https://github.com/SirVer/ultisnips).
 
 						*neocomplete-context-filetype*
 
@@ -180,16 +180,16 @@ COMMANDS 					*neocomplete-commands*
 
 :NeoCompleteEnable				*:NeoCompleteEnable*
 		Validate neocomplete and initialize it.
-		Warning: The conventional cache disappears.
+		Warning: Existing cache disappears.
 
 :NeoCompleteDisable				*:NeoCompleteDisable*
 		Invalidate neocomplete and clean it up.
 
 :NeoCompleteToggle				*:NeoCompleteToggle*
-		Change the lock state of neocomplete.
+		Change the lock/unlock state of neocomplete.
 		While neocomplete is in locking, you cannot use automatic
 		completions.
-		Note: This command enables neocomplete if it is disabled.
+		Note: This command also enables neocomplete if it is disabled.
 
 :NeoCompleteLock				*:NeoCompleteLock*
 		Lock neocomplete.
@@ -204,7 +204,8 @@ COMMANDS 					*neocomplete-commands*
 
 					*:NeoCompleteAutoCompletionLength*
 :NeoCompleteAutoCompletionLength {length}
-		Change the start length of automatic completion to {length}.
+		Change the length of chars to start automatic completion to
+		{length}.
 		Note: The length value is local to each buffer.
 
 :NeoCompleteClean 				*:NeoCompleteClean*
@@ -212,7 +213,9 @@ COMMANDS 					*neocomplete-commands*
 
 :NeoCompleteSetFileType [filetype]		*:NeoCompleteSetFileType*
 		Change the filetype to [filetype] in the current buffer.
-		This filetype is only used by neocomplete.
+		This filetype is only used by neocomplete, so syntax
+		highlighting and etc stay same.
+
 		Note: You can get the current filetype by
 		|neocomplete#get_context_filetype()|
 
@@ -261,7 +264,7 @@ g:neocomplete#enable_at_startup
 
 g:neocomplete#max_list				*g:neocomplete#max_list*
 		This variable controls the number of candidates displayed in a
-		pop-up menu. If the list of candidates exceeds the limit not
+		pop-up menu. If the list of candidates exceeds the limit, not
 		all candidates will show up.
 
 		Default value is 100.
@@ -296,7 +299,7 @@ g:neocomplete#manual_completion_start_length
 					*g:neocomplete#min_keyword_length*
 g:neocomplete#min_keyword_length
 		In a buffer or dictionary files, this variable controls
-		length of keyword becoming the object of the completion at
+		length of keyword becoming the targets of the completion at
 		the minimum.
 
 		Default value is 4.
@@ -1192,6 +1195,7 @@ suffix of complete candidates in popup menu declaration.
     syntax            -> [S] {syntax-keyword}
     include           -> [I]
     neosnippet        -> [neosnip]
+    UltiSnips         -> [US]
     vim               -> [vim] type
     omni              -> [O]
     tag               -> [T]
@@ -1206,10 +1210,14 @@ neosnippet				*neocomplete-sources-neosnippet*
 		This source is for snippets completion.
 		https://github.com/Shougo/neosnippet
 
+UltiSnips				*neocomplete-sources-ultisnips*
+		This source is for UltiSnips snippets completion.
+		https://github.com/SirVer/ultisnips
+
 neco-ghc				*neocomplete-sources-neco-ghc*
-		https://github.com/ujihisa/neco-ghc
-		eagletmt originally implemented and now ujihisa is maintaining
-		this source.  It completes a source file written in Haskell.
+		https://github.com/eagletmt/neco-ghc
+		eagletmt originally implemented and ujihisa added some new
+		features. It completes a source file written in Haskell.
 		It requires ghc-mod <http://www.mew.org/~kazu/proj/ghc-mod/>.
 
 ==============================================================================
@@ -1294,10 +1302,6 @@ converter_delimiter
 		The converter which abbreviates a candidate's delimiter.
 		(cf: |g:neocomplete#delimiter_patterns|)
 
-			*neocomplete-filter-converter_remove_next_keyword*
-converter_remove_next_keyword
-		Note: It is deprecated.
-
 			*neocomplete-filter-converter_remove_overlap*
 converter_remove_overlap
 		The converter which removes overlapped text in a candidate's
@@ -1327,9 +1331,8 @@ can use |neocomplete#define_source()|.
 SOURCE ATTRIBUTES			*neocomplete-source-attributes*
 
 					*neocomplete-source-attribute-name*
-name			String		(Required)
-			The name of a source.  It must consist of the
-			following characters:
+name			String				(Required)
+			The name of a source.  Allowed characters are:
 			- a-z
 			- 0-9
 			- _
@@ -1337,21 +1340,26 @@ name			String		(Required)
 			- - (Not head)
 
 					*neocomplete-source-attribute-kind*
-kind			String			(Optional)
-			Source kind.
-			Following values are available.
-			"manual"  : This source decides complete position
-				manually.
-				Note: "complfunc" or "ftplugin" are old
-				values.
-			"keyword" : This source decides complete position by
-				|g:neocomplete#keyword_patterns|.
-				Note: "plugin" is old value.
-				Note: The candidates are filtered by
-				|g:neocomplete#keyword_patterns|.
+kind			String				(Optional)
+			The kind of the source.  It decides the behaviour of
+			the complete position.  The following values are
+			available:
+
+			"manual" : The source decides the complete position
+				manually with the "get_complete_position"
+				attribute.  See also:
+				|neocomplete-source-attribute-get_complete_position|
+
+			"keyword": The source decides the complete position
+				with |g:neocomplete#keyword_patterns|.  This
+				pattern is also used to filter the candidates.
+
+			Note that "plugin", "complfunc" and "ftplugin" are old
+			values that are no longer accepted.
+
 
 				*neocomplete-source-attribute-filetypes*
-filetypes		Dictionary		(Optional)
+filetypes		Dictionary			(Optional)
 			Available filetype dictionary.
 
 			For example:
@@ -1374,7 +1382,7 @@ disabled_filetypes		Dictionary		(Optional)
 			sources.
 
 					*neocomplete-source-attribute-rank*
-rank			Number		(Optional)
+rank			Number				(Optional)
 			Source priority.
 
 			If you omit it, it is set below value.
@@ -1384,7 +1392,7 @@ rank			Number		(Optional)
 
 			*neocomplete-source-attribute-min_pattern_length*
 min_pattern_length
-			Number		(Optional)
+			Number				(Optional)
 			Required pattern length for completion.
 
 			If you omit it, it is set below value.
@@ -1584,6 +1592,10 @@ neosnippet source :
 
 https://github.com/Shougo/neosnippet.vim
 
+UltiSnips source :
+
+https://github.com/SirVer/ultisnips
+
 vimshell source :
 
 https://github.com/Shougo/vimshell.vim
@@ -1594,7 +1606,7 @@ https://github.com/ujihisa/neco-look
 
 ghc source :
 
-https://github.com/ujihisa/neco-ghc
+https://github.com/eagletmt/neco-ghc
 
 calc source :
 
@@ -1658,9 +1670,10 @@ A: Please set this in your .vimrc.
 	let g:neocomplete#enable_insert_char_pre = 1
 <
 
-Q: Where is snippets set for neocomplete?
+Q: Where are the snippets for neocomplete?
 
-A: https://github.com/Shougo/neosnippet
+A: https://github.com/Shougo/neosnippet or
+https://github.com/SirVer/ultisnips
 
 
 Q: How can I disable python omni complete of neocomplete?:
@@ -1749,7 +1762,7 @@ source code's complete function, and find out the omni pattern).
 >
 	" Go (plugin: gocode)
 	let g:neocomplete#sources#omni#functions.go =
-	\ 'go#complete#Complete'
+	\ 'gocomplete#Complete'
 	" Clojure (plugin: vim-clojure)
 	let g:neocomplete#sources#omni#functions.clojure =
 	\ 'vimclojure#OmniCompletion'

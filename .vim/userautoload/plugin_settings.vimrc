@@ -50,6 +50,19 @@ else
     call add(s:include_paths_cpp, expand('$BOOST_ROOT') . '/include/boost-1_55')
 endif
 
+"" c/c++ include paths to string.
+let s:include_paths_string = ''
+for path in s:include_paths_cpp
+    if (!isdirectory(path))
+        echo "Can't detect directory. : " . path
+    endif
+
+    " msvc
+    "let s:include_paths_string = s:include_paths_string . '/I ' . path . ' '
+    " mingw64
+    let s:include_paths_string = s:include_paths_string . '-I ' . path . ' '
+endfor
+
 " s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
 " be using clang_complete.
 if isdirectory(expand('$LLVM_HOME'))
@@ -163,9 +176,14 @@ endfunction
 " -------------------------------------------------------
 " unite-tag
 " -------------------------------------------------------
-"    nnoremap <silent> <Leader>ut :<C-u>Unite tag<CR>
-"    nnoremap <silent> <Leader>utf :<C-u>Unite tag/file<CR>
-"    nnoremap <silent> <Leader>uti :<C-u>Unite tag/include<CR>
+"nnoremap <silent> <Leader>ut :<C-u>Unite tag<CR>
+"nnoremap <silent> <Leader>utf :<C-u>Unite tag/file<CR>
+"nnoremap <silent> <Leader>uti :<C-u>Unite tag/include<CR>
+"
+" path にヘッダーファイルのディレクトリを追加することで
+" neocomplcache が include 時に tag ファイルを作成してくれる
+"set path+=$LIBSTDCPP
+"set path+=$BOOST_LATEST_ROOT
 "
 "    " unite-tagで表示する
 "    command!
@@ -327,6 +345,7 @@ inoremap <expr><C-e>  neocomplete#cancel_popup()
 autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 "autocmd FileType javascript setlocal omnifunc=jscomplete#CompleteJS
+autocmd FileType javascript setlocal omnifunc=tern#CompleteJS
 "autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 
@@ -369,19 +388,6 @@ if !exists("g:neosnippet#snippets_directory")
 endif
 let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/snippets'
 
-" c/c++ include paths to string.
-let s:include_paths_string = ''
-for path in s:include_paths_cpp
-    if (!isdirectory(path))
-        echo "Can't detect directory. : " . path
-    endif
-
-    " msvc
-    "let s:include_paths_string = s:include_paths_string . '/I ' . path . ' '
-    " mingw64
-    let s:include_paths_string = s:include_paths_string . '-I ' . path . ' '
-endfor
-
 " -------------------------------------------------------
 " clang_complete
 " -------------------------------------------------------
@@ -417,39 +423,6 @@ let g:clang_user_options =
 "            \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
 "            \ ' -include malloc.h'
 
-" -------------------------------------------------------
-" vim-marching
-" -------------------------------------------------------
-"" clang コマンドの設定
-"let g:marching_clang_command = 'clang.exe'
-"
-"" オプションを追加する場合
-"let g:marching_clang_command_option="-std=c++11"
-"
-"" インクルードディレクトリのパスを設定
-"let g:marching_include_paths = s:include_paths_cpp
-"
-"" neocomplete.vim と併用して使用する場合
-"let g:marching_enable_neocomplete = 1
-"
-"if !exists('g:neocomplete#force_omni_input_patterns')
-"    let g:neocomplete#force_omni_input_patterns = {}
-"endif
-"
-"let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
-"
-"" 処理のタイミングを制御する
-"" 短いほうがより早く補完ウィンドウが表示される
-"set updatetime=200
-"
-"" オムニ補完時に補完ワードを挿入したくない場合
-"imap <buffer> <C-x><C-o> <Plug>(marching_start_omni_complete)
-"
-"" キャッシュを削除してからオムに補完を行う
-"imap <buffer> <C-x><C-x><C-o> <Plug>(marching_force_start_omni_complete)
-"
-"" 非同期ではなくて、同期処理でコード補完を行う場合
-""let g:marching_backend = "sync_clang_command"
 
 " -------------------------------------------------------
 " vim-clang-format
@@ -467,6 +440,59 @@ let g:clang_format#style_options = {
             \ "AlwaysBreakTemplateDeclarations" : "true",
             \ "Standard" : "C++11",
             \ "BreakBeforeBraces" : "Stroustrup"}
+
+" -------------------------------------------------------
+" golang setting.
+" The following should installed.
+"
+" go get github.com/nsf/gocode
+" If Windows user = go get -u -ldflags -H=windowsgui github.com/nsf/gocode
+" go get github.com/golang/lint
+" go get -u github.com/jstemmer/gotags
+" go get code.google.com/p/go.tools/cmd/godoc
+" -------------------------------------------------------
+au BufRead,BufNewFile *.go set filetype=go
+
+autocmd FileType go call s:golang_settings()
+function! s:golang_settings()
+    auto BufWritePre *.go Fmt "auto format when save file.
+    
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+    let g:neocomplete#force_omni_input_patterns.go = '[^.[:digit:] *\t]\.\w*'
+
+    if isdirectory(expand('$GOPATH'))
+        " golint
+        exe "set rtp+=".globpath($GOPATH, "src/github.com/golang/lint/misc/vim")
+    else
+        echo "I don't find $GOPATH."
+    endif
+
+    nnoremap <buffer> <F5> :call <SID>compileGo()<CR>
+    nnoremap <buffer> <F6> :call <SID>runGoTest()<CR>
+    nnoremap <buffer> <F7> :call <SID>runGo()<CR>
+    nnoremap <buffer> <F8> :call <SID>runGoToFile()<CR>
+    function! s:compileGo()
+        :w
+        exe ':lcd %:p:h'
+        exe ":!go build %"
+    endfunction
+
+    function! s:runGoTest()
+        :w
+        exe ':lcd %:p:h'
+        exe ":!go test %"
+    endfunction
+
+    function! s:runGo()
+        exe ':!go run %'
+    endfunction
+
+    function! s:runGoToFile()
+        exe ":!go run % > %.data"
+    endfunction
+endfunction
 
 " -------------------------------------------------------
 " vim-stargate
@@ -552,19 +578,27 @@ endfunction
 " jedi.vim
 " https://github.com/davidhalter/jedi-vim
 " -------------------------------------------------------
-autocmd FileType python call s:jedi_settings()
-function! s:jedi_settings()
-    autocmd FileType python setlocal omnifunc=jedi#Complete
+let s:jedi = neobundle#get("jedi-vim")
+function! s:jedi.hooks.on_source(bundle)
+    autocmd FileType python setlocal omnifunc=jedi#completions
+    
+    let g:jedi#auto_vim_configuration = 0
+    
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+    let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
 
     let g:jedi#popup_on_dot = 0
-
-    let g:jedi#goto_command = "<leader>jg"
-    let g:jedi#get_definition_command = "<leader>jd"
+    
+    let g:jedi#goto_definitions_command = "<leader>jd"
+    let g:jedi#documentation_command = "K"
+    let g:jedi#usages_command = "<leader>jn"
+    let g:jedi#completions_command = "<C-Space>"
     let g:jedi#rename_command = "<leader>jr"
-    let g:jedi#related_names_command = "<leader>jn"
-    let g:jedi#pydoc = "K"
-    let g:jedi#autocompletion_command = "<C-Space>"
+    let g:jedi#show_call_signatures = "1"
 endfunction
+unlet s:jedi
 
 " -------------------------------------------------------
 " javacomplate
@@ -791,6 +825,34 @@ let NERDSpaceDelims = 1
 " -------------------------------------------------------
 nmap <silent> <Leader>tg :TagbarToggle<CR>
 
+" you should run for use 'go get -u github.com/jstemmer/gotags'
+let g:tagbar_type_go = {
+    \ 'ctagstype' : 'go',
+    \ 'kinds'     : [
+        \ 'p:package',
+        \ 'i:imports:1',
+        \ 'c:constants',
+        \ 'v:variables',
+        \ 't:types',
+        \ 'n:interfaces',
+        \ 'w:fields',
+        \ 'e:embedded',
+        \ 'm:methods',
+        \ 'r:constructor',
+        \ 'f:functions'
+    \ ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : {
+        \ 't' : 'ctype',
+        \ 'n' : 'ntype'
+    \ },
+    \ 'scope2kind' : {
+        \ 'ctype' : 't',
+        \ 'ntype' : 'n'
+    \ },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
+\ }
 
 " -------------------------------------------------------
 " SrcExpl
@@ -911,6 +973,10 @@ if executable("clang++")
     let g:syntastic_cpp_compiler = 'clang++'
 endif
 
+" Python
+let g:syntastic_python_checkers = ["flake8"]
+"let g:syntastic_python_pylint_args="-d C0103"
+
 " -------------------------------------------------------
 " vim-smartinput
 " -------------------------------------------------------
@@ -1015,3 +1081,9 @@ call smartinput#define_rule({
             \   'filetype' : ['vim'],
             \   'syntax'   : ['String'],
             \   })
+
+" -------------------------------------------------------
+" YankRing
+" -------------------------------------------------------
+"let g:yankring_max_element_length = 4194304
+let g:yankring_max_element_length = 0
