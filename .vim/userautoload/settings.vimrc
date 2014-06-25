@@ -71,6 +71,7 @@ endif
 set nobackup
 set nowritebackup
 set noswapfile
+set noundofile
 "set backup
 "set swapfile
 "if has('win32') || has('win64')

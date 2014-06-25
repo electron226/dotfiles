@@ -1,18 +1,17 @@
 " -------------------------------------------------------
 " NeoBundle
 " -------------------------------------------------------
-set nocompatible               " be iMproved
-filetype off
-filetype plugin indent off     " required!
-
 if has('vim_starting')
-	set runtimepath+=$MY_VIMRUNTIME/bundle/neobundle.vim/
-	call neobundle#rc(expand('$MY_VIMRUNTIME/bundle/'))
+    set nocompatible               " be iMproved
+    set runtimepath+=$MY_VIMRUNTIME/bundle/neobundle.vim
 endif
+call neobundle#begin(expand('$MY_VIMRUNTIME/bundle/'))
+
+let g:neobundle#install_process_timeout = 300
 
 " let NeoBundle manage NeoBundle
 " required!
-NeoBundle 'Shougo/neobundle.vim'
+NeoBundleFetch 'Shougo/neobundle.vim'
 
 " recommended to install
 NeoBundle 'Shougo/vimproc', {
@@ -30,7 +29,7 @@ NeoBundle 'Shougo/vimproc', {
 NeoBundleLazy 'Shougo/vimshell', {
     \   'autoload' : {
     \       'commands' : [
-    \           'VimShell', "VimShellPop", "VimShellInteractive"
+    \           'VimShell', 'VimShellPop', 'VimShellInteractive'
     \       ]
     \   },
     \    'depends' : [ "vimproc" ]
@@ -39,6 +38,7 @@ NeoBundleLazy 'Shougo/vimshell', {
 " 入力支援
 NeoBundle 'Shougo/neocomplete'
 NeoBundle 'Shougo/neosnippet', { 'depends' : [ "neocomplete" ] }
+NeoBundle 'honza/vim-snippets', { 'depends' : [ "neocomplete", "neosnippet" ] }
 "NeoBundle 'Valloric/YouCompleteMe', {
 "            \ 'build': {
 "            \       'unix': './install.sh --clang-completer --omnisharp-completer',
@@ -47,10 +47,11 @@ NeoBundle 'Shougo/neosnippet', { 'depends' : [ "neocomplete" ] }
 "NeoBundle 'SirVer/ultisnips', { 'depends' : [ "YouCompleteMe" ] }
 NeoBundle 'kana/vim-smartinput'
 NeoBundle 'tpope/vim-surround'
-NeoBundle 'YankRing.vim'
+NeoBundle 'LeafCage/yankround.vim'
 NeoBundle 'sjl/gundo.vim'
 NeoBundle 'AndrewRadev/switch.vim'
 NeoBundle 'terryma/vim-expand-region'
+NeoBundle 'osyo-manga/vim-over'
 
 " Explorer
 NeoBundle 'Shougo/unite.vim'
@@ -80,7 +81,6 @@ NeoBundle "airblade/vim-rooter"
 NeoBundle "othree/eregex.vim"
 NeoBundle "DirDo.vim"
 NeoBundle "rhysd/clever-f.vim"
-NeoBundle "goldfeld/vim-seek"
 
 " Docs
 NeoBundle 'vim-jp/vimdoc-ja'
@@ -93,11 +93,6 @@ NeoBundle 'tomasr/molokai'
 
 " 整形 & 表示
 NeoBundle "itchyny/lightline.vim"
-NeoBundleLazy 'MultipleSearch', {
-\     'autoload': {
-\           'commands' : [ "Search", "SearchBuffers", "SearchReinit" ]
-\     }
-\}
 NeoBundle 't9md/vim-textmanip'
 NeoBundleLazy 'h1mesuke/vim-alignta', {
 \     'autoload': {
@@ -109,7 +104,7 @@ NeoBundle 'kien/rainbow_parentheses.vim'
 NeoBundle 'tyru/open-browser.vim'
 
 " コメント
-NeoBundle 'scrooloose/nerdcommenter'
+NeoBundle 'tomtom/tcomment_vim'
 
 " Doxygen
 NeoBundleLazy 'DoxygenToolkit.vim', {
@@ -181,35 +176,14 @@ NeoBundleLazy "davidhalter/jedi-vim", {
 \     'autoload': { "filetypes": [ "python" ] },
 \     'depends' : [ "neocomplete" ]
 \}
-NeoBundleLazy 'sontek/rope-vim', {
-\     'autoload': { "filetypes": [ "python" ] }
+NeoBundleLazy "klen/python-mode", {
+            \ 'autoload': { "filetypes": [ "python" ] },
+            \ 'build': {
+            \   'windows': 'easy_install rope ropemode ropevim',
+            \   'mac': 'easy_install rope ropemode ropevim',
+            \   'unix': 'easy_install rope ropemode ropevim'
+            \ }
 \}
-
-" Ruby
-"NeoBundleLazy 'vim-ruby/vim-ruby', {
-"            \ 'autoload': { "filetypes": [ "ruby" ] },
-"            \ }
-"NeoBundleLazy 'm2ym/rsense', {
-"            \ 'autoload': { "filetypes": [ "ruby" ] },
-"            \ 'depends' : [ "neocomplete" ]
-"            \ }
-"NeoBundleLazy 'tpope/vim-rails', {
-"            \ 'autoload': { "filetypes": [ "ruby" ] }
-"            \ }
-"NeoBundleLazy 'ecomba/vim-ruby-refactoring', {
-"            \ 'autoload': { "filetypes": [ "ruby" ] }
-"            \ }
-
-" Java
-"NeoBundleLazy 'javacomplete', {
-"            \ 'autoload': { "filetypes": [ "java" ] },
-"            \ 'depends' : [ "neocomplete" ]
-"            \ }
-
-" Scala
-"NeoBundleLazy 'derekwyatt/vim-scala', {
-"            \ 'autoload': { "filetypes": [ "scala" ] },
-"            \ }
 
 " HTML
 NeoBundleLazy "mattn/emmet-vim", {
@@ -253,12 +227,12 @@ NeoBundle 'marijnh/tern_for_vim', {
             \   'mac': 'npm install',
             \   'unix': 'npm install'
             \}}
-NeoBundleLazy 'claco/jasmine.vim', {
-            \ 'autoload': { "filetypes": [ "javascript", "coffee" ] }
-            \ }
-NeoBundleLazy 'billyvg/coffee-jasmine-snippets', {
-            \ 'autoload': { "filetypes": [ "coffee" ] }
-            \ }
+"NeoBundleLazy 'claco/jasmine.vim', {
+"            \ 'autoload': { "filetypes": [ "javascript", "coffee" ] }
+"            \ }
+"NeoBundleLazy 'billyvg/coffee-jasmine-snippets', {
+"            \ 'autoload': { "filetypes": [ "coffee" ] }
+"            \ }
 " jsdoc
 NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \     'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
@@ -275,22 +249,15 @@ NeoBundleLazy 'gregsexton/gitv', {
             \ }
 
 " Others
-"NeoBundleLazy 'opencl.vim', {
-"\     'autoload': { "filetypes": [ "opencl" ] }
-"\}
-"NeoBundleLazy 'sukima/xmledit', {
-"            \ 'autoload': { "filetypes": [ "html", "xml" ] }
-"            \ }
 NeoBundleLazy 'JSON.vim', {
 \     'autoload': { "filetypes": [ "json" ] }
 \}
-"NeoBundleLazy 'PProvost/vim-ps1', {
-"\     'autoload': { "filetypes": [ "ps1" ] }
-"\}
 
-" ...
+call neobundle#end()
 
 filetype plugin indent on " required!
+
+NeoBundleCheck
 "
 " Brief help
 " :NeoBundleList          - list configured bundles

@@ -50,7 +50,7 @@ else
     call add(s:include_paths_cpp, expand('$BOOST_ROOT') . '/include/boost-1_55')
 endif
 
-"" c/c++ include paths to string.
+" c/c++ include paths to string.
 let s:include_paths_string = ''
 for path in s:include_paths_cpp
     if (!isdirectory(path))
@@ -74,7 +74,7 @@ else
         let s:clang_path = expand('F:/local/llvm/build/bin/Release')
     else
         " OS X | UNIX | Ubuntu
-        let s:clang_path = expand('/usr/local/bin')
+        let s:clang_path = expand('/usr/bin')
     endif
 endif
 
@@ -365,6 +365,8 @@ let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\
 " -------------------------------------------------------
 " neosnippet
 " -------------------------------------------------------
+let g:neosnippet#enable_snipmate_compatibility = 1
+
 " Plugin key-mappings.
 imap <C-k>     <Plug>(neosnippet_expand_or_jump)
 smap <C-k>     <Plug>(neosnippet_expand_or_jump)
@@ -386,7 +388,7 @@ endif
 if !exists("g:neosnippet#snippets_directory")
     let g:neosnippet#snippets_directory = ""
 endif
-let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/snippets'
+let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/bundle/vim-snippets/snippets'
 
 " -------------------------------------------------------
 " clang_complete
@@ -455,7 +457,7 @@ au BufRead,BufNewFile *.go set filetype=go
 
 autocmd FileType go call s:golang_settings()
 function! s:golang_settings()
-    auto BufWritePre *.go Fmt "auto format when save file.
+    auto BufWritePre *.go Fmt
     
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
@@ -469,10 +471,10 @@ function! s:golang_settings()
         echo "I don't find $GOPATH."
     endif
 
-    nnoremap <buffer> <F5> :call <SID>compileGo()<CR>
-    nnoremap <buffer> <F6> :call <SID>runGoTest()<CR>
-    nnoremap <buffer> <F7> :call <SID>runGo()<CR>
-    nnoremap <buffer> <F8> :call <SID>runGoToFile()<CR>
+    nnoremap <buffer> <F5> :call <SID>runGo()<CR>
+    nnoremap <buffer> <F6> :call <SID>runGoToFile()<CR>
+    nnoremap <buffer> <F7> :call <SID>runGoTest()<CR>
+    nnoremap <buffer> <F8> :call <SID>compileGo()<CR>
     function! s:compileGo()
         :w
         exe ':lcd %:p:h'
@@ -600,36 +602,6 @@ function! s:jedi.hooks.on_source(bundle)
 endfunction
 unlet s:jedi
 
-" -------------------------------------------------------
-" javacomplate
-" -------------------------------------------------------
-"let s:javacomp = neobundle#get("javacomplete")
-"function! s:javacomp.hooks.on_source(bundle)
-"    autocmd Filetype java setlocal omnifunc=javacomplete#Complete
-"    autocmd Filetype java setlocal completefunc=javacomplete#CompleteParamsInfo
-"endfunction
-"unlet s:javacomp
-
-" -------------------------------------------------------
-" RSense
-" -------------------------------------------------------
-"let s:rsense = neobundle#get("rsense")
-"function! s:rsense.hooks.on_source(bundle)
-"    let g:rsenseUseOmniFunc = 1
-"
-"    if filereadable(expand('$MY_VIMRUNTIME/bundle/rsense/bin/rsense'))
-"        let g:rsenseHome = expand('$MY_VIMRUNTIME/bundle/rsense')
-"
-"        if !exists('g:neocomplete#force_omni_input_patterns')
-"          let g:neocomplete#force_omni_input_patterns = {}
-"        endif
-"        let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
-"
-"        let g:neocomplete#force_overwrite_completefunc = 1
-"    endif
-"endfunction
-"unlet s:rsense
-
 
 " -------------------------------------------------------
 " switch.vim
@@ -637,7 +609,12 @@ unlet s:jedi
 nmap - :Switch<CR>
 let g:switch_custom_definitions =
             \ [
-            \   [ 'TRUE', 'FALSE' ]
+            \   [ 'TRUE', 'FALSE' ],
+            \   {
+            \         '\(\k\+\)'    : '''\1''',
+            \       '''\(.\{-}\)''' :  '"\1"',
+            \        '"\(.\{-}\)"'  :   '\1',
+            \   },
             \ ]
 
 " -------------------------------------------------------
@@ -657,15 +634,6 @@ let g:EasyMotion_keys='abcdefghijklmnopqrstuvwxyz'
 let g:netrw_nogx = 1 " disable netrw's gx mapping.
 nmap gx <Plug>(openbrowser-smart-search)
 vmap gx <Plug>(openbrowser-smart-search)
-
-" -------------------------------------------------------
-" MultipleSearch
-" -------------------------------------------------------
-let g:MultipleSearchMaxColors = 8
-let g:MultipleSearchColorSequence =
-            \ "red, yellow, blue, green, magenta, cyan, gray, brown"
-let g:MultipleSearchTextColorSequence =
-            \ "white, black, white, black, white, black, black, white"
 
 " -------------------------------------------------------
 " vim-textmanip
@@ -810,17 +778,6 @@ endfunction
 
 
 " -------------------------------------------------------
-" The NERD Commenter
-" -------------------------------------------------------
-let NERDSpaceDelims = 1
-",caで追加するコメントタイプを以下の拡張子のファイルは/* */にする
-"let NERD_c_alt_style=1
-"let NERD_cpp_alt_style=1
-"let NERD_h_alt_style=1
-"let NERD_java_alt_style=1
-
-
-" -------------------------------------------------------
 " tagbar
 " -------------------------------------------------------
 nmap <silent> <Leader>tg :TagbarToggle<CR>
@@ -952,11 +909,6 @@ let g:syntastic_mode_map = { 'mode': 'active',
             \ 'active_filetypes': [],
             \ 'passive_filetypes': [] }
 
-" html5
-"let g:syntastic_html_validator_api = 'http://localhost:8888'
-"let g:syntastic_html_checkers = ['validator']
-"let g:syntastic_html_validator_parser = 'html5'
-
 " JavaScript
 let g:syntastic_javascript_checkers = ['jshint']
 
@@ -973,9 +925,8 @@ if executable("clang++")
     let g:syntastic_cpp_compiler = 'clang++'
 endif
 
-" Python
-let g:syntastic_python_checkers = ["flake8"]
-"let g:syntastic_python_pylint_args="-d C0103"
+" ignore python for use python-mode.
+let g:syntastic_ignore_files = ['\.py$']
 
 " -------------------------------------------------------
 " vim-smartinput
@@ -1083,7 +1034,32 @@ call smartinput#define_rule({
             \   })
 
 " -------------------------------------------------------
-" YankRing
+" yankround.vim
 " -------------------------------------------------------
-"let g:yankring_max_element_length = 4194304
-let g:yankring_max_element_length = 0
+nmap p <Plug>(yankround-p)
+xmap p <Plug>(yankround-p)
+nmap P <Plug>(yankround-P)
+nmap gp <Plug>(yankround-gp)
+xmap gp <Plug>(yankround-gp)
+nmap gP <Plug>(yankround-gP)
+nmap <C-p> <Plug>(yankround-prev)
+nmap <C-n> <Plug>(yankround-next)
+
+nnoremap <silent> <Leader>yr :<C-u>Unite window<CR>
+
+" 履歴取得数
+let g:yankround_max_history = 50
+
+" -------------------------------------------------------
+" vim-over
+" -------------------------------------------------------
+nmap <silent> <Leader>o :<C-u>OverCommandLine<CR>
+
+" -------------------------------------------------------
+" rainbow_parenttheses.vim
+" -------------------------------------------------------
+au VimEnter * RainbowParenthesesToggle
+au VimEnter,Syntax * RainbowParenthesesLoadRound
+au VimEnter,Syntax * RainbowParenthesesLoadSquare
+au VimEnter,Syntax * RainbowParenthesesLoadBraces
+au VimEnter,Syntax * RainbowParenthesesLoadChevrons

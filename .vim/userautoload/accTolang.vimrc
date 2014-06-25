@@ -74,15 +74,12 @@ if exists('&colorcolumn')
     autocmd FileType sh,c,cpp,perl,vim,ruby,python,haskell,scheme,css,javascript,lua,opencl,asm,nasm setlocal textwidth=80
 endif
 
-" OpenCL.vim
-"au BufNewFile,BufRead *.cl setf opencl
-
-" powershell
-"au BufNewFile,BufRead *.ps1 setf ps1
-
 " -------------------------------------------------------
 " テンプレート
 " -------------------------------------------------------
+au BufNewFile *.c 0r $MY_VIMRUNTIME/template/c.txt
+au BufNewFile *.cpp 0r $MY_VIMRUNTIME/template/cpp.txt
+au BufNewFile *.go 0r $MY_VIMRUNTIME/template/go.txt
 au BufNewFile *.py 0r $MY_VIMRUNTIME/template/python.txt
 au BufNewFile *.rb 0r $MY_VIMRUNTIME/template/ruby.txt
 au BufNewFile *.html 0r $MY_VIMRUNTIME/template/html5.txt
