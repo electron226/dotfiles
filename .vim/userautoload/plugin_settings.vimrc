@@ -128,6 +128,10 @@ nnoremap <silent> <Leader>f :<C-u>VimFilerBufferDir
 " 入力モードで開始する
 let g:unite_enable_start_insert=1
 
+" 大文字小文字を区別しない
+let g:unite_enable_ignore_case = 1
+let g:unite_enable_smart_case = 1
+
 " ウインドウ一覧
 nnoremap <silent> <Leader>uw :<C-u>Unite window<CR>
 " バッファ一覧
@@ -231,10 +235,21 @@ endfunction
 " -------------------------------------------------------
 " unite-grep
 " -------------------------------------------------------
-"    " unite-grepのキーマップ
-"    " 選択した文字列をunite-grep
-"    vnoremap /g y:Unite grep::-iHRn:<C-R>=escape(@", '\\.*$^[]')<CR><CR>
+" grep検索
+nnoremap <silent> <Leader>ug  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
 
+" カーソル位置の単語をgrep検索
+nnoremap <silent> <Leader>ugc :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
+
+" grep検索結果の再呼出
+nnoremap <silent> <Leader>ugr  :<C-u>UniteResume search-buffer<CR>
+
+" unite grep に ag(The Silver Searcher) を使う
+if executable('ag')
+    let g:unite_source_grep_command = 'ag'
+    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
+    let g:unite_source_grep_recursive_opt = ''
+endif
 
 " -------------------------------------------------------
 " neocomplete

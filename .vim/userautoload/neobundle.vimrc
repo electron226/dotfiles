@@ -59,7 +59,7 @@ NeoBundle 'Shougo/unite.vim'
 "NeoBundle 'tsukkee/unite-tag', { 'depends' : [ "unite.vim" ] }
 "NeoBundle 'hewes/unite-gtags', { 'depends' : [ "unite.vim" ] }
 "NeoBundle 'h1mesuke/unite-outline', { 'depends' : [ "unite.vim" ] }
-"NeoBundle 'Sixeight/unite-grep', { 'depends' : [ "unite.vim" ] }
+NeoBundle 'Sixeight/unite-grep', { 'depends' : [ "unite.vim" ] }
 NeoBundle 'Shougo/vimfiler', { 'depends' : [ "unite.vim" ] }
 NeoBundle "wincent/Command-T", {
             \ 'build': {
@@ -70,6 +70,9 @@ NeoBundle "wincent/Command-T", {
             \       'mingw64': 'cd ./ruby/command-t; ruby extconf.rb; make',
             \   }
             \ }
+
+" Search
+NeoBundle 'rking/ag.vim'
 
 " Code Explorer
 NeoBundle 'majutsushi/tagbar'
@@ -214,11 +217,8 @@ NeoBundleLazy 'jiangmiao/simple-javascript-indenter', {
 NeoBundleLazy 'jelera/vim-javascript-syntax', {
             \ 'autoload': { "filetypes": [ "html", "javascript" ] }
             \ }
-NeoBundleLazy 'scottmcginness/vim-jquery', {
-            \ 'autoload': { "filetypes": [ "html", "javascript" ] }
-            \ }
-NeoBundle 'kchmck/vim-coffee-script', {
-            \ 'autoload': { "filetypes": [ "coffee" ] }
+NeoBundleLazy 'othree/javascript-libraries-syntax.vim', {
+            \ 'autoload': { "filetypes": [ "html", "javascript", "coffee", "livescript", "typescript" ] }
             \ }
 NeoBundle 'marijnh/tern_for_vim', {
             \ 'autoload': { "filetypes": [ "html", "javascript", "coffee" ] },
@@ -227,12 +227,7 @@ NeoBundle 'marijnh/tern_for_vim', {
             \   'mac': 'npm install',
             \   'unix': 'npm install'
             \}}
-"NeoBundleLazy 'claco/jasmine.vim', {
-"            \ 'autoload': { "filetypes": [ "javascript", "coffee" ] }
-"            \ }
-"NeoBundleLazy 'billyvg/coffee-jasmine-snippets', {
-"            \ 'autoload': { "filetypes": [ "coffee" ] }
-"            \ }
+
 " jsdoc
 NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \     'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
