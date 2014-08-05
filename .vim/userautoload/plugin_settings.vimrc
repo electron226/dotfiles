@@ -99,7 +99,6 @@ elseif has('win32')
                 \ $MY_VIMRUNTIME . '/bundle/vimproc/autoload/vimproc_win32.dll'
 endif
 
-
 " -------------------------------------------------------
 " vimfiler
 " -------------------------------------------------------
@@ -120,7 +119,6 @@ nnoremap <silent> <Leader>fd :<C-u>VimFilerBufferDir -quit<CR>
 "            \  -split -simple -direction=botright -winwidth=35 -no-quit<CR>
 nnoremap <silent> <Leader>f :<C-u>VimFilerBufferDir
             \ -split -simple -winwidth=30 -no-quit<CR>
-
 
 " -------------------------------------------------------
 " unite.vim
@@ -230,7 +228,7 @@ endfunction
 " -------------------------------------------------------
 " unite-outline
 " -------------------------------------------------------
-"    nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
+"nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
 
 " -------------------------------------------------------
 " unite-grep
@@ -376,35 +374,6 @@ let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\
 " https://github.com/c9s/perlomni.vim
 "let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
 
-
-" -------------------------------------------------------
-" neosnippet
-" -------------------------------------------------------
-let g:neosnippet#enable_snipmate_compatibility = 1
-
-" Plugin key-mappings.
-imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-xmap <C-m>     <Plug>(neosnippet_expand_target)
-
-" SuperTab like snippets behavior.
-"imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-"            \ "\<Plug>(neosnippet_expand_or_jump)"
-"            \ : pumvisible() ? "\<C-n>" : "\<TAB>"
-"smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-"            \ "\<Plug>(neosnippet_expand_or_jump)"
-"            \ : "\<TAB>"
-
-" For snippet_complete marker.
-if has('conceal')
-    set conceallevel=2 concealcursor=i
-endif
-
-if !exists("g:neosnippet#snippets_directory")
-    let g:neosnippet#snippets_directory = ""
-endif
-let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/bundle/vim-snippets/snippets'
-
 " -------------------------------------------------------
 " clang_complete
 " -------------------------------------------------------
@@ -440,85 +409,44 @@ let g:clang_user_options =
 "            \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
 "            \ ' -include malloc.h'
 
-
-" -------------------------------------------------------
-" vim-clang-format
-" -------------------------------------------------------
-autocmd FileType c,cpp,objc nmap <buffer><leader>cf :<C-u>ClangFormat<CR>
-autocmd FileType c,cpp,objc vmap <buffer><leader>cf :ClangFormat<CR>
-" base style.
-" llvm, google, chromium, or mozilla
-"let g:clang_format#code_style = 'google'
-
-" Coding style options as dictionary.
-let g:clang_format#style_options = {
-            \ "AccessModifierOffset" : -4,
-            \ "AllowShortIfStatementsOnASingleLine" : "true",
-            \ "AlwaysBreakTemplateDeclarations" : "true",
-            \ "Standard" : "C++11",
-            \ "BreakBeforeBraces" : "Stroustrup"}
-
-" -------------------------------------------------------
-" golang setting.
-" The following should installed.
+"" -------------------------------------------------------
+"" vim-matching
+"" -------------------------------------------------------
+"" clang コマンドの設定
+"let g:marching_clang_command = 'clang.exe'
 "
-" go get github.com/nsf/gocode
-" If Windows user = go get -u -ldflags -H=windowsgui github.com/nsf/gocode
-" go get github.com/golang/lint
-" go get -u github.com/jstemmer/gotags
-" go get code.google.com/p/go.tools/cmd/godoc
-" -------------------------------------------------------
-au BufRead,BufNewFile *.go set filetype=go
-
-autocmd FileType go call s:golang_settings()
-function! s:golang_settings()
-    auto BufWritePre *.go Fmt
-    
-    if !exists('g:neocomplete#force_omni_input_patterns')
-        let g:neocomplete#force_omni_input_patterns = {}
-    endif
-    let g:neocomplete#force_omni_input_patterns.go = '[^.[:digit:] *\t]\.\w*'
-
-    if isdirectory(expand('$GOPATH'))
-        " golint
-        exe "set rtp+=".globpath($GOPATH, "src/github.com/golang/lint/misc/vim")
-    else
-        echo "I don't find $GOPATH."
-    endif
-
-    nnoremap <buffer> <F5> :call <SID>runGo()<CR>
-    nnoremap <buffer> <F6> :call <SID>runGoToFile()<CR>
-    nnoremap <buffer> <F7> :call <SID>runGoTest()<CR>
-    nnoremap <buffer> <F8> :call <SID>compileGo()<CR>
-    function! s:compileGo()
-        :w
-        exe ':lcd %:p:h'
-        exe ":!go build %"
-    endfunction
-
-    function! s:runGoTest()
-        :w
-        exe ':lcd %:p:h'
-        exe ":!go test %"
-    endfunction
-
-    function! s:runGo()
-        exe ':!go run %'
-    endfunction
-
-    function! s:runGoToFile()
-        exe ":!go run % > %.data"
-    endfunction
-endfunction
-
-" -------------------------------------------------------
-" vim-stargate
-" -------------------------------------------------------
-" インクルードディレクトリのパスを設定
-let g:stargate#include_paths = {
-            \	"cpp" : s:include_paths_cpp
-            \}
-
+"" オプションを追加する
+"" filetype=cpp に対して設定する場合
+"let g:marching#clang_command#options = {
+"\   "cpp" : "-std=gnu++1y"
+"\}
+"
+"" インクルードディレクトリのパスを設定
+"let g:marching_include_paths = s:include_paths_cpp
+"
+"" neocomplete.vim と併用して使用する場合
+"let g:marching_enable_neocomplete = 1
+"
+"if !exists('g:neocomplete#force_omni_input_patterns')
+"  let g:neocomplete#force_omni_input_patterns = {}
+"endif
+"
+"let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+"
+"" 処理のタイミングを制御する
+"" 短いほうがより早く補完ウィンドウが表示される
+"" ただし、marching.vim 以外の処理にも影響するので注意する
+"set updatetime=200
+"
+"" オムニ補完時に補完ワードを挿入したくない場合
+"imap <buffer> <C-x><C-o> <Plug>(marching_start_omni_complete)
+"
+"" キャッシュを削除してからオムに補完を行う
+"imap <buffer> <C-x><C-x><C-o> <Plug>(marching_force_start_omni_complete)
+"
+"" 非同期ではなくて、同期処理でコード補完を行う場合
+"" この設定の場合は vimproc.vim に依存しない
+"" let g:marching_backend = "sync_clang_command"
 
 " -------------------------------------------------------
 " OmniSharp
@@ -617,6 +545,111 @@ function! s:jedi.hooks.on_source(bundle)
 endfunction
 unlet s:jedi
 
+" -------------------------------------------------------
+" neosnippet
+" -------------------------------------------------------
+let g:neosnippet#enable_snipmate_compatibility = 1
+
+" Plugin key-mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-m>     <Plug>(neosnippet_expand_target)
+
+" SuperTab like snippets behavior.
+"imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+"            \ "\<Plug>(neosnippet_expand_or_jump)"
+"            \ : pumvisible() ? "\<C-n>" : "\<TAB>"
+"smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+"            \ "\<Plug>(neosnippet_expand_or_jump)"
+"            \ : "\<TAB>"
+
+" For snippet_complete marker.
+if has('conceal')
+    set conceallevel=2 concealcursor=i
+endif
+
+if !exists("g:neosnippet#snippets_directory")
+    let g:neosnippet#snippets_directory = ""
+endif
+let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/bundle/vim-snippets/snippets'
+
+" -------------------------------------------------------
+" vim-clang-format
+" -------------------------------------------------------
+autocmd FileType c,cpp,objc nmap <buffer><Leader>cf :<C-u>ClangFormat<CR>
+autocmd FileType c,cpp,objc vmap <buffer><Leader>cf :ClangFormat<CR>
+" base style.
+" llvm, google, chromium, or mozilla
+"let g:clang_format#code_style = 'google'
+
+" Coding style options as dictionary.
+let g:clang_format#style_options = {
+            \ "AccessModifierOffset" : -4,
+            \ "AllowShortIfStatementsOnASingleLine" : "true",
+            \ "AlwaysBreakTemplateDeclarations" : "true",
+            \ "Standard" : "C++11"
+            \ }
+
+" -------------------------------------------------------
+" golang setting.
+" The following should installed.
+"
+" go get github.com/nsf/gocode
+" If Windows user = go get -u -ldflags -H=windowsgui github.com/nsf/gocode
+" go get github.com/golang/lint
+" go get -u github.com/jstemmer/gotags
+" go get code.google.com/p/go.tools/cmd/godoc
+" -------------------------------------------------------
+au BufRead,BufNewFile *.go set filetype=go
+
+autocmd FileType go call s:golang_settings()
+function! s:golang_settings()
+    auto BufWritePre *.go Fmt
+    
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+    let g:neocomplete#force_omni_input_patterns.go = '[^.[:digit:] *\t]\.\w*'
+
+    if isdirectory(expand('$GOPATH'))
+        " golint
+        exe "set rtp+=".globpath($GOPATH, "src/github.com/golang/lint/misc/vim")
+    else
+        echo "I don't find $GOPATH."
+    endif
+
+    nnoremap <buffer> <F5> :call <SID>runGo()<CR>
+    nnoremap <buffer> <F6> :call <SID>runGoToFile()<CR>
+    nnoremap <buffer> <F7> :call <SID>runGoTest()<CR>
+    nnoremap <buffer> <F8> :call <SID>compileGo()<CR>
+    function! s:compileGo()
+        :w
+        exe ':lcd %:p:h'
+        exe ":!go build %"
+    endfunction
+
+    function! s:runGoTest()
+        :w
+        exe ':lcd %:p:h'
+        exe ":!go test %"
+    endfunction
+
+    function! s:runGo()
+        exe ':!go run %'
+    endfunction
+
+    function! s:runGoToFile()
+        exe ":!go run % > %.data"
+    endfunction
+endfunction
+
+" -------------------------------------------------------
+" vim-stargate
+" -------------------------------------------------------
+" インクルードディレクトリのパスを設定
+let g:stargate#include_paths = {
+            \	"cpp" : s:include_paths_cpp
+            \}
 
 " -------------------------------------------------------
 " switch.vim
@@ -649,6 +682,9 @@ let g:EasyMotion_keys='abcdefghijklmnopqrstuvwxyz'
 let g:netrw_nogx = 1 " disable netrw's gx mapping.
 nmap gx <Plug>(openbrowser-smart-search)
 vmap gx <Plug>(openbrowser-smart-search)
+
+" ググる
+nnoremap <Leader>gg :<C-u>OpenBrowserSearch<Space><C-r><C-w><Enter>
 
 " -------------------------------------------------------
 " vim-textmanip
@@ -742,7 +778,7 @@ let g:user_emmet_settings = {
             \       },
             \   },
             \ }
-"
+
 " -------------------------------------------------------
 " vim-jsdoc
 " -------------------------------------------------------
@@ -790,7 +826,6 @@ function! s:json_settings()
     setl expandtab
     setl foldmethod=syntax
 endfunction
-
 
 " -------------------------------------------------------
 " tagbar
@@ -876,12 +911,10 @@ let g:SrcExpl_pluginList = [
             \ "__Gundo_Preview__"
             \ ]
 
-
 " -------------------------------------------------------
 " vim-hier
 " -------------------------------------------------------
 let g:hier_enabled = 1
-
 
 " -------------------------------------------------------
 " quickrun.vim
@@ -1064,12 +1097,7 @@ nnoremap <silent> <Leader>yr :<C-u>Unite window<CR>
 
 " 履歴取得数
 let g:yankround_max_history = 50
-
-" -------------------------------------------------------
-" vim-over
-" -------------------------------------------------------
-nmap <silent> <Leader>o :<C-u>OverCommandLine<CR>
-
+"
 " -------------------------------------------------------
 " rainbow_parenttheses.vim
 " -------------------------------------------------------
@@ -1078,3 +1106,26 @@ au VimEnter,Syntax * RainbowParenthesesLoadRound
 au VimEnter,Syntax * RainbowParenthesesLoadSquare
 au VimEnter,Syntax * RainbowParenthesesLoadBraces
 au VimEnter,Syntax * RainbowParenthesesLoadChevrons
+
+" -------------------------------------------------------
+" sass-compile
+" -------------------------------------------------------
+"" 編集したファイルから遡るフォルダの最大数
+let g:sass_compile_cdloop = 5
+
+" ファイル保存時に自動コンパイル（1で自動実行）
+let g:sass_compile_auto = 0
+
+" 自動コンパイルを実行する拡張子
+let g:sass_compile_file = ['scss', 'sass']
+
+" cssファイルが入っているディレクトリ名（前のディレクトリほど優先）
+let g:sass_compile_cssdir = ['css', 'stylesheet']
+
+" コンパイル実行前に実行したいコマンドを設定
+" 例：growlnotifyによる通知
+" let g:sass_compile_beforecmd = "growlnotify -t 'sass-compile.vim' -m 'start sass compile.'"
+
+" コンパイル実行後に実行したいコマンドを設定
+" 例：growlnotifyによる通知(${sasscompileresult}は実行結果)
+" let g:sass_compile_aftercmd = "growlnotify -t 'sass-compile.vim' -m ${sasscompileresult}"

@@ -37,24 +37,27 @@ NeoBundleLazy 'Shougo/vimshell', {
 
 " 入力支援
 NeoBundle 'Shougo/neocomplete'
-NeoBundle 'Shougo/neosnippet', { 'depends' : [ "neocomplete" ] }
-NeoBundle 'honza/vim-snippets', { 'depends' : [ "neocomplete", "neosnippet" ] }
 "NeoBundle 'Valloric/YouCompleteMe', {
 "            \ 'build': {
 "            \       'unix': './install.sh --clang-completer --omnisharp-completer',
 "            \   }
 "            \ }
-"NeoBundle 'SirVer/ultisnips', { 'depends' : [ "YouCompleteMe" ] }
+NeoBundle 'Shougo/neosnippet'
+"NeoBundle 'SirVer/ultisnips'
+NeoBundle 'honza/vim-snippets'
+
 NeoBundle 'kana/vim-smartinput'
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'LeafCage/yankround.vim'
 NeoBundle 'sjl/gundo.vim'
 NeoBundle 'AndrewRadev/switch.vim'
 NeoBundle 'terryma/vim-expand-region'
-NeoBundle 'osyo-manga/vim-over'
 
 " Explorer
 NeoBundle 'Shougo/unite.vim'
+NeoBundleLazy 'Shougo/neomru.vim', {
+            \ 'depends': [ "unite.vim" ]
+            \ }
 "NeoBundle 'Shougo/unite-build', { 'depends' : [ "unite.vim" ] }
 "NeoBundle 'tsukkee/unite-tag', { 'depends' : [ "unite.vim" ] }
 "NeoBundle 'hewes/unite-gtags', { 'depends' : [ "unite.vim" ] }
@@ -82,7 +85,6 @@ NeoBundle 'wesleyche/SrcExpl'
 NeoBundle "Lokaltog/vim-easymotion"
 NeoBundle "airblade/vim-rooter"
 NeoBundle "othree/eregex.vim"
-NeoBundle "DirDo.vim"
 NeoBundle "rhysd/clever-f.vim"
 
 " Docs
@@ -130,15 +132,21 @@ NeoBundle 'Rip-Rip/clang_complete', {
             \   'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
             \    'depends' : [ "neocomplete" ]
             \ }
+"NeoBundle "osyo-manga/vim-reunions"
+"NeoBundleLazy "osyo-manga/vim-marching", {
+"\     'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
+"\     'depends' : [ "vimproc", "vim-reunions" ]
+"\ }
 NeoBundleLazy 'vim-jp/cpp-vim', {
 \     'autoload': { "filetypes": [ "c", "cpp" ] }
-\}
+\ }
 NeoBundleLazy 'rhysd/vim-clang-format', {
-\     'autoload': { "filetypes": [ "c", "cpp", "objc" ] }
-\}
+\     'autoload': { "filetypes": [ "c", "cpp", "objc" ] },
+\     'depends' : [ "vimproc" ]
+\ }
 NeoBundleLazy 'osyo-manga/vim-stargate', {
 \     'autoload': { "filetypes": [ "c", "cpp", "ruby", "python" ] }
-\}
+\ }
 
 " C#
 NeoBundleLazy 'nosami/Omnisharp', {
@@ -177,6 +185,11 @@ NeoBundleLazy 'python.vim', {
 "https://github.com/davidhalter/jedi
 NeoBundleLazy "davidhalter/jedi-vim", {
 \     'autoload': { "filetypes": [ "python" ] },
+\     'build': {
+\         'windows': 'pip install jedi',
+\         'mac': 'pip install jedi',
+\         'unix': 'pip install jedi'
+\     },
 \     'depends' : [ "neocomplete" ]
 \}
 NeoBundleLazy "klen/python-mode", {
@@ -197,17 +210,16 @@ NeoBundleLazy 'othree/html5.vim', {
             \ }
 
 " CSS
-NeoBundleLazy 'skammer/vim-css-color', {
-            \ 'autoload': { "filetypes": [ "css", "less", "scss" ] }
-            \ }
 NeoBundleLazy 'hail2u/vim-css3-syntax', {
             \ 'autoload': { "filetypes": [ "css", "less", "scss" ] }
             \ }
 NeoBundleLazy 'groenewege/vim-less', {
             \ 'autoload': { "filetypes": [ "css", "less", "scss" ] }
             \ }
-NeoBundleLazy 'cakebaker/scss-syntax.vim', {
-            \ 'autoload': { "filetypes": [ "css", "less", "scss" ] }
+NeoBundle 'AtsushiM/search-parent.vim'
+NeoBundleLazy 'AtsushiM/sass-compile.vim', {
+            \ 'autoload': { "filetypes": [ "css", "scss" ] },
+            \ 'depends' : [ "search-parent.vim" ]
             \ }
 
 " JavaScript
