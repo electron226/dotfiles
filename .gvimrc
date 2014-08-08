@@ -53,11 +53,9 @@ if has('win32') || has('win64')
 
     set rop=type:directx " Enable DirectWrite
 elseif has('macunix')
-    set guifont=Osaka-Mono:h13.5
-    "set guifontwide=Migu_1M_regular:h14
+    set guifont=Ricty\ Diminished\ Discord:h12
 else " Linux
-    set guifont=Ricty\ 12
-    set guifontwide=Ricty\ 12
+    set guifont=Ricty\ Diminished\ Discord\ 12
 endif
 
 highlight CursorIM guibg=Purple guifg=NONE " IME ON時のカーソルの色を設定

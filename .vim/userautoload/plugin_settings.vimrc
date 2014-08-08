@@ -1,89 +1,112 @@
 " -------------------------------------------------------
 " include paths use omni complements and other scripts.
 " -------------------------------------------------------
-" Define include Paths.
+" Define include Paths. and others are initializing.
 if !exists('s:include_paths_cpp')
     let s:include_paths_cpp = []
 endif
-
-if has('win32') || has('win64') || has('win32unix')
-    " mingw settings.
-    if isdirectory(expand('$MINGW_HOME'))
-        let s:mingw_path = expand('$MINGW_HOME')
-    else
-        let s:mingw_path = 'f:/local/mingw64'
-    endif
-    let s:mingw_build_target = 'x86_64-w64-mingw32'
-    let s:mingw_gcc_version = '4.8.2'
-
-    " Windows
-    let s:include_paths_cpp = filter(
-                \ [
-                \   'F:/local/lib/igloo-igloo.1.1.1',
-                \ ] +
-                \ split(glob('f:/local/lib/*/include'), '\n') +
-                \ split(glob(s:mingw_path . '/include/c++/*'), '\n') +
-                \ split(glob(s:mingw_path . '/include/*/c++/*'), '\n') +
-                \ split(glob(s:mingw_path . '/include/*'), '\n') +
-                \ split(glob(s:mingw_path . '/lib/gcc/' . s:mingw_build_target . '/' . s:mingw_gcc_version . '/*'), '\n') +
-                \ split(glob(s:mingw_path . '/' . s:mingw_build_target . '/include/*'), '\n'),
-                \ 'isdirectory(v:val)')
-else
-    " Linux
-    let s:include_paths_cpp = filter(
-                \ split(glob('/include/c++/*'), '\n') +
-                \ split(glob('/include/*/c++/*'), '\n') +
-                \ split(glob('/include/*'), '\n'),
-                \ 'isdirectory(v:val)')
+if !exists('s:mingw_path')
+    let s:mingw_path = ''
+endif
+if !exists('s:mingw_build_target')
+    let s:mingw_build_target = ''
+endif
+if !exists('s:mingw_gcc_version')
+    let s:mingw_gcc_version = ''
+endif
+if !exists('s:mingw_gcc_version')
+    let s:mingw_gcc_version = ''
+endif
+if !exists('s:include_paths_string')
+    let s:include_paths_string = ''
+endif
+if !exists('s:libclang_path')
+    let s:libclang_path = []
+endif
+if !exists('s:clang_path')
+    let s:clang_path = ""
 endif
 
-" Boost Path
-if !isdirectory(expand('$BOOST_ROOT'))
-    if has('win32') || has('win64')
+autocmd FileType c,cpp call s:cpp_include_paths()
+function! s:cpp_include_paths()
+    if has('win32') || has('win64') || has('win32unix')
+        " mingw settings.
+        if isdirectory(expand('$MINGW_HOME'))
+            let s:mingw_path = expand('$MINGW_HOME')
+        else
+            let s:mingw_path = 'f:/local/mingw-w64'
+        endif
+        let s:mingw_build_target = 'x86_64-w64-mingw32'
+        let s:mingw_gcc_version = '4.9.1'
+
         " Windows
-        call add(s:include_paths_cpp, expand('f:/local/lib/boost/include/boost-1_55'))
+        let s:include_paths_cpp = filter(
+                    \ [
+                    \   'F:/local/lib/igloo-igloo.1.1.1',
+                    \ ] +
+                    \ split(glob('f:/local/lib/*/include'), '\n') +
+                    \ split(glob(s:mingw_path . '/include/c++/*'), '\n') +
+                    \ split(glob(s:mingw_path . '/include/*/c++/*'), '\n') +
+                    \ split(glob(s:mingw_path . '/include/*'), '\n') +
+                    \ split(glob(s:mingw_path . '/lib/gcc/' . s:mingw_build_target . '/' . s:mingw_gcc_version . '/*'), '\n') +
+                    \ split(glob(s:mingw_path . '/' . s:mingw_build_target . '/include/*'), '\n'),
+                    \ 'isdirectory(v:val)')
     else
-        " Ubuntu
-        call add(s:include_paths_cpp, expand('/usr/include/boost'))
-    endif
-else
-    call add(s:include_paths_cpp, expand('$BOOST_ROOT') . '/include/boost-1_55')
-endif
-
-" c/c++ include paths to string.
-let s:include_paths_string = ''
-for path in s:include_paths_cpp
-    if (!isdirectory(path))
-        echo "Can't detect directory. : " . path
+        " Linux
+        let s:include_paths_cpp = filter(
+                    \ split(glob('/include/c++/*'), '\n') +
+                    \ split(glob('/include/*/c++/*'), '\n') +
+                    \ split(glob('/include/*'), '\n'),
+                    \ 'isdirectory(v:val)')
     endif
 
-    " msvc
-    "let s:include_paths_string = s:include_paths_string . '/I ' . path . ' '
-    " mingw64
-    let s:include_paths_string = s:include_paths_string . '-I ' . path . ' '
-endfor
-
-" s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
-" be using clang_complete.
-if isdirectory(expand('$LLVM_HOME'))
-    let s:libclang_path = split(globpath('$LLVM_HOME', 'bin/**/libclang.*'), '\n')[0]
-    let s:clang_path = strpart(s:libclang_path, 0, match(s:libclang_path, 'libclang.*') - 1)
-else
-    if has('win32') || has('win64')
-        " Windows
-        let s:clang_path = expand('F:/local/llvm/build/bin/Release')
+    " Boost Path
+    if !isdirectory(expand('$BOOST_ROOT'))
+        if has('win32') || has('win64')
+            " Windows
+            call add(s:include_paths_cpp, expand('f:/local/lib/boost/include/boost-1_55'))
+        else
+            " Ubuntu
+            call add(s:include_paths_cpp, expand('/usr/include/boost'))
+        endif
     else
-        " OS X | UNIX | Ubuntu
-        let s:clang_path = expand('/usr/bin')
+        call add(s:include_paths_cpp, expand('$BOOST_ROOT') . '/include/boost-1_55')
     endif
-endif
 
-if !isdirectory(s:clang_path) ||
-            \ !(filereadable(expand(s:clang_path . '/libclang.dll')) ||
-            \ filereadable(expand(s:clang_path . '/libclang.so'))) ||
-            \ !filereadable(expand(s:clang_path . '/clang.exe'))
-    echo "Can't detect libclang.dll or libclang.so -&gt; " . s:clang_path
-endif
+    " c/c++ include paths to string.
+    for path in s:include_paths_cpp
+        if (!isdirectory(path))
+            echo "Can't detect directory. : " . path
+        endif
+
+        " msvc
+        "let s:include_paths_string = s:include_paths_string . '/I ' . path . ' '
+        " mingw64
+        let s:include_paths_string = s:include_paths_string . '-I ' . path . ' '
+    endfor
+
+    " s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
+    " be using clang_complete.
+    if isdirectory(expand('$LLVM_HOME'))
+        let s:libclang_path = split(globpath('$LLVM_HOME', 'bin/**/libclang.*'), '\n')[0]
+        let s:clang_path = strpart(s:libclang_path, 0, match(s:libclang_path, 'libclang.*') - 1)
+    else
+        if has('win32') || has('win64')
+            " Windows
+            let s:clang_path = expand('F:/local/llvm/build/bin/Release')
+        else
+            " OS X | UNIX | Ubuntu
+            let s:clang_path = expand('/usr/bin')
+        endif
+    endif
+
+    if !isdirectory(s:clang_path) ||
+                \ !(filereadable(expand(s:clang_path . '/libclang.dll')) ||
+                \ filereadable(expand(s:clang_path . '/libclang.so'))) ||
+                \ !filereadable(expand(s:clang_path . '/clang.exe'))
+        echo "Can't detect libclang.dll or libclang.so -&gt; " . s:clang_path
+    endif
+endfunction
 
 " -------------------------------------------------------
 " Vimproc
@@ -126,6 +149,9 @@ nnoremap <silent> <Leader>f :<C-u>VimFilerBufferDir
 " 入力モードで開始する
 let g:unite_enable_start_insert=1
 
+" Enable yank history.
+let g:unite_source_history_yank_enable = 1
+
 " 大文字小文字を区別しない
 let g:unite_enable_ignore_case = 1
 let g:unite_enable_smart_case = 1
@@ -137,15 +163,28 @@ nnoremap <silent> <Leader>ub :<C-u>Unite buffer<CR>
 " ブックマーク一覧
 nnoremap <silent> <Leader>uk :<C-u>Unite bookmark<CR>
 " ファイル一覧
-nnoremap <silent> <Leader>uf
-            \ :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
+nnoremap <silent> <Leader>uf :<C-u>file<CR>
+" 再帰的なファイル一覧
+nnoremap <silent> <Leader>uf :<C-u>file_rec/async<CR>
 " レジスタ一覧
 nnoremap <silent> <Leader>ur :<C-u>Unite -buffer-name=register register<CR>
-" 最近使用したファイル一覧
-nnoremap <silent> <Leader>um :<C-u>Unite file_mru<CR>
+" ヤンク履歴
+nnoremap <Leader>uy :<C-u>Unite history/yank<CR>
 " 全部乗せ
-nnoremap <silent> <Leader>ua :<C-u>UniteWithBufferDir
-            \ -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap <silent> <Leader>ua :<C-u>UniteWithBufferDir window buffer bookmark file_rec/async register history/yank<CR>
+
+" grep検索
+nnoremap <silent> <Leader>ug  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
+" カーソル位置の単語をgrep検索
+nnoremap <silent> <Leader>ugc :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
+" grep検索結果の再呼出
+nnoremap <silent> <Leader>ugr  :<C-u>UniteResume search-buffer<CR>
+" unite grep に ag(The Silver Searcher) を使う
+if executable('ag')
+    let g:unite_source_grep_command = 'ag'
+    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column --ignore-case'
+    let g:unite_source_grep_recursive_opt = ''
+endif
 
 " カーソル下のキーワードを含む行を表示
 nnoremap <silent> <Leader>ul :<C-u>UniteWithCursorWord -no-quit line<CR>
@@ -228,26 +267,12 @@ endfunction
 " -------------------------------------------------------
 " unite-outline
 " -------------------------------------------------------
-"nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
-
-" -------------------------------------------------------
-" unite-grep
-" -------------------------------------------------------
-" grep検索
-nnoremap <silent> <Leader>ug  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
-
-" カーソル位置の単語をgrep検索
-nnoremap <silent> <Leader>ugc :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
-
-" grep検索結果の再呼出
-nnoremap <silent> <Leader>ugr  :<C-u>UniteResume search-buffer<CR>
-
-" unite grep に ag(The Silver Searcher) を使う
-if executable('ag')
-    let g:unite_source_grep_command = 'ag'
-    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
-    let g:unite_source_grep_recursive_opt = ''
-endif
+" ソースの関数一覧表示
+nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
+" ソースの関数一覧を上下分割で常に表示
+nnoremap <silent> ,uho :<C-u>Unite -winheight=15 -no-quit outline<CR>
+" ソースの関数一覧を左右分割で常に表示
+nnoremap <silent> ,uvo :<C-u>Unite -vertical -winwidth=25 -no-quit outline<CR>
 
 " -------------------------------------------------------
 " neocomplete
@@ -377,37 +402,41 @@ let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\
 " -------------------------------------------------------
 " clang_complete
 " -------------------------------------------------------
-let g:neocomplete#force_overwrite_completefunc = 1
+let s:bundle = neobundle#get("clang_complete")
+function! s:bundle.hooks.on_source(bundle)
+    let g:neocomplete#force_overwrite_completefunc = 1
 
-if !exists('g:neocomplete#force_omni_input_patterns')
-    let g:neocomplete#force_omni_input_patterns = {}
-endif
-let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-let g:neocomplete#force_omni_input_patterns.objc = '[^.[:digit:] *\t]\%(\.\|->\)'
-let g:neocomplete#force_omni_input_patterns.objcpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+    let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+    let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+    let g:neocomplete#force_omni_input_patterns.objc = '[^.[:digit:] *\t]\%(\.\|->\)'
+    let g:neocomplete#force_omni_input_patterns.objcpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
 
-let g:clang_auto_select=0
-let g:clang_complete_auto=0
+    let g:clang_auto_select=0
+    let g:clang_complete_auto=0
 
-let g:clang_use_library=1
-let g:clang_debug=1
+    let g:clang_use_library=1
+    let g:clang_debug=1
 
-let g:clang_library_path = s:clang_path
-let g:clang_exec = expand(s:clang_path . '/clang.exe')
+    let g:clang_library_path = s:clang_path
+    let g:clang_exec = expand(s:clang_path . '/clang.exe')
 
-" Build msvc
-" You must compile clang on msvc of 64 bit If you use windows of 64 bit.
-let g:clang_user_options =
-            \ '"' . s:include_paths_string . '"' .
-            \ ' -std=c++11' .
-            \ ' 2> NUL || exit 0"'
-" Build mingw32
-"let g:clang_user_options =
-"            \ '"' . s:include_paths_string . '"' .
-"            \ ' -std=c++11 -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
-"            \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
-"            \ ' -include malloc.h'
+    " Build msvc
+    " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
+    let g:clang_user_options =
+                \ '"' . s:include_paths_string . '"' .
+                \ ' -std=c++11' .
+                \ ' 2> NUL || exit 0"'
+    " Build mingw32
+    "let g:clang_user_options =
+    "            \ '"' . s:include_paths_string . '"' .
+    "            \ ' -std=c++11 -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
+    "            \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
+    "            \ ' -include malloc.h'
+endfunction
+unlet s:bundle
 
 "" -------------------------------------------------------
 "" vim-matching
@@ -526,16 +555,16 @@ endfunction
 let s:jedi = neobundle#get("jedi-vim")
 function! s:jedi.hooks.on_source(bundle)
     autocmd FileType python setlocal omnifunc=jedi#completions
-    
+
     let g:jedi#auto_vim_configuration = 0
-    
+
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
     endif
     let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
 
     let g:jedi#popup_on_dot = 0
-    
+
     let g:jedi#goto_definitions_command = "<leader>jd"
     let g:jedi#documentation_command = "K"
     let g:jedi#usages_command = "<leader>jn"
@@ -548,30 +577,34 @@ unlet s:jedi
 " -------------------------------------------------------
 " neosnippet
 " -------------------------------------------------------
-let g:neosnippet#enable_snipmate_compatibility = 1
+let s:bundle = neobundle#get("neosnippet")
+function! s:bundle.hooks.on_source(bundle)
+    let g:neosnippet#enable_snipmate_compatibility = 1
 
-" Plugin key-mappings.
-imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-xmap <C-m>     <Plug>(neosnippet_expand_target)
+    " Plugin key-mappings.
+    imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+    smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+    xmap <C-m>     <Plug>(neosnippet_expand_target)
 
-" SuperTab like snippets behavior.
-"imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-"            \ "\<Plug>(neosnippet_expand_or_jump)"
-"            \ : pumvisible() ? "\<C-n>" : "\<TAB>"
-"smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-"            \ "\<Plug>(neosnippet_expand_or_jump)"
-"            \ : "\<TAB>"
+    " SuperTab like snippets behavior.
+    "imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+    "            \ "\<Plug>(neosnippet_expand_or_jump)"
+    "            \ : pumvisible() ? "\<C-n>" : "\<TAB>"
+    "smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+    "            \ "\<Plug>(neosnippet_expand_or_jump)"
+    "            \ : "\<TAB>"
 
-" For snippet_complete marker.
-if has('conceal')
-    set conceallevel=2 concealcursor=i
-endif
+    " For snippet_complete marker.
+    if has('conceal')
+        set conceallevel=2 concealcursor=i
+    endif
 
-if !exists("g:neosnippet#snippets_directory")
-    let g:neosnippet#snippets_directory = ""
-endif
-let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/bundle/vim-snippets/snippets'
+    if !exists("g:neosnippet#snippets_directory")
+        let g:neosnippet#snippets_directory = ""
+    endif
+    let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/bundle/vim-snippets/snippets'
+endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " vim-clang-format
@@ -605,7 +638,7 @@ au BufRead,BufNewFile *.go set filetype=go
 autocmd FileType go call s:golang_settings()
 function! s:golang_settings()
     auto BufWritePre *.go Fmt
-    
+
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
     endif
@@ -745,39 +778,43 @@ call altr#define('app/helpers/%.rb', 'spec/helpers/%_spec.rb')
 " -------------------------------------------------------
 " emmet-vim
 " -------------------------------------------------------
-" オムニ補完
-let g:use_emmet_complete_tag = 1
+let s:bundle = neobundle#get("emmet-vim")
+function! s:bundle.hooks.on_source(bundle)
+    " オムニ補完
+    let g:use_emmet_complete_tag = 1
 
-" キーマップ
-let g:user_emmet_expandabbr_key = '<Leader>z,'
-let g:user_emmet_expandword_key = '<Leader>z;'
-let g:user_emmet_balancetaginward_key = '<Leader>zd'
-let g:user_emmet_balancetagoutward_key = '<Leader>zD'
-let g:user_emmet_next_key = '<Leader>zn'
-let g:user_emmet_prev_key = '<Leader>zN'
-let g:user_emmet_imagesize_key = '<Leader>zi'
-let g:user_emmet_togglecomment_key = '<Leader>z/'
-let g:user_emmet_splitjointag_key = '<Leader>zj'
-let g:user_emmet_removetag_key = '<Leader>zk'
-let g:user_emmet_anchorizeurl_key = '<Leader>za'
-let g:user_emmet_anchorizesummary_key = '<Leader>zA'
-let g:user_emmet_mergelines_key = '<Leader>zm'
-let g:user_emmet_codepretty_key = '<Leader>zc'
+    " キーマップ
+    let g:user_emmet_expandabbr_key = '<Leader>z,'
+    let g:user_emmet_expandword_key = '<Leader>z;'
+    let g:user_emmet_balancetaginward_key = '<Leader>zd'
+    let g:user_emmet_balancetagoutward_key = '<Leader>zD'
+    let g:user_emmet_next_key = '<Leader>zn'
+    let g:user_emmet_prev_key = '<Leader>zN'
+    let g:user_emmet_imagesize_key = '<Leader>zi'
+    let g:user_emmet_togglecomment_key = '<Leader>z/'
+    let g:user_emmet_splitjointag_key = '<Leader>zj'
+    let g:user_emmet_removetag_key = '<Leader>zk'
+    let g:user_emmet_anchorizeurl_key = '<Leader>za'
+    let g:user_emmet_anchorizesummary_key = '<Leader>zA'
+    let g:user_emmet_mergelines_key = '<Leader>zm'
+    let g:user_emmet_codepretty_key = '<Leader>zc'
 
-let g:user_emmet_settings = {
-            \  'lang': "jp",
-            \  'html': {
-            \       'default_attributes': {
-            \           'link:less': [
-            \               { 'rel': 'stylesheet/less',
-            \                 'type': 'text/css',
-            \                 'href': '|style.less',
-            \                 'media': 'all'
-            \               }
-            \           ],
-            \       },
-            \   },
-            \ }
+    let g:user_emmet_settings = {
+                \  'lang': "jp",
+                \  'html': {
+                \       'default_attributes': {
+                \           'link:less': [
+                \               { 'rel': 'stylesheet/less',
+                \                 'type': 'text/css',
+                \                 'href': '|style.less',
+                \                 'media': 'all'
+                \               }
+                \           ],
+                \       },
+                \   },
+                \ }
+endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " vim-jsdoc
@@ -807,18 +844,22 @@ endfunction
 " -------------------------------------------------------
 " simple-javascript-indenter
 " -------------------------------------------------------
-" この設定入れるとshiftwidthを1にしてインデントしてくれる
-let g:SimpleJsIndenter_BriefMode = 1
-" この設定入れるとswitchのインデントがいくらかマシに
-let g:SimpleJsIndenter_CaseIndentLevel = -1
+let s:bundle = neobundle#get("simple-javascript-indenter")
+function! s:bundle.hooks.on_source(bundle)
+    " この設定入れるとshiftwidthを1にしてインデントしてくれる
+    let g:SimpleJsIndenter_BriefMode = 1
+    " この設定入れるとswitchのインデントがいくらかマシに
+    let g:SimpleJsIndenter_CaseIndentLevel = -1
+endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " JSON.vim
 " -------------------------------------------------------
 au! BufRead,BufNewFile *.json set filetype=json
 
-autocmd FileType json call s:json_settings()
-function! s:json_settings()
+let s:bundle = neobundle#get("JSON.vim")
+function! s:bundle.hooks.on_source(bundle)
     setl autoindent
     setl formatoptions=tcq2l
     setl textwidth=78 shiftwidth=2
@@ -826,40 +867,45 @@ function! s:json_settings()
     setl expandtab
     setl foldmethod=syntax
 endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " tagbar
 " -------------------------------------------------------
 nmap <silent> <Leader>tg :TagbarToggle<CR>
 
-" you should run for use 'go get -u github.com/jstemmer/gotags'
-let g:tagbar_type_go = {
-    \ 'ctagstype' : 'go',
-    \ 'kinds'     : [
-        \ 'p:package',
-        \ 'i:imports:1',
-        \ 'c:constants',
-        \ 'v:variables',
-        \ 't:types',
-        \ 'n:interfaces',
-        \ 'w:fields',
-        \ 'e:embedded',
-        \ 'm:methods',
-        \ 'r:constructor',
-        \ 'f:functions'
-    \ ],
-    \ 'sro' : '.',
-    \ 'kind2scope' : {
-        \ 't' : 'ctype',
-        \ 'n' : 'ntype'
-    \ },
-    \ 'scope2kind' : {
-        \ 'ctype' : 't',
-        \ 'ntype' : 'n'
-    \ },
-    \ 'ctagsbin'  : 'gotags',
-    \ 'ctagsargs' : '-sort -silent'
-\ }
+let s:bundle = neobundle#get("tagbar")
+function! s:bundle.hooks.on_source(bundle)
+    " you should run for use 'go get -u github.com/jstemmer/gotags'
+    let g:tagbar_type_go = {
+                \ 'ctagstype' : 'go',
+                \ 'kinds'     : [
+                \ 'p:package',
+                \ 'i:imports:1',
+                \ 'c:constants',
+                \ 'v:variables',
+                \ 't:types',
+                \ 'n:interfaces',
+                \ 'w:fields',
+                \ 'e:embedded',
+                \ 'm:methods',
+                \ 'r:constructor',
+                \ 'f:functions'
+                \ ],
+                \ 'sro' : '.',
+                \ 'kind2scope' : {
+                \ 't' : 'ctype',
+                \ 'n' : 'ntype'
+                \ },
+                \ 'scope2kind' : {
+                \ 'ctype' : 't',
+                \ 'ntype' : 'n'
+                \ },
+                \ 'ctagsbin'  : 'gotags',
+                \ 'ctagsargs' : '-sort -silent'
+                \ }
+endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " SrcExpl
@@ -868,48 +914,52 @@ let g:tagbar_type_go = {
 " The switch of the Source Explorer
 nmap <silent> <Leader>s :SrcExplToggle<CR>
 
-" Set the height of Source Explorer window
-"let g:SrcExpl_winHeight = 8
-" Set 100 ms for refreshing the Source Explorer
-let g:SrcExpl_refreshTime = 100
+let s:bundle = neobundle#get("SrcExpl")
+function! s:bundle.hooks.on_source(bundle)
+    " Set the height of Source Explorer window
+    "let g:SrcExpl_winHeight = 8
+    " Set 100 ms for refreshing the Source Explorer
+    let g:SrcExpl_refreshTime = 100
 
-" Set "Enter" key to jump into the exact definition context
-"let g:SrcExpl_jumpKey = "<ENTER>"
+    " Set "Enter" key to jump into the exact definition context
+    "let g:SrcExpl_jumpKey = "<ENTER>"
 
-" Set "Space" key for back from the definition context
-"let g:SrcExpl_gobackKey = "<SPACE>"
+    " Set "Space" key for back from the definition context
+    "let g:SrcExpl_gobackKey = "<SPACE>"
 
-" // Enable/Disable the local definition searching, and note that this is not
-" // guaranteed to work, the Source Explorer doesn't check the syntax for now.
-" // It only searches for a match with the keyword according to command 'gd'
-"let g:SrcExpl_searchLocalDef = 1
+    " // Enable/Disable the local definition searching, and note that this is not
+    " // guaranteed to work, the Source Explorer doesn't check the syntax for now.
+    " // It only searches for a match with the keyword according to command 'gd'
+    "let g:SrcExpl_searchLocalDef = 1
 
-" // Do not let the Source Explorer update the tags file when opening
-let g:SrcExpl_isUpdateTags = 0
+    " // Do not let the Source Explorer update the tags file when opening
+    let g:SrcExpl_isUpdateTags = 0
 
-" // Use 'Exuberant Ctags' with '--sort=foldcase -R .' or '-L cscope.files' to
-" //  create/update a tags file
-let g:SrcExpl_updateTagsCmd = "ctags --sort=foldcase -R ."
-"
-" // Set "<F12>" key for updating the tags file artificially
-let g:SrcExpl_updateTagsKey = "<Leader>su"
+    " // Use 'Exuberant Ctags' with '--sort=foldcase -R .' or '-L cscope.files' to
+    " //  create/update a tags file
+    let g:SrcExpl_updateTagsCmd = "ctags --sort=foldcase -R ."
+    "
+    " // Set "<F12>" key for updating the tags file artificially
+    let g:SrcExpl_updateTagsKey = "<Leader>su"
 
-" // Set "<F3>" key for displaying the previous definition in the jump list
-"let g:SrcExpl_prevDefKey = "<F3>"
-"
-" // Set "<F4>" key for displaying the next definition in the jump list
-"let g:SrcExpl_nextDefKey = "<F4>"
+    " // Set "<F3>" key for displaying the previous definition in the jump list
+    "let g:SrcExpl_prevDefKey = "<F3>"
+    "
+    " // Set "<F4>" key for displaying the next definition in the jump list
+    "let g:SrcExpl_nextDefKey = "<F4>"
 
-" SrcExplが競合を避けるために知っておくべきバッファ
-let g:SrcExpl_pluginList = [
-            \ "__Tag_bar__",
-            \ "[vimfiler] - default",
-            \ "Source_Explorer",
-            \ "[場所リスト][-]",
-            \ "GoToFile",
-            \ "YankRing",
-            \ "__Gundo_Preview__"
-            \ ]
+    " SrcExplが競合を避けるために知っておくべきバッファ
+    let g:SrcExpl_pluginList = [
+                \ "__Tag_bar__",
+                \ "[vimfiler] - default",
+                \ "Source_Explorer",
+                \ "[場所リスト][-]",
+                \ "GoToFile",
+                \ "YankRing",
+                \ "__Gundo_Preview__"
+                \ ]
+endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " vim-hier
@@ -919,34 +969,38 @@ let g:hier_enabled = 1
 " -------------------------------------------------------
 " quickrun.vim
 " -------------------------------------------------------
-let g:quickrun_config = {
-            \ "_" : {
-            \     "hook/quickfix_replate_tempname_to_bufnr/enable_exit" : 1,
-            \     "hook/quickfix_replate_tempname_to_bufnr/priority_exit" : -10,
-            \     "outputter/buffer/split": "botright",
-            \ },
-            \ }
-
-let s:clangcpp_cmdopt = '--std=c++11'
-if has('unix') || has('macunix')
-    let s:clangcpp_cmdopt += '--stdlib=libc++'
-endif
-
-let s:clangcpp_cmdopt += s:include_paths_string
-
-if executable("clang++")
-    let g:quickrun_config['cpp'] = {'type': 'cpp/clang++11'}
-    let g:quickrun_config['cpp/clang++11'] = {
-                \ 'cmdopt': s:clangcpp_cmdopt,
-                \ 'type': 'cpp/clang++'
+let s:bundle = neobundle#get("vim-quickrun")
+function! s:bundle.hooks.on_source(bundle)
+    let g:quickrun_config = {
+                \ "_" : {
+                \     "hook/quickfix_replate_tempname_to_bufnr/enable_exit" : 1,
+                \     "hook/quickfix_replate_tempname_to_bufnr/priority_exit" : -10,
+                \     "outputter/buffer/split": "botright",
+                \ },
                 \ }
-else
-    let g:quickrun_config['cpp'] = {'type': 'cpp/g++11'}
-    let g:quickrun_config['cpp/g++11'] = {
-                \ 'cmdopt': s:clangcpp_cmdopt,
-                \ 'type': 'cpp/g++'
-                \ }
-endif
+
+    let s:clangcpp_cmdopt = '--std=c++11'
+    if has('unix') || has('macunix')
+        let s:clangcpp_cmdopt += '--stdlib=libc++'
+    endif
+
+    let s:clangcpp_cmdopt += s:include_paths_string
+
+    if executable("clang++")
+        let g:quickrun_config['cpp'] = {'type': 'cpp/clang++11'}
+        let g:quickrun_config['cpp/clang++11'] = {
+                    \ 'cmdopt': s:clangcpp_cmdopt,
+                    \ 'type': 'cpp/clang++'
+                    \ }
+    else
+        let g:quickrun_config['cpp'] = {'type': 'cpp/g++11'}
+        let g:quickrun_config['cpp/g++11'] = {
+                    \ 'cmdopt': s:clangcpp_cmdopt,
+                    \ 'type': 'cpp/g++'
+                    \ }
+    endif
+endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " Syntastic
@@ -1093,8 +1147,6 @@ nmap gP <Plug>(yankround-gP)
 nmap <C-p> <Plug>(yankround-prev)
 nmap <C-n> <Plug>(yankround-next)
 
-nnoremap <silent> <Leader>yr :<C-u>Unite window<CR>
-
 " 履歴取得数
 let g:yankround_max_history = 50
 "
@@ -1110,22 +1162,26 @@ au VimEnter,Syntax * RainbowParenthesesLoadChevrons
 " -------------------------------------------------------
 " sass-compile
 " -------------------------------------------------------
-"" 編集したファイルから遡るフォルダの最大数
-let g:sass_compile_cdloop = 5
+let s:bundle = neobundle#get("sass-compile.vim")
+function! s:bundle.hooks.on_source(bundle)
+    "" 編集したファイルから遡るフォルダの最大数
+    let g:sass_compile_cdloop = 5
 
-" ファイル保存時に自動コンパイル（1で自動実行）
-let g:sass_compile_auto = 0
+    " ファイル保存時に自動コンパイル（1で自動実行）
+    let g:sass_compile_auto = 0
 
-" 自動コンパイルを実行する拡張子
-let g:sass_compile_file = ['scss', 'sass']
+    " 自動コンパイルを実行する拡張子
+    let g:sass_compile_file = ['scss', 'sass']
 
-" cssファイルが入っているディレクトリ名（前のディレクトリほど優先）
-let g:sass_compile_cssdir = ['css', 'stylesheet']
+    " cssファイルが入っているディレクトリ名（前のディレクトリほど優先）
+    let g:sass_compile_cssdir = ['css', 'stylesheet']
 
-" コンパイル実行前に実行したいコマンドを設定
-" 例：growlnotifyによる通知
-" let g:sass_compile_beforecmd = "growlnotify -t 'sass-compile.vim' -m 'start sass compile.'"
+    " コンパイル実行前に実行したいコマンドを設定
+    " 例：growlnotifyによる通知
+    " let g:sass_compile_beforecmd = "growlnotify -t 'sass-compile.vim' -m 'start sass compile.'"
 
-" コンパイル実行後に実行したいコマンドを設定
-" 例：growlnotifyによる通知(${sasscompileresult}は実行結果)
-" let g:sass_compile_aftercmd = "growlnotify -t 'sass-compile.vim' -m ${sasscompileresult}"
+    " コンパイル実行後に実行したいコマンドを設定
+    " 例：growlnotifyによる通知(${sasscompileresult}は実行結果)
+    " let g:sass_compile_aftercmd = "growlnotify -t 'sass-compile.vim' -m ${sasscompileresult}"
+endfunction
+unlet s:bundle
