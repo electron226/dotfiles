@@ -14,14 +14,11 @@ endif
 if !exists('s:mingw_gcc_version')
     let s:mingw_gcc_version = ''
 endif
-if !exists('s:mingw_gcc_version')
-    let s:mingw_gcc_version = ''
-endif
 if !exists('s:include_paths_string')
     let s:include_paths_string = ''
 endif
 if !exists('s:libclang_path')
-    let s:libclang_path = []
+    let s:libclang_path = ""
 endif
 if !exists('s:clang_path')
     let s:clang_path = ""
@@ -34,10 +31,28 @@ function! s:cpp_include_paths()
         if isdirectory(expand('$MINGW_HOME'))
             let s:mingw_path = expand('$MINGW_HOME')
         else
-            let s:mingw_path = 'f:/local/mingw-w64'
+            let s:mingw_path = 'f:/local/mingw-w64/mingw64'
         endif
-        let s:mingw_build_target = 'x86_64-w64-mingw32'
-        let s:mingw_gcc_version = '4.9.1'
+
+        if executable('gcc')
+            let s:gcc_list = systemlist("gcc -v")
+            for l in s:gcc_list
+                let s:temp = matchstr(l, 'Target: \zs.*')
+                if len(s:temp) > 0
+                    let s:target = s:temp
+                    continue
+                endif
+
+                let s:temp = matchstr(l, 'gcc version \zs[0-9.]\+')
+                if len(s:temp) > 0
+                    let s:gcc_ver = s:temp
+                    continue
+                endif
+            endfor
+
+            let s:mingw_build_target = s:target
+            let s:mingw_gcc_version = s:gcc_ver
+        endif
 
         " Windows
         let s:include_paths_cpp = filter(
@@ -45,18 +60,16 @@ function! s:cpp_include_paths()
                     \   'F:/local/lib/igloo-igloo.1.1.1',
                     \ ] +
                     \ split(glob('f:/local/lib/*/include'), '\n') +
-                    \ split(glob(s:mingw_path . '/include/c++/*'), '\n') +
-                    \ split(glob(s:mingw_path . '/include/*/c++/*'), '\n') +
+                    \ split(glob(s:mingw_path . '/include'), '\n') +
                     \ split(glob(s:mingw_path . '/include/*'), '\n') +
-                    \ split(glob(s:mingw_path . '/lib/gcc/' . s:mingw_build_target . '/' . s:mingw_gcc_version . '/*'), '\n') +
-                    \ split(glob(s:mingw_path . '/' . s:mingw_build_target . '/include/*'), '\n'),
+                    \ split(glob(s:mingw_path . '/*/include'), '\n') +
+                    \ split(glob(s:mingw_path . '/*/include/*'), '\n'),
                     \ 'isdirectory(v:val)')
     else
         " Linux
         let s:include_paths_cpp = filter(
-                    \ split(glob('/include/c++/*'), '\n') +
-                    \ split(glob('/include/*/c++/*'), '\n') +
-                    \ split(glob('/include/*'), '\n'),
+                    \ split(glob('/usr/include/*'), '\n'),
+                    \ split(glob('/usr/local/include/*'), '\n'),
                     \ 'isdirectory(v:val)')
     endif
 
@@ -758,22 +771,26 @@ let g:indent_guides_enable_on_vim_startup = 1
 nmap <Leader>k <Plug>(altr-forward)
 nmap <Leader>j <Plug>(altr-back)
 
-" Javascript(jasmine)
-call altr#define('public/javascripts/%.js',
-            \ 'spec/javascripts/%Spec.js',
-            \ 'spec/javascripts/helpers/%Helper.js'
-            \ )
+let s:bundle = neobundle#get("vim-altr")
+function! s:bundle.hooks.on_source(bundle)
+    " Javascript(jasmine)
+    call altr#define('public/javascripts/%.js',
+                \ 'spec/javascripts/%Spec.js',
+                \ 'spec/javascripts/helpers/%Helper.js'
+                \ )
 
-" For Ruby tdd(RSpec)
-call altr#define('%.rb', 'spec/%_spec.rb')
+    " For Ruby tdd(RSpec)
+    call altr#define('%.rb', 'spec/%_spec.rb')
 
-" For rails tdd(RSpec)
-call altr#define('app/models/%.rb',
-            \ 'spec/models/%_spec.rb',
-            \ 'spec/factories/%s.rb'
-            \ )
-call altr#define('app/controllers/%.rb', 'spec/controllers/%_spec.rb')
-call altr#define('app/helpers/%.rb', 'spec/helpers/%_spec.rb')
+    " For rails tdd(RSpec)
+    call altr#define('app/models/%.rb',
+                \ 'spec/models/%_spec.rb',
+                \ 'spec/factories/%s.rb'
+                \ )
+    call altr#define('app/controllers/%.rb', 'spec/controllers/%_spec.rb')
+    call altr#define('app/helpers/%.rb', 'spec/helpers/%_spec.rb')
+endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " emmet-vim
