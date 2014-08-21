@@ -47,15 +47,10 @@ source $VIMRUNTIME/menu.vim
 set guioptions-=T
 set guioptions-=m
 
+set guifont=Ricty\ Diminished\ Discord:h12
 if has('win32') || has('win64')
-    set guifont=Inconsolata:h12:cSHIFTJIS
-    set guifontwide=Migu_1M_regular:h10.5:cSHIFTJIS
-
-    set rop=type:directx " Enable DirectWrite
-elseif has('macunix')
-    set guifont=Ricty\ Diminished\ Discord:h12
-else " Linux
-    set guifont=Ricty\ Diminished\ Discord\ 12
+    " Enable DirectWrite
+    "set rop=type:directx
 endif
 
 highlight CursorIM guibg=Purple guifg=NONE " IME ON時のカーソルの色を設定

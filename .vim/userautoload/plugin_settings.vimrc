@@ -14,8 +14,11 @@ endif
 if !exists('s:mingw_gcc_version')
     let s:mingw_gcc_version = ''
 endif
-if !exists('s:include_paths_string')
-    let s:include_paths_string = ''
+if !exists('s:include_paths_string_msvc')
+    let s:include_paths_string_msvc = ''
+endif
+if !exists('s:include_paths_string_mingw')
+    let s:include_paths_string_mingw = ''
 endif
 if !exists('s:libclang_path')
     let s:libclang_path = ""
@@ -57,7 +60,7 @@ function! s:cpp_include_paths()
         " Windows
         let s:include_paths_cpp = filter(
                     \ [
-                    \   'F:/local/lib/igloo-igloo.1.1.1',
+                    \   'F:/local/lib/opencv/build/include',
                     \ ] +
                     \ split(glob('f:/local/lib/*/include'), '\n') +
                     \ split(glob(s:mingw_path . '/include'), '\n') +
@@ -74,16 +77,20 @@ function! s:cpp_include_paths()
     endif
 
     " Boost Path
-    if !isdirectory(expand('$BOOST_ROOT'))
+    let s:boost_root = expand('$BOOST_ROOT')
+    if !isdirectory(s:boost_root)
         if has('win32') || has('win64')
-            " Windows
-            call add(s:include_paths_cpp, expand('f:/local/lib/boost/include/boost-1_55'))
+            let s:boost_root = 'f:/local/lib/boost'
         else
-            " Ubuntu
-            call add(s:include_paths_cpp, expand('/usr/include/boost'))
+            let s:boost_root = '/usr/include/boost'
         endif
+    endif
+    let s:boost_include_path = split(glob(s:boost_root . '/include/*'), '\n')[0])
+
+    if isdirectory(s:boost_include_path)
+        call add(s:include_paths_cpp, s:boost_include_path)
     else
-        call add(s:include_paths_cpp, expand('$BOOST_ROOT') . '/include/boost-1_55')
+        echo "Boost library isn't found."
     endif
 
     " c/c++ include paths to string.
@@ -93,9 +100,9 @@ function! s:cpp_include_paths()
         endif
 
         " msvc
-        "let s:include_paths_string = s:include_paths_string . '/I ' . path . ' '
+        let s:include_paths_string_msvc = s:include_paths_string . '/I ' . path . ' '
         " mingw64
-        let s:include_paths_string = s:include_paths_string . '-I ' . path . ' '
+        let s:include_paths_string_mingw = s:include_paths_string . '-I ' . path . ' '
     endfor
 
     " s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
@@ -105,11 +112,9 @@ function! s:cpp_include_paths()
         let s:clang_path = strpart(s:libclang_path, 0, match(s:libclang_path, 'libclang.*') - 1)
     else
         if has('win32') || has('win64')
-            " Windows
             let s:clang_path = expand('F:/local/llvm/build/bin/Release')
         else
-            " OS X | UNIX | Ubuntu
-            let s:clang_path = expand('/usr/bin')
+            let s:clang_path = expand('/usr/local/bin')
         endif
     endif
 
@@ -439,12 +444,12 @@ function! s:bundle.hooks.on_source(bundle)
     " Build msvc
     " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
     let g:clang_user_options =
-                \ '"' . s:include_paths_string . '"' .
+                \ '"' . s:include_paths_string_msvc . '"' .
                 \ ' -std=c++11' .
                 \ ' 2> NUL || exit 0"'
     " Build mingw32
     "let g:clang_user_options =
-    "            \ '"' . s:include_paths_string . '"' .
+    "            \ '"' . s:include_paths_string_mingw . '"' .
     "            \ ' -std=c++11 -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
     "            \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
     "            \ ' -include malloc.h'
@@ -509,56 +514,96 @@ function! s:csharp_settings()
     inoremap <expr><space>  neocomplcache#close_popup() . " "
     inoremap <expr>;  neocomplcache#close_popup() . ";"
 
-    "This is the default value, setting it isn't actually necessary
-    "let g:OmniSharp_host = "http://localhost:2000"
+"This is the default value, setting it isn't actually necessary
+let g:OmniSharp_host = "http://localhost:2000"
 
-    "Set the type lookup function to use the preview window instead of the status line
-    let g:OmniSharp_typeLookupInPreview = 1
+"Set the type lookup function to use the preview window instead of the status line
+"let g:OmniSharp_typeLookupInPreview = 1
 
-    "Showmatch significantly slows down omnicomplete
-    "when the first match contains parentheses.
-    set noshowmatch
+"Timeout in seconds to wait for a response from the server
+let g:OmniSharp_timeout = 1
 
-    "Super tab settings
-    "let g:SuperTabDefaultCompletionType = 'context'
-    "let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-    "let g:SuperTabDefaultCompletionTypeDiscovery = ["&omnifunc:<c-x><c-o>","&completefunc:<c-x><c-n>"]
-    "let g:SuperTabClosePreviewOnPopupClose = 1
+"Showmatch significantly slows down omnicomplete
+"when the first match contains parentheses.
+set noshowmatch
+"Set autocomplete function to OmniSharp (if not using YouCompleteMe completion plugin)
+"autocmd FileType cs setlocal omnifunc=OmniSharp#Complete
 
-    "don't autoselect first item in omnicomplete, show if only one item (for preview)
-    set completeopt=longest,menuone,preview
+"Super tab settings
+"let g:SuperTabDefaultCompletionType = 'context'
+"let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+"let g:SuperTabDefaultCompletionTypeDiscovery = ["&omnifunc:<c-x><c-o>","&completefunc:<c-x><c-n>"]
+"let g:SuperTabClosePreviewOnPopupClose = 1
 
-    nnoremap <F5> :wa!<cr>:OmniSharpBuild<cr>
-    " Builds can run asynchronously with vim-dispatch installed
-    "nnoremap <F5> :wa!<cr>:OmniSharpBuildAsync<cr>
+"don't autoselect first item in omnicomplete, show if only one item (for preview)
+"remove preview if you don't want to see any documentation whatsoever.
+set completeopt=longest,menuone,preview
+" Fetch full documentation during omnicomplete requests. 
+" There is a performance penalty with this (especially on Mono)
+" By default, only Type/Method signatures are fetched. Full documentation can still be fetched when
+" you need it with the :OmniSharpDocumentation command.
+" let g:omnicomplete_fetch_documentation=1
 
-    nnoremap <F12> :OmniSharpGotoDefinition<cr>
-    nnoremap gd :OmniSharpGotoDefinition<cr>
-    nnoremap <leader>fi :OmniSharpFindImplementations<cr>
-    nnoremap <leader>ft :OmniSharpFindType<cr>
-    nnoremap <leader>fs :OmniSharpFindSymbol<cr>
-    nnoremap <leader>fu :OmniSharpFindUsages<cr>
-    nnoremap <leader>fm :OmniSharpFindMembersInBuffer<cr>
-    nnoremap <leader>tt :OmniSharpTypeLookup<cr>
-    "I find contextual code actions so useful that I have it mapped to the spacebar
-    nnoremap <space> :OmniSharpGetCodeActions<cr>
+"Move the preview window (code documentation) to the bottom of the screen, so it doesn't move the code!
+"You might also want to look at the echodoc plugin
+set splitbelow
 
-    " rename with dialog
-    nnoremap <leader>nm :OmniSharpRename<cr>
-    nnoremap <F2> :OmniSharpRename<cr>
-    " rename without dialog - with cursor on the symbol to rename... ':Rename newname'
-    command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
-    " Force OmniSharp to reload the solution. Useful when switching branches etc.
-    nnoremap <leader>rl :OmniSharpReloadSolution<cr>
-    nnoremap <leader>cf :OmniSharpCodeFormat<cr>
-    nnoremap <leader>tp :OmniSharpAddToProject<cr>
-    " (Experimental - uses vim-dispatch or vimproc plugin) - Start the omnisharp server for the current solution
-    nnoremap <leader>ss :OmniSharpStartServer<cr>
-    nnoremap <leader>sp :OmniSharpStopServer<cr>
-    nnoremap <leader>th :OmniSharpHighlightTypes<cr>
+" Synchronous build (blocks Vim)
+"autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuild<cr>
+" Builds can also run asynchronously with vim-dispatch installed
+autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuildAsync<cr>
 
-    "Don't ask to save when changing buffers (i.e. when jumping to a type definition)
-    set hidden
+"The following commands are contextual, based on the current cursor position.
+
+autocmd FileType cs nnoremap gd :OmniSharpGotoDefinition<cr>
+nnoremap <leader>fi :OmniSharpFindImplementations<cr>
+nnoremap <leader>ft :OmniSharpFindType<cr>
+nnoremap <leader>fs :OmniSharpFindSymbol<cr>
+nnoremap <leader>fu :OmniSharpFindUsages<cr>
+nnoremap <leader>fm :OmniSharpFindMembersInBuffer<cr>
+" cursor can be anywhere on the line containing an issue for this one
+nnoremap <leader>x  :OmniSharpFixIssue<cr>
+nnoremap <leader>fx :OmniSharpFixUsings<cr>
+nnoremap <leader>tt :OmniSharpTypeLookup<cr>
+nnoremap <leader>dc :OmniSharpDocumentation<cr>
+
+" Get Code Issues and syntax errors
+let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
+autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
+
+"show type information automatically when the cursor stops moving
+autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
+" this setting controls how long to pause (in ms) before fetching type / symbol information.
+set updatetime=500
+" Remove 'Press Enter to continue' message when type information is longer than one line.
+set cmdheight=2
+
+" Contextual code actions (requires CtrlP)
+nnoremap <leader><space> :OmniSharpGetCodeActions<cr>
+" Run code actions with text selected in visual mode to extract method
+vnoremap <leader><space> :call OmniSharp#GetCodeActions('visual')<cr>
+
+" rename with dialog
+nnoremap <leader>nm :OmniSharpRename<cr>
+nnoremap <F2> :OmniSharpRename<cr>      
+" rename without dialog - with cursor on the symbol to rename... ':Rename newname'
+command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
+
+" Force OmniSharp to reload the solution. Useful when switching branches etc.
+nnoremap <leader>rl :OmniSharpReloadSolution<cr>
+nnoremap <leader>cf :OmniSharpCodeFormat<cr>
+" Load the current .cs file to the nearest project
+nnoremap <leader>tp :OmniSharpAddToProject<cr>
+" Automatically add new cs files to the nearest project on save
+autocmd BufWritePost *.cs call OmniSharp#AddToProject()
+" (Experimental - uses vim-dispatch or vimproc plugin) - Start the omnisharp server for the current solution
+nnoremap <leader>ss :OmniSharpStartServer<cr>
+nnoremap <leader>sp :OmniSharpStopServer<cr>
+
+" Add syntax highlighting for types and interfaces
+nnoremap <leader>th :OmniSharpHighlightTypes<cr>
+"Don't ask to save when changing buffers (i.e. when jumping to a type definition)
+set hidden
 endfunction
 
 " -------------------------------------------------------
@@ -1001,7 +1046,7 @@ function! s:bundle.hooks.on_source(bundle)
         let s:clangcpp_cmdopt += '--stdlib=libc++'
     endif
 
-    let s:clangcpp_cmdopt += s:include_paths_string
+    let s:clangcpp_cmdopt += s:include_paths_string_mingw
 
     if executable("clang++")
         let g:quickrun_config['cpp'] = {'type': 'cpp/clang++11'}
@@ -1038,7 +1083,7 @@ else
     let g:syntastic_cpp_compiler_options = '--std=c++11 --stdlib=libc++'
 endif
 
-let g:syntastic_cpp_compiler_options += s:include_paths_string
+let g:syntastic_cpp_compiler_options += s:include_paths_string_mingw
 
 if executable("clang++")
     let g:syntastic_cpp_compiler = 'clang++'
@@ -1153,6 +1198,16 @@ call smartinput#define_rule({
             \   })
 
 " -------------------------------------------------------
+" vim-multiple-cursors
+" -------------------------------------------------------
+" let g:multi_cursor_use_default_mapping = 0
+"
+" let g:multi_cursor_next_key='<C-n>'
+" let g:multi_cursor_prev_key='<C-p>'
+" let g:multi_cursor_skip_key='<C-x>'
+" let g:multi_cursor_quit_key='<Esc>'
+
+" -------------------------------------------------------
 " yankround.vim
 " -------------------------------------------------------
 nmap p <Plug>(yankround-p)
@@ -1161,8 +1216,8 @@ nmap P <Plug>(yankround-P)
 nmap gp <Plug>(yankround-gp)
 xmap gp <Plug>(yankround-gp)
 nmap gP <Plug>(yankround-gP)
-nmap <C-p> <Plug>(yankround-prev)
-nmap <C-n> <Plug>(yankround-next)
+nmap yp <Plug>(yankround-prev)
+nmap yn <Plug>(yankround-next)
 
 " 履歴取得数
 let g:yankround_max_history = 50

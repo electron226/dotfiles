@@ -16,7 +16,7 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 " recommended to install
 NeoBundle 'Shougo/vimproc', {
             \ 'build': {
-            \       'windows': 'nmake /f Make_msvc64.mak',
+            \       'windows': 'nmake /f make_msvc.mak',
             \       'mac': 'make -f make_mac.mak',
             \       'unix': 'make -f make_unix.mak',
             \       'mingw32': 'make -f make_mingw32.mak',
@@ -148,12 +148,6 @@ NeoBundleLazy 'wesleyche/SrcExpl', {
 \   }
 \ }
 
-" Vim Action
-NeoBundle "Lokaltog/vim-easymotion"
-NeoBundle "airblade/vim-rooter"
-NeoBundle "othree/eregex.vim"
-NeoBundle "rhysd/clever-f.vim"
-
 " Docs
 NeoBundle 'vim-jp/vimdoc-ja'
 if !has('win32') || !has('win64')
@@ -167,9 +161,15 @@ endif
 " colorscheme
 NeoBundle 'tomasr/molokai'
 
-" 整形 & 表示
-NeoBundle "itchyny/lightline.vim"
+" 整形 & 表示 & 動作
+NeoBundle "Lokaltog/vim-easymotion"
 NeoBundle 't9md/vim-textmanip'
+NeoBundle "airblade/vim-rooter"
+NeoBundle "othree/eregex.vim"
+NeoBundle "rhysd/clever-f.vim"
+NeoBundle "terryma/vim-multiple-cursors"
+
+NeoBundle "itchyny/lightline.vim"
 NeoBundleLazy 'h1mesuke/vim-alignta', {
 \     'autoload': {
 \           'commands' : [ "Alignta", "Align" ]
