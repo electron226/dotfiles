@@ -7,7 +7,7 @@ if has('vim_starting')
 endif
 call neobundle#begin(expand('$MY_VIMRUNTIME/bundle/'))
 
-let g:neobundle#install_process_timeout = 300
+let g:neobundle#install_process_timeout = 600
 
 " let NeoBundle manage NeoBundle
 " required!
@@ -248,6 +248,9 @@ NeoBundleLazy 'nosami/Omnisharp', {
 \ }
 
 " Golang
+NeoBundleLazy 'fatih/vim-go', {
+            \ 'autoload': { "filetypes": [ "go" ] }
+\ }
 NeoBundleLazy 'Blackrush/vim-gocode', {
             \ 'autoload': { "filetypes": [ "go" ] },
             \ 'build': {

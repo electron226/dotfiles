@@ -680,6 +680,45 @@ let g:clang_format#style_options = {
             \ "AlwaysBreakTemplateDeclarations" : "true",
             \ "Standard" : "C++11"
             \ }
+            
+" -------------------------------------------------------
+" vim-go
+" -------------------------------------------------------
+let s:bundle = neobundle#get("vim-go")
+function! s:bundle.hooks.on_source(bundle)
+    au FileType go nmap <Leader>s <Plug>(go-implements)
+    au FileType go nmap <Leader>i <Plug>(go-info)
+    au FileType go nmap <Leader>gd <Plug>(go-doc)
+    au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
+    au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
+    au FileType go nmap <leader>r <Plug>(go-run)
+    au FileType go nmap <leader>b <Plug>(go-build)
+    au FileType go nmap <leader>t <Plug>(go-test)
+    au FileType go nmap <leader>c <Plug>(go-coverage)
+    au FileType go nmap gd <Plug>(go-def)
+    au FileType go nmap <Leader>ds <Plug>(go-def-split)
+    au FileType go nmap <Leader>dv <Plug>(go-def-vertical)
+    au FileType go nmap <Leader>dt <Plug>(go-def-tab)
+    
+    let g:go_snippet_engine = "neosnippet"
+    
+    "Disable opening browser after posting to your snippet to play.golang.org
+    "let g:go_play_open_browser = 0
+    
+    "By default vim-go shows errors for the fmt command, to disable it
+    "let g:go_fmt_fail_silently = 1
+    
+    "Enable goimports to automatically insert import paths instead of gofmt
+    "let g:go_fmt_command = "goimports"
+    
+    "Disable auto fmt on save
+    "let g:go_fmt_autosave = 0
+    
+    "By default binaries are installed to $GOBIN or $GOPATH/bin. To change it:
+    "let g:go_bin_path = expand("~/.gotools")
+    "let g:go_bin_path = "/home/fatih/.mypath"      "or give absolute path
+endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " golang setting.
