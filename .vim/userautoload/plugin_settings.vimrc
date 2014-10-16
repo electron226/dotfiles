@@ -1264,11 +1264,14 @@ let g:yankround_max_history = 50
 " -------------------------------------------------------
 " rainbow_parenttheses.vim
 " -------------------------------------------------------
-au VimEnter * RainbowParenthesesToggle
-au VimEnter,Syntax * RainbowParenthesesLoadRound
-au VimEnter,Syntax * RainbowParenthesesLoadSquare
-au VimEnter,Syntax * RainbowParenthesesLoadBraces
-au VimEnter,Syntax * RainbowParenthesesLoadChevrons
+autocmd FileType * if &filetype !=# 'html' | call s:rainbow_settings() | endif
+function! s:rainbow_settings()
+    au VimEnter * RainbowParenthesesToggle
+    au VimEnter,Syntax * RainbowParenthesesLoadRound
+    au VimEnter,Syntax * RainbowParenthesesLoadSquare
+    au VimEnter,Syntax * RainbowParenthesesLoadBraces
+    au VimEnter,Syntax * RainbowParenthesesLoadChevrons
+endfunction
 
 " -------------------------------------------------------
 " sass-compile
