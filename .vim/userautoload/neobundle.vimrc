@@ -41,21 +41,6 @@ NeoBundleLazy 'Shougo/neocomplete', {
 \       "insert": 1
 \   }
 \ }
-"NeoBundleLazy 'Valloric/YouCompleteMe', {
-"            \ 'build': {
-"            \       'windows': 'git submodule update --init --recursive',
-"            \       'mac': 'git submodule update --init --recursive;  ./install.sh --clang-completer --omnisharp-completer',
-"            \       'unix': 'git submodule update --init --recursive; ./install.sh --clang-completer --omnisharp-completer',
-"            \   },
-"            \   "autoload": {
-"            \       "insert": 1
-"            \   }
-"            \ }
-"NeoBundleLazy 'SirVer/ultisnips', {
-"\   "autoload": {
-"\       "insert": 1
-"\   }
-"\ }
 NeoBundleLazy 'Shougo/neosnippet', {
 \   "autoload": {
 \       "insert": 1
@@ -334,14 +319,14 @@ NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \}
 
 " version management
-NeoBundle 'git://repo.or.cz/vcscommand.git'
-NeoBundle 'tpope/vim-fugitive'
-NeoBundleLazy 'gregsexton/gitv', {
-            \   'autoload': {
-            \           'commands' : [ "Gitv" ],
-            \           'depends' : [ "vim-fugitive" ]
-            \   }
-            \ }
+"NeoBundle 'git://repo.or.cz/vcscommand.git'
+"NeoBundle 'tpope/vim-fugitive'
+"NeoBundleLazy 'gregsexton/gitv', {
+"            \   'autoload': {
+"            \           'commands' : [ "Gitv" ],
+"            \           'depends' : [ "vim-fugitive" ]
+"            \   }
+"            \ }
 
 " Others
 NeoBundleLazy 'JSON.vim', {

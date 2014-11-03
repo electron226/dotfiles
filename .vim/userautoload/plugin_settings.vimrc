@@ -85,7 +85,7 @@ function! s:cpp_include_paths()
             let s:boost_root = '/usr/include/boost'
         endif
     endif
-    let s:boost_include_path = split(glob(s:boost_root . '/include/*'), '\n')[0])
+    let s:boost_include_path = split(glob(s:boost_root . '/include/*'), '\n')[0]
 
     if isdirectory(s:boost_include_path)
         call add(s:include_paths_cpp, s:boost_include_path)
@@ -100,9 +100,9 @@ function! s:cpp_include_paths()
         endif
 
         " msvc
-        let s:include_paths_string_msvc = s:include_paths_string . '/I ' . path . ' '
+        let s:include_paths_string_msvc = s:include_paths_string_msvc . '/I ' . path . ' '
         " mingw64
-        let s:include_paths_string_mingw = s:include_paths_string . '-I ' . path . ' '
+        let s:include_paths_string_mingw = s:include_paths_string_mingw . '-I ' . path . ' '
     endfor
 
     " s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
@@ -1255,8 +1255,8 @@ nmap P <Plug>(yankround-P)
 nmap gp <Plug>(yankround-gp)
 xmap gp <Plug>(yankround-gp)
 nmap gP <Plug>(yankround-gP)
-nmap yp <Plug>(yankround-prev)
-nmap yn <Plug>(yankround-next)
+nmap <C-k> <Plug>(yankround-prev)
+nmap <C-j> <Plug>(yankround-next)
 
 " 履歴取得数
 let g:yankround_max_history = 50
