@@ -1,3 +1,8 @@
+let g:make = 'gmake'
+if system('uname -o') =~ '^GNU/'
+        let g:make = 'make'
+endif
+
 " -------------------------------------------------------
 " NeoBundle
 " -------------------------------------------------------
@@ -15,14 +20,13 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 
 " recommended to install
 NeoBundle 'Shougo/vimproc', {
-            \ 'build': {
-            \       'windows': 'nmake /f make_msvc.mak',
-            \       'mac': 'make -f make_mac.mak',
-            \       'unix': 'make -f make_unix.mak',
-            \       'mingw32': 'make -f make_mingw32.mak',
-            \       'mingw64': 'make -f make_mingw64.mak',
-            \   }
-            \ }
+\ 'build' : {
+\     'windows' : 'tools\\update-dll-mingw',
+\     'cygwin' : 'make -f make_cygwin.mak',
+\     'mac' : 'make -f make_mac.mak',
+\     'unix' : g:make,
+\    },
+\ }
 
 " after install, turn shell ~/.vim/bundle/vimproc,
 " (n,g)make -f your_machines_makefile
@@ -42,6 +46,11 @@ NeoBundleLazy 'Shougo/neocomplete', {
 \   }
 \ }
 NeoBundleLazy 'Shougo/neosnippet', {
+\   "autoload": {
+\       "insert": 1
+\   }
+\ }
+NeoBundleLazy 'Shougo/neosnippet-snippets', {
 \   "autoload": {
 \       "insert": 1
 \   }
@@ -111,7 +120,7 @@ NeoBundle "wincent/Command-T", {
             \ 'build': {
             \       'windows': 'echo "Please build command-t manually."',
             \       'mac': 'cd ./ruby/command-t; ruby extconf.rb; make',
-            \       'unix': 'cd ./ruby/command-t; ruby extconf.rb; make',
+            \       'unix': 'cd ./ruby/command-t; ruby extconf.rb; ' + g:make,
             \       'mingw32': 'cd ./ruby/command-t; ruby extconf.rb; make',
             \       'mingw64': 'cd ./ruby/command-t; ruby extconf.rb; make',
             \  }
@@ -193,9 +202,9 @@ NeoBundleLazy "thinca/vim-quickrun", {
 \   }
 \ }
 NeoBundle 'reinh/vim-makegreen'
-NeoBundle 'scrooloose/syntastic'
 NeoBundle "jceb/vim-hier"
 NeoBundle "dannyob/quickfixstatus"
+NeoBundle 'scrooloose/syntastic'
 NeoBundleLazy "http://lh-vim.googlecode.com/svn/refactor/trunk/", {
 \     'autoload': { "filetypes": [ "c", "cpp", "java", "pascal", "vim" ] }
 \}
@@ -205,11 +214,6 @@ NeoBundle 'Rip-Rip/clang_complete', {
             \   'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
             \   'depends' : [ "neocomplete" ]
             \ }
-"NeoBundle "osyo-manga/vim-reunions"
-"NeoBundleLazy "osyo-manga/vim-marching", {
-"\     'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
-"\     'depends' : [ "vimproc", "vim-reunions" ]
-"\ }
 NeoBundleLazy 'vim-jp/cpp-vim', {
 \     'autoload': { "filetypes": [ "c", "cpp" ] }
 \ }
@@ -225,9 +229,11 @@ NeoBundleLazy 'osyo-manga/vim-stargate', {
 NeoBundleLazy 'nosami/Omnisharp', {
 \   'autoload': {'filetypes': ['cs']},
 \   'build': {
-\     'windows': 'MSBuild.exe server/OmniSharp.sln /p:Platform="Any CPU"',
-\     'mac': 'xbuild server/OmniSharp.sln',
-\     'unix': 'xbuild server/OmniSharp.sln',
+\     'windows': 'cd server; msbuild /p:Platform="Any CPU"',
+\     'mac': 'cd server; xbuild',
+\     'unix': 'cd server; xbuild',
+\     'mingw32': 'echo "Please build Omnisharp manually."',
+\     'mingw64': 'echo "Please build Omnisharp manually."'
 \   },
 \   'depends' : [ "neocomplete" ]
 \ }
@@ -242,6 +248,8 @@ NeoBundleLazy 'Blackrush/vim-gocode', {
             \   'windows': 'go get -ldflags -H=windowsgui github.com/nsf/gocode',
             \   'mac': 'go get github.com/nsf/gocode',
             \   'unix': 'go get github.com/nsf/gocode',
+            \   'mingw32': 'echo "Please install vim-gocode manually."',
+            \   'mingw64': 'echo "Please install vim-gocode manually."'
             \ }
 \ }
 NeoBundleLazy 'dgryski/vim-godef', {
@@ -250,6 +258,8 @@ NeoBundleLazy 'dgryski/vim-godef', {
             \   'windows': 'go get -v code.google.com/p/rog-go/exp/cmd/godef; go install -v code.google.com/p/rog-go/exp/cmd/godef',
             \   'mac': 'go get -v code.google.com/p/rog-go/exp/cmd/godef; go install -v code.google.com/p/rog-go/exp/cmd/godef',
             \   'unix': 'go get -v code.google.com/p/rog-go/exp/cmd/godef; go install -v code.google.com/p/rog-go/exp/cmd/godef',
+            \   'mingw32': 'echo "Please install vim-godef manually."',
+            \   'mingw64': 'echo "Please install vim-godef manually."'
             \ }
 \ }
 
@@ -262,7 +272,9 @@ NeoBundleLazy "davidhalter/jedi-vim", {
 \     'build': {
 \         'windows': 'pip install jedi',
 \         'mac': 'pip install jedi',
-\         'unix': 'pip install jedi'
+\         'unix': 'pip install jedi',
+\         'mingw32': 'echo "Please install jedi manually."',
+\         'mingw64': 'echo "Please install jedi manually."'
 \     },
 \     'depends' : [ "neocomplete" ]
 \}
@@ -271,7 +283,9 @@ NeoBundleLazy "klen/python-mode", {
             \ 'build': {
             \   'windows': 'easy_install rope ropemode ropevim',
             \   'mac': 'easy_install rope ropemode ropevim',
-            \   'unix': 'easy_install rope ropemode ropevim'
+            \   'unix': 'easy_install rope ropemode ropevim',
+            \   'mingw32': 'echo "Please install python-mode manually."',
+            \   'mingw64': 'echo "Please install python-mode manually."'
             \ }
 \}
 
@@ -310,7 +324,9 @@ NeoBundleLazy 'marijnh/tern_for_vim', {
             \ 'build': {
             \   'windows': 'npm install',
             \   'mac': 'npm install',
-            \   'unix': 'npm install'
+            \   'unix': 'npm install',
+            \   'mingw32': 'echo "Please install tern_for_vim manually."',
+            \   'mingw64': 'echo "Please install tern_for_vim manually."'
             \}}
 
 " jsdoc
