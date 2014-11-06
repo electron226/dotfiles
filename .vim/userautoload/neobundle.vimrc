@@ -204,7 +204,14 @@ NeoBundleLazy "thinca/vim-quickrun", {
 NeoBundle 'reinh/vim-makegreen'
 NeoBundle "jceb/vim-hier"
 NeoBundle "dannyob/quickfixstatus"
-NeoBundle 'scrooloose/syntastic'
+NeoBundle "osyo-manga/shabadou.vim"
+NeoBundleLazy "osyo-manga/vim-watchdogs", {
+            \ "depends": [ 'vimproc', 'vim-quickrun', 'shabadou.vim' ],
+            \ }
+NeoBundleLazy 'KazuakiM/vim-qfstatusline', {
+             \ "depends": [ 'vim-watchdogs' ],
+             \ }
+"NeoBundle 'scrooloose/syntastic'
 NeoBundleLazy "http://lh-vim.googlecode.com/svn/refactor/trunk/", {
 \     'autoload': { "filetypes": [ "c", "cpp", "java", "pascal", "vim" ] }
 \}
@@ -255,9 +262,9 @@ NeoBundleLazy 'Blackrush/vim-gocode', {
 NeoBundleLazy 'dgryski/vim-godef', {
             \ 'autoload': { "filetypes": [ "go" ] },
             \ 'build': {
-            \   'windows': 'go get -v code.google.com/p/rog-go/exp/cmd/godef; go install -v code.google.com/p/rog-go/exp/cmd/godef',
-            \   'mac': 'go get -v code.google.com/p/rog-go/exp/cmd/godef; go install -v code.google.com/p/rog-go/exp/cmd/godef',
-            \   'unix': 'go get -v code.google.com/p/rog-go/exp/cmd/godef; go install -v code.google.com/p/rog-go/exp/cmd/godef',
+            \   'windows': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
+            \   'mac': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
+            \   'unix': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
             \   'mingw32': 'echo "Please install vim-godef manually."',
             \   'mingw64': 'echo "Please install vim-godef manually."'
             \ }

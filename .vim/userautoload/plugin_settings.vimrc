@@ -34,7 +34,7 @@ function! s:cpp_include_paths()
         if isdirectory(expand('$MINGW_HOME'))
             let s:mingw_path = expand('$MINGW_HOME')
         else
-            let s:mingw_path = 'f:/local/mingw-w64/mingw64'
+            let s:mingw_path = 'f:/tools/mingw'
         endif
 
         if executable('gcc')
@@ -108,21 +108,25 @@ function! s:cpp_include_paths()
     " s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
     " be using clang_complete.
     if isdirectory(expand('$LLVM_HOME'))
-        let s:libclang_path = split(globpath('$LLVM_HOME', 'bin/**/libclang.*'), '\n')[0]
+        if has('win32') || has('win64')
+            let s:libclang_path = globpath('$LLVM_HOME', 'Release/bin/libclang.*')
+        else
+            let s:libclang_path = globpath('$LLVM_HOME', 'bin/libclang.*')
+        endif
         let s:clang_path = strpart(s:libclang_path, 0, match(s:libclang_path, 'libclang.*') - 1)
     else
         if has('win32') || has('win64')
-            let s:clang_path = expand('F:/local/llvm/build/bin/Release')
+            let s:clang_path = expand('F:/local/llvm/build/Release/bin')
         else
             let s:clang_path = expand('/usr/local/bin')
         endif
     endif
 
     if !isdirectory(s:clang_path) ||
-                \ !(filereadable(expand(s:clang_path . '/libclang.dll')) ||
+                \ !(filereadable(expand(s:clang_path . '\libclang.dll')) ||
                 \ filereadable(expand(s:clang_path . '/libclang.so'))) ||
-                \ !filereadable(expand(s:clang_path . '/clang.exe'))
-        echo "Can't detect libclang.dll or libclang.so -&gt; " . s:clang_path
+                \ !(filereadable(expand(s:clang_path . '\clang.exe')))
+        echo "Can't detect libclang.dll or libclang.so; " . s:clang_path
     endif
 endfunction
 
@@ -1069,89 +1073,169 @@ let g:hier_enabled = 1
 " -------------------------------------------------------
 " quickrun.vim
 " -------------------------------------------------------
-let s:bundle = neobundle#get("vim-quickrun")
-function! s:bundle.hooks.on_source(bundle)
-    let g:quickrun_config = {
-                \ "_" : {
-                \     "hook/quickfix_replate_tempname_to_bufnr/enable_exit" : 1,
-                \     "hook/quickfix_replate_tempname_to_bufnr/priority_exit" : -10,
-                \     "outputter/buffer/split": "botright",
-                \ },
-                \ }
+let g:quickrun_config = {
+            \ "_" : {
+            \     "hook/quickfix_replate_tempname_to_bufnr/enable_exit" : 1,
+            \     "hook/quickfix_replate_tempname_to_bufnr/priority_exit" : -10,
+            \     "outputter/buffer/split": "botright",
+            \ },
+            \ }
 
-    let s:clangcpp_cmdopt = '--std=c++11'
-    if has('unix') || has('macunix')
-        let s:clangcpp_cmdopt += '--stdlib=libc++'
-    endif
-
-    let s:clangcpp_cmdopt += s:include_paths_string_mingw
-
-    if executable("clang++")
-        let g:quickrun_config['cpp/clang++11'] = {
-                    \ 'cmdopt': s:clangcpp_cmdopt,
-                    \ "exec" : "%c %o -fsyntax-only %s:p",
-                    \ }
-        let g:quickrun_config['cpp'] = {'type': 'cpp/clang++11'}
-    else
-        let g:quickrun_config['cpp/g++11'] = {
-                    \ 'cmdopt': s:clangcpp_cmdopt,
-                    \ }
-        let g:quickrun_config['cpp'] = {'type': 'cpp/g++11'}
-    endif
-endfunction
-unlet s:bundle
-
-" -------------------------------------------------------
-" Syntastic
-" -------------------------------------------------------
-let g:syntastic_auto_loc_list = 1 " エラー時に自動的にロケーションリストを開く
-
-let g:syntastic_mode_map = { 'mode': 'active',
-            \ 'active_filetypes': [],
-            \ 'passive_filetypes': [] }
-
-" JavaScript
-let g:syntastic_javascript_checkers = ['jshint']
-
-" C++
-if has('win32') || has('win64')
-    let g:syntastic_cpp_compiler_options = '--std=c++11'
-else
-    let g:syntastic_cpp_compiler_options = '--std=c++11 --stdlib=libc++'
+let s:clangcpp_cmdopt = '--std=c++11'
+if has('unix') || has('macunix')
+    let s:clangcpp_cmdopt += '--stdlib=libc++'
 endif
 
-let g:syntastic_cpp_compiler_options += s:include_paths_string_mingw
+let s:clangcpp_cmdopt += s:include_paths_string_mingw
 
 if executable("clang++")
-    let g:syntastic_cpp_compiler = 'clang++'
+    let g:quickrun_config['cpp/clang++11'] = {
+                \ 'cmdopt': s:clangcpp_cmdopt,
+                \ "exec" : "%c %o -fsyntax-only %s:p",
+                \ }
+    let g:quickrun_config['cpp'] = {'type': 'cpp/clang++11'}
+else
+    let g:quickrun_config['cpp/g++11'] = {
+                \ 'cmdopt': s:clangcpp_cmdopt,
+                \ }
+    let g:quickrun_config['cpp'] = {'type': 'cpp/g++11'}
 endif
 
-" ignore python for use python-mode.
-let g:syntastic_ignore_files = ['\.py$']
+" -------------------------------------------------------
+" vim-watchdogs and qfstatusline
+" -------------------------------------------------------
+if !exists("g:quickrun_config")
+    let g:quickrun_config = {}
+endif
+let g:quickrun_config["watchdogs_checker/_"] = {
+      \ "hook/qfstatusline_update/enable_exit" : 1,
+      \ "hook/qfstatusline_update/priority_exit" : 4,
+      \ }
+      " \ "outputter/quickfix/open_cmd" : "",
 
-"with lightline
-let g:lightline = {
-      \ 'active': {
-      \   'right': [ [ 'syntastic', 'lineinfo' ],
-      \              [ 'percent' ],
-      \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
-      \ },
-      \ 'component_expand': {
-      \   'syntastic': 'SyntasticStatuslineFlag',
-      \ },
-      \ 'component_type': {
-      \   'syntastic': 'error',
+" Python
+let s:pyflakes = executable('pyflakes3') ? 'pyflakes3' :
+      \          executable('python3') ? 'python3' :
+      \          executable('pyflakes') ? 'pyflakes' :
+      \          'python'
+let s:cmdopt = executable('pyflakes3') ? '' :
+      \          executable('python3') ? '-m pyflakes' :
+      \          executable('pyflakes') ? '' :
+      \          '-m pyflakes'
+let g:quickrun_config["watchdogs_checker/pyflakes3"] = {
+      \ "command" : s:pyflakes,
+      \ "cmdopt" : s:cmdopt,
+      \ "exec"    : "%c %o %s:p",
+      \ "errorformat" : '%f:%l:%m',
       \ }
+unlet s:pyflakes
+unlet s:cmdopt
+
+let g:quickrun_config["python/watchdogs_checker"] = {
+      \ "type" : "watchdogs_checker/pyflakes3",
       \ }
-let g:syntastic_mode_map = { 'mode': 'passive' }
-augroup AutoSyntastic
+
+" C/C++
+if executable("clang")
+    let g:quickrun_config["c/watchdogs_checker"] = {
+                \ "type" : "watchdogs_checker/clang",
+                \ }
+endif
+
+if executable("clang++")
+    let g:quickrun_config["cpp/watchdogs_checker"] = {
+                \ "type" : "watchdogs_checker/clang++",
+                \ }
+endif
+
+" Javascript
+let g:quickrun_config["javascript/watchdogs_checker"] = {
+      \ "type" : "watchdogs_checker/jshint",
+      \ }
+
+call watchdogs#setup(g:quickrun_config)
+
+augroup my_watchdogs
   autocmd!
-  autocmd BufWritePost *.c,*.cpp call s:syntastic()
+  autocmd InsertLeave,BufWritePost *.py,*.go,*.c,*.cpp,*.h,*.lua,*.sass,*.js,*.coffee,*.vim,*.rb,*.pl WatchdogsRun
+  autocmd BufRead,BufNewFile *.py,*.go,*.c,*.cpp,*.h,*.lua,*.sass,*.js,*.coffee,*.vim,*.rb,*.pl WatchdogsRun
 augroup END
-function! s:syntastic()
-  SyntasticCheck
-  call lightline#update()
-endfunction
+
+"with lightline.
+let g:lightline = {
+    \ 'mode_map': {'c': 'NORMAL'},
+    \ 'active': {
+    \   'right': [
+    \     [ 'syntaxcheck' ],
+    \   ]
+    \ },
+    \ 'component_expand': {
+    \   'syntaxcheck': 'qfstatusline#Update',
+    \ },
+    \ 'component_type': {
+    \   'syntaxcheck': 'error',
+    \ },
+    \ }
+
+let g:Qfstatusline#UpdateCmd = function('lightline#update')
+
+"" -------------------------------------------------------
+"" Syntastic
+"" -------------------------------------------------------
+"let g:syntastic_auto_loc_list = 1 " エラー時に自動的にロケーションリストを開く
+"
+"let g:syntastic_mode_map = { 'mode': 'active',
+"            \ 'active_filetypes': [],
+"            \ 'passive_filetypes':
+"            \   [ 'ruby', 'python', 'perl',
+"            \     'c', 'cpp', 'lua',
+"            \     'golang', 'sass', 'coffee',
+"            \     'vim',
+"            \   ],
+"            \ }
+"
+"" JavaScript
+"let g:syntastic_javascript_checkers = ['jshint']
+"
+"" C++
+"if has('win32') || has('win64')
+"    let g:syntastic_cpp_compiler_options = '--std=c++11'
+"else
+"    let g:syntastic_cpp_compiler_options = '--std=c++11 --stdlib=libc++'
+"endif
+"
+"let g:syntastic_cpp_compiler_options += s:include_paths_string_mingw
+"
+"if executable("clang++")
+"    let g:syntastic_cpp_compiler = 'clang++'
+"endif
+"
+"" ignore python for use python-mode.
+"let g:syntastic_ignore_files = ['\.py$']
+"
+""with lightline
+"let g:lightline = {
+"      \ 'active': {
+"      \   'right': [ [ 'syntastic', 'lineinfo' ],
+"      \              [ 'percent' ],
+"      \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
+"      \ },
+"      \ 'component_expand': {
+"      \   'syntastic': 'SyntasticStatuslineFlag',
+"      \ },
+"      \ 'component_type': {
+"      \   'syntastic': 'error',
+"      \ }
+"      \ }
+"let g:syntastic_mode_map = { 'mode': 'passive' }
+"augroup AutoSyntastic
+"  autocmd!
+"  autocmd BufWritePost *.c,*.cpp call s:syntastic()
+"augroup END
+"function! s:syntastic()
+"  SyntasticCheck
+"  call lightline#update()
+"endfunction
 
 " -------------------------------------------------------
 " vim-smartinput
