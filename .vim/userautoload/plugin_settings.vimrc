@@ -1080,7 +1080,6 @@ let g:quickrun_config = {
             \     "outputter/buffer/split": "botright",
             \ },
             \ }
-
 let s:clangcpp_cmdopt = '--std=c++11'
 if has('unix') || has('macunix')
     let s:clangcpp_cmdopt += '--stdlib=libc++'
