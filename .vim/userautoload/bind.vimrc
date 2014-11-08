@@ -31,6 +31,37 @@ nnoremap <silent> ciy ciw<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 nnoremap <silent> cy   ce<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 vnoremap <silent> cy   c<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 
+" 画面分割
+nnoremap <silent>s <Nop>
+nnoremap <silent>sj <C-w>j
+nnoremap <silent>sk <C-w>k
+nnoremap <silent>sl <C-w>l
+nnoremap <silent>sh <C-w>h
+nnoremap <silent>sJ <C-w>J
+nnoremap <silent>sK <C-w>K
+nnoremap <silent>sL <C-w>L
+nnoremap <silent>sH <C-w>H
+nnoremap <silent>sr <C-w>r
+nnoremap <silent>s= <C-w>=
+nnoremap <silent>sw <C-w>w
+nnoremap <silent>so <C-w>_<C-w>|
+nnoremap <silent>sO <C-w>=
+" nnoremap <silent>st :<C-u>tabnew<CR>
+" nnoremap <silent>sn gt
+" nnoremap <silent>sp gT
+nnoremap <silent>ss :<C-u>sp<CR>
+nnoremap <silent>sv :<C-u>vs<CR>
+nnoremap <silent>sq :<C-u>q<CR>
+
+" バッファ操作
+nnoremap <silent>sp :bprevious<CR>
+nnoremap <silent>sn :bnext<CR>
+nnoremap <silent>sb :b#<CR>
+nnoremap <silent>sf :bf<CR>
+nnoremap <silent>sg :bl<CR>
+nnoremap <silent>sm :bm<CR>
+nnoremap <silent>sQ :bdelete<CR>
+
 " -------------------------------------------------------
 " Quickfix
 " -------------------------------------------------------
