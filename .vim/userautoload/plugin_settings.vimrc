@@ -570,9 +570,9 @@ function! s:csharp_settings()
     nnoremap <leader>tt :OmniSharpTypeLookup<cr>
     nnoremap <leader>dc :OmniSharpDocumentation<cr>
 
-    " Get Code Issues and syntax errors
-    let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
-    autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
+    "" Get Code Issues and syntax errors
+    "let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
+    "autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
 
     "show type information automatically when the cursor stops moving
     autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
@@ -1102,140 +1102,57 @@ else
 endif
 
 " -------------------------------------------------------
-" vim-watchdogs and qfstatusline
+" Syntastic
 " -------------------------------------------------------
-if !exists("g:quickrun_config")
-    let g:quickrun_config = {}
+let g:syntastic_auto_loc_list = 1 " エラー時に自動的にロケーションリストを開く
+
+let g:syntastic_mode_map = { 'mode': 'active',
+            \ 'active_filetypes': [],
+            \ 'passive_filetypes': [],
+            \ }
+
+" JavaScript
+let g:syntastic_javascript_checkers = ['jshint']
+
+" C++
+if has('win32') || has('win64')
+    let g:syntastic_cpp_compiler_options = '--std=c++11'
+else
+    let g:syntastic_cpp_compiler_options = '--std=c++11 --stdlib=libc++'
 endif
-let g:quickrun_config["watchdogs_checker/_"] = {
-      \ "hook/qfstatusline_update/enable_exit" : 1,
-      \ "hook/qfstatusline_update/priority_exit" : 4,
-      \ }
-      " \ "outputter/quickfix/open_cmd" : "",
 
-" Python
-let s:pyflakes = executable('pyflakes3') ? 'pyflakes3' :
-      \          executable('python3') ? 'python3' :
-      \          executable('pyflakes') ? 'pyflakes' :
-      \          'python'
-let s:cmdopt = executable('pyflakes3') ? '' :
-      \          executable('python3') ? '-m pyflakes' :
-      \          executable('pyflakes') ? '' :
-      \          '-m pyflakes'
-let g:quickrun_config["watchdogs_checker/pyflakes3"] = {
-      \ "command" : s:pyflakes,
-      \ "cmdopt" : s:cmdopt,
-      \ "exec"    : "%c %o %s:p",
-      \ "errorformat" : '%f:%l:%m',
-      \ }
-unlet s:pyflakes
-unlet s:cmdopt
-
-let g:quickrun_config["python/watchdogs_checker"] = {
-      \ "type" : "watchdogs_checker/pyflakes3",
-      \ }
-
-" C/C++
-if executable("clang")
-    let g:quickrun_config["c/watchdogs_checker"] = {
-                \ "type" : "watchdogs_checker/clang",
-                \ }
-endif
+let g:syntastic_cpp_compiler_options += s:include_paths_string_mingw
 
 if executable("clang++")
-    let g:quickrun_config["cpp/watchdogs_checker"] = {
-                \ "type" : "watchdogs_checker/clang++",
-                \ }
+    let g:syntastic_cpp_compiler = 'clang++'
 endif
 
-" Javascript
-let g:quickrun_config["javascript/watchdogs_checker"] = {
-      \ "type" : "watchdogs_checker/jshint",
-      \ }
+" ignore python for use python-mode.
+let g:syntastic_ignore_files = ['\.py$']
 
-call watchdogs#setup(g:quickrun_config)
-
-augroup my_watchdogs
-  autocmd!
-  autocmd InsertLeave,BufWritePost *.py,*.go,*.c,*.cpp,*.h,*.lua,*.sass,*.js,*.coffee,*.vim,*.rb,*.pl WatchdogsRun
-  autocmd BufRead,BufNewFile *.py,*.go,*.c,*.cpp,*.h,*.lua,*.sass,*.js,*.coffee,*.vim,*.rb,*.pl WatchdogsRun
-augroup END
-
-"with lightline.
+"with lightline
 let g:lightline = {
-    \ 'mode_map': {'c': 'NORMAL'},
-    \ 'active': {
-    \   'right': [
-    \     [ 'syntaxcheck' ],
-    \   ]
-    \ },
-    \ 'component_expand': {
-    \   'syntaxcheck': 'qfstatusline#Update',
-    \ },
-    \ 'component_type': {
-    \   'syntaxcheck': 'error',
-    \ },
-    \ }
-
-let g:Qfstatusline#UpdateCmd = function('lightline#update')
-
-"" -------------------------------------------------------
-"" Syntastic
-"" -------------------------------------------------------
-"let g:syntastic_auto_loc_list = 1 " エラー時に自動的にロケーションリストを開く
-"
-"let g:syntastic_mode_map = { 'mode': 'active',
-"            \ 'active_filetypes': [],
-"            \ 'passive_filetypes':
-"            \   [ 'ruby', 'python', 'perl',
-"            \     'c', 'cpp', 'lua',
-"            \     'golang', 'sass', 'coffee',
-"            \     'vim',
-"            \   ],
-"            \ }
-"
-"" JavaScript
-"let g:syntastic_javascript_checkers = ['jshint']
-"
-"" C++
-"if has('win32') || has('win64')
-"    let g:syntastic_cpp_compiler_options = '--std=c++11'
-"else
-"    let g:syntastic_cpp_compiler_options = '--std=c++11 --stdlib=libc++'
-"endif
-"
-"let g:syntastic_cpp_compiler_options += s:include_paths_string_mingw
-"
-"if executable("clang++")
-"    let g:syntastic_cpp_compiler = 'clang++'
-"endif
-"
-"" ignore python for use python-mode.
-"let g:syntastic_ignore_files = ['\.py$']
-"
-""with lightline
-"let g:lightline = {
-"      \ 'active': {
-"      \   'right': [ [ 'syntastic', 'lineinfo' ],
-"      \              [ 'percent' ],
-"      \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
-"      \ },
-"      \ 'component_expand': {
-"      \   'syntastic': 'SyntasticStatuslineFlag',
-"      \ },
-"      \ 'component_type': {
-"      \   'syntastic': 'error',
-"      \ }
-"      \ }
-"let g:syntastic_mode_map = { 'mode': 'passive' }
-"augroup AutoSyntastic
-"  autocmd!
-"  autocmd BufWritePost *.c,*.cpp call s:syntastic()
-"augroup END
-"function! s:syntastic()
-"  SyntasticCheck
-"  call lightline#update()
-"endfunction
+      \ 'active': {
+      \   'right': [ [ 'syntastic', 'lineinfo' ],
+      \              [ 'percent' ],
+      \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \ },
+      \ 'component_expand': {
+      \   'syntastic': 'SyntasticStatuslineFlag',
+      \ },
+      \ 'component_type': {
+      \   'syntastic': 'error',
+      \ }
+      \ }
+let g:syntastic_mode_map = { 'mode': 'passive' }
+augroup AutoSyntastic
+  autocmd!
+  autocmd BufWritePost *.c,*.cpp call s:syntastic()
+augroup END
+function! s:syntastic()
+  SyntasticCheck
+  call lightline#update()
+endfunction
 
 " -------------------------------------------------------
 " vim-smartinput
@@ -1341,6 +1258,18 @@ call smartinput#define_rule({
             \   'filetype' : ['vim'],
             \   'syntax'   : ['String'],
             \   })
+
+" -------------------------------------------------------
+" vim-submode
+" -------------------------------------------------------
+call submode#enter_with('bufmove', 'n', '', 's>', '<C-w>>')
+call submode#enter_with('bufmove', 'n', '', 's<', '<C-w><')
+call submode#enter_with('bufmove', 'n', '', 's+', '<C-w>+')
+call submode#enter_with('bufmove', 'n', '', 's-', '<C-w>-')
+call submode#map('bufmove', 'n', '', '>', '<C-w>>')
+call submode#map('bufmove', 'n', '', '<', '<C-w><')
+call submode#map('bufmove', 'n', '', '+', '<C-w>+')
+call submode#map('bufmove', 'n', '', '-', '<C-w>-')
 
 " -------------------------------------------------------
 " vim-multiple-cursors

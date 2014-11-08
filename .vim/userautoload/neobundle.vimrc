@@ -177,6 +177,7 @@ NeoBundleLazy 'tyru/open-browser.vim', {
 \           'mappings': [ "<Plug>(openbrowser-smart-search)" ],
 \     }
 \ }
+NeoBundle 'kana/vim-submode'
 
 " コメント
 NeoBundle 'tomtom/tcomment_vim'
@@ -204,14 +205,7 @@ NeoBundleLazy "thinca/vim-quickrun", {
 NeoBundle 'reinh/vim-makegreen'
 NeoBundle "jceb/vim-hier"
 NeoBundle "dannyob/quickfixstatus"
-NeoBundle "osyo-manga/shabadou.vim"
-NeoBundleLazy "osyo-manga/vim-watchdogs", {
-            \ "depends": [ 'vimproc', 'vim-quickrun', 'shabadou.vim' ],
-            \ }
-NeoBundleLazy 'KazuakiM/vim-qfstatusline', {
-             \ "depends": [ 'vim-watchdogs' ],
-             \ }
-"NeoBundle 'scrooloose/syntastic'
+NeoBundle 'scrooloose/syntastic'
 NeoBundleLazy "http://lh-vim.googlecode.com/svn/refactor/trunk/", {
 \     'autoload': { "filetypes": [ "c", "cpp", "java", "pascal", "vim" ] }
 \}
@@ -311,6 +305,9 @@ NeoBundleLazy 'hail2u/vim-css3-syntax', {
 NeoBundleLazy 'groenewege/vim-less', {
             \ 'autoload': { "filetypes": [ "css", "less", "scss" ] }
             \ }
+NeoBundleLazy 'css_color.vim', {
+            \ 'autoload': { "filetypes": [ "css", "scss" ] },
+            \ }
 NeoBundleLazy 'AtsushiM/sass-compile.vim', {
             \ 'autoload': { "filetypes": [ "css", "scss" ] },
             \ 'depends' : [ "search-parent.vim" ]
@@ -335,8 +332,9 @@ NeoBundleLazy 'marijnh/tern_for_vim', {
             \   'mingw32': 'echo "Please install tern_for_vim manually."',
             \   'mingw64': 'echo "Please install tern_for_vim manually."'
             \}}
-
-" jsdoc
+NeoBundleLazy 'kchmck/vim-coffee-script', {
+            \ 'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
+            \ }
 NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \     'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
 \}
