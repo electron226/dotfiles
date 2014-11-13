@@ -1146,7 +1146,7 @@ let g:lightline = {
 let g:syntastic_mode_map = { 'mode': 'passive' }
 augroup AutoSyntastic
   autocmd!
-  autocmd BufWritePost *.c,*.cpp call s:syntastic()
+  autocmd BufWritePost * call s:syntastic()
 augroup END
 function! s:syntastic()
   SyntasticCheck

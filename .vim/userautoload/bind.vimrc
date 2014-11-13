@@ -79,6 +79,8 @@ endfunction
 nmap <silent> co :QFix<CR>
 nmap <silent> cn :cn<CR>
 nmap <silent> cp :cp<CR>
+nmap <silent> vn :lnext<CR>
+nmap <silent> vp :lprev<CR>
 
 " -------------------------------------------------------
 " コマンド
