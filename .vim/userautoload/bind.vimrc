@@ -61,6 +61,10 @@ nnoremap <silent>sf :bf<CR>
 nnoremap <silent>sg :bl<CR>
 nnoremap <silent>sm :bm<CR>
 nnoremap <silent>sQ :bdelete<CR>
+nnoremap <silent>sQQ :Kwbd<CR>
+
+" レイアウトを崩さずバッファを閉じる
+:com! Kwbd let kwbd_bn= bufnr("%")|enew|exe "bdel ".kwbd_bn|unlet kwbd_bn 
 
 " -------------------------------------------------------
 " Quickfix

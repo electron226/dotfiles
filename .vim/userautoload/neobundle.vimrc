@@ -129,6 +129,12 @@ NeoBundle "wincent/Command-T", {
 " Search
 NeoBundle 'rking/ag.vim'
 NeoBundle 'AtsushiM/search-parent.vim'
+NeoBundleLazy 'koron/codic-vim', {
+\   'autoload': {
+\       'commands': [ "Codic" ],
+\       'functions': [ "codic#search" ],
+\   }
+\ }
 
 " Code Explorer
 NeoBundleLazy 'majutsushi/tagbar', {
@@ -141,16 +147,19 @@ NeoBundleLazy 'wesleyche/SrcExpl', {
 \       'commands': [ "SrcExplToggle" ],
 \   }
 \ }
+" NeoBundleLazy 'chazy/cscope_maps', {
+" \   'autoload' : { 'filetypes' : [ 'c', 'cpp', 'java' ] },
+" \ }
 
 " Docs
-NeoBundle 'vim-jp/vimdoc-ja'
-if !has('win32') || !has('win64')
-    NeoBundleLazy 'thinca/vim-ref', {
-        \ 'autoload': {
-        \   'commands': 'Ref'
-        \ }
-    \ }
-endif
+" NeoBundle 'vim-jp/vimdoc-ja'
+" if !has('win32') || !has('win64')
+"     NeoBundleLazy 'thinca/vim-ref', {
+"         \ 'autoload': {
+"         \   'commands': 'Ref'
+"         \ }
+"     \ }
+" endif
 
 " colorscheme
 NeoBundle 'tomasr/molokai'
@@ -302,14 +311,14 @@ NeoBundleLazy 'othree/html5.vim', {
 NeoBundleLazy 'hail2u/vim-css3-syntax', {
             \ 'autoload': { "filetypes": [ "css", "less", "scss" ] }
             \ }
-NeoBundleLazy 'groenewege/vim-less', {
-            \ 'autoload': { "filetypes": [ "css", "less", "scss" ] }
-            \ }
 NeoBundleLazy 'css_color.vim', {
             \ 'autoload': { "filetypes": [ "css", "scss" ] },
             \ }
+NeoBundleLazy 'groenewege/vim-less', {
+            \ 'autoload': { "filetypes": [ "less" ] }
+            \ }
 NeoBundleLazy 'AtsushiM/sass-compile.vim', {
-            \ 'autoload': { "filetypes": [ "css", "scss" ] },
+            \ 'autoload': { "filetypes": [ "scss" ] },
             \ 'depends' : [ "search-parent.vim" ]
             \ }
 
@@ -333,10 +342,14 @@ NeoBundleLazy 'marijnh/tern_for_vim', {
             \   'mingw64': 'echo "Please install tern_for_vim manually."'
             \}}
 NeoBundleLazy 'kchmck/vim-coffee-script', {
-            \ 'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
+            \ 'autoload': { "filetypes": [ "coffee" ] }
             \ }
 NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \     'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
+\}
+" React
+NeoBundleLazy 'mxw/vim-jsx', {
+\     'autoload': { "filetypes": [ "javascript", "jsx" ] }
 \}
 
 " version management
