@@ -204,7 +204,7 @@ nnoremap <silent> <Leader>ugr  :<C-u>UniteResume search-buffer<CR>
 " unite grep に ag(The Silver Searcher) を使う
 if executable('ag')
     let g:unite_source_grep_command = 'ag'
-    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column --ignore-case'
+    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
     let g:unite_source_grep_recursive_opt = ''
 endif
 
@@ -787,7 +787,7 @@ let g:stargate#include_paths = {
 " -------------------------------------------------------
 " switch.vim
 " -------------------------------------------------------
-nmap - :Switch<CR>
+nmap ' :Switch<CR>
 let g:switch_custom_definitions =
             \ [
             \   [ 'TRUE', 'FALSE' ],
@@ -798,30 +798,80 @@ let g:switch_custom_definitions =
             \   },
             \ ]
 
-" -------------------------------------------------------
-" Gundo
-" -------------------------------------------------------
-nmap <Leader>g :GundoToggle<CR>
+" " -------------------------------------------------------
+" " Gundo
+" " -------------------------------------------------------
+" nmap <Leader>g :GundoToggle<CR>
 
 " -------------------------------------------------------
 " vim-easymotion
 " -------------------------------------------------------
-let g:EasyMotion_leader_key = ';'
+" Disable default mapping.
+" let g:EasyMotion_do_mapping = 0
+" map <Leader><Leader> <Plug>(easymotion-prefix)
+
 let g:EasyMotion_keys='abcdefghijklmnopqrstuvwxyz'
 
-" -------------------------------------------------------
-" open-browser.vim
-" -------------------------------------------------------
-let g:netrw_nogx = 1 " disable netrw's gx mapping.
-nmap gx <Plug>(openbrowser-smart-search)
-vmap gx <Plug>(openbrowser-smart-search)
+" 2-character search motion
+" overwrite to f{char}, and t{char} of default key binding.
+nmap f <Plug>(easymotion-s2)
+nmap t <Plug>(easymotion-t2)
 
-" ググる
-nnoremap <Leader>gg :<C-u>OpenBrowserSearch<Space><C-r><C-w><Enter>
+" n-character search motion
+map  / <Plug>(easymotion-sn)
+omap / <Plug>(easymotion-tn)
+
+" These `n` & `N` mappings are options. You do not have to map `n` & `N` to EasyMotion.
+" Without these mappings, `n` & `N` works fine. (These mappings just provide
+" different highlight method and have some other features )
+map  n <Plug>(easymotion-next)
+map  N <Plug>(easymotion-prev)
+
+" hjkl motions
+map <Leader>l <Plug>(easymotion-lineforward)
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
+map <Leader>h <Plug>(easymotion-linebackward)
+
+let g:EasyMotion_startofline = 0 " keep cursor colum when JK motion
+
+" Smartcase & Smartsign
+let g:EasyMotion_smartcase = 1
+
+let g:EasyMotion_use_smartsign_us = 1 " US layout
+"let g:EasyMotion_use_smartsign_jp = 1 " JP layout
+
+" Migemo feature
+if has('migemo')
+    let g:EasyMotion_use_migemo = 1
+endif
+
+" " -------------------------------------------------------
+" " open-browser.vim
+" " -------------------------------------------------------
+" let g:netrw_nogx = 1 " disable netrw's gx mapping.
+" nmap gx <Plug>(openbrowser-smart-search)
+" vmap gx <Plug>(openbrowser-smart-search)
+"
+" " ググる
+" nnoremap <Leader>gg :<C-u>OpenBrowserSearch<Space><C-r><C-w><Enter>
+
+" -------------------------------------------------------
+" vim-expand-region
+" -------------------------------------------------------
+map <SPACE> <Plug>(expand_region_expand)
+map <S-SPACE> <Plug>(expand_region_shrink)
 
 " -------------------------------------------------------
 " vim-textmanip
 " -------------------------------------------------------
+" use Enter and Shift-Enter to insert blank line.
+" which is useful since I enforce duplicate with '-r(replace' mode.
+nmap <CR>   <Plug>(textmanip-blank-below)
+nmap <S-CR> <Plug>(textmanip-blank-above)
+xmap <CR>   <Plug>(textmanip-blank-below)
+xmap <S-CR> <Plug>(textmanip-blank-above)
+
 " 選択したテキストの移動
 xmap <C-j> <Plug>(textmanip-move-down)
 xmap <C-k> <Plug>(textmanip-move-up)
@@ -829,20 +879,25 @@ xmap <C-h> <Plug>(textmanip-move-left)
 xmap <C-l> <Plug>(textmanip-move-right)
 
 " 行の複製
-xmap <C-d> <Plug>(textmanip-duplicate-down)
-nmap <C-d> <Plug>(textmanip-duplicate-down)
-xmap <C-D> <Plug>(textmanip-duplicate-up)
-nmap <C-D> <Plug>(textmanip-duplicate-up)
+xmap <C-c> <Plug>(textmanip-duplicate-down)
+nmap <C-c> <Plug>(textmanip-duplicate-down)
+xmap <C-C> <Plug>(textmanip-duplicate-up)
+nmap <C-C> <Plug>(textmanip-duplicate-up)
 
-" toggle insert/replace with <F10>
-"nmap <F10> <Plug>(textmanip-toggle-mode)
-"xmap <F10> <Plug>(textmanip-toggle-mode)
+xmap <C-K> <Plug>(textmanip-duplicate-up)
+xmap <C-J> <Plug>(textmanip-duplicate-down)
+xmap <C-H> <Plug>(textmanip-duplicate-left)
+xmap <C-L> <Plug>(textmanip-duplicate-right)
 
 " use allow key to force replace movement
 xmap  <Up>     <Plug>(textmanip-move-up-r)
 xmap  <Down>   <Plug>(textmanip-move-down-r)
 xmap  <Left>   <Plug>(textmanip-move-left-r)
 xmap  <Right>  <Plug>(textmanip-move-right-r)
+
+" toggle insert/replace with <F10>
+nmap <F10> <Plug>(textmanip-toggle-mode)
+xmap <F10> <Plug>(textmanip-toggle-mode)
 
 " -------------------------------------------------------
 " vim-indent-guides
@@ -851,33 +906,6 @@ hi IndentGuidesOdd  ctermbg=black
 hi IndentGuidesEven ctermbg=darkgrey
 
 let g:indent_guides_enable_on_vim_startup = 1
-
-" -------------------------------------------------------
-" vim-altr
-" -------------------------------------------------------
-nmap <Leader>k <Plug>(altr-forward)
-nmap <Leader>j <Plug>(altr-back)
-
-let s:bundle = neobundle#get("vim-altr")
-function! s:bundle.hooks.on_source(bundle)
-    " Javascript(jasmine)
-    call altr#define('public/javascripts/%.js',
-                \ 'spec/javascripts/%Spec.js',
-                \ 'spec/javascripts/helpers/%Helper.js'
-                \ )
-
-    " For Ruby tdd(RSpec)
-    call altr#define('%.rb', 'spec/%_spec.rb')
-
-    " For rails tdd(RSpec)
-    call altr#define('app/models/%.rb',
-                \ 'spec/models/%_spec.rb',
-                \ 'spec/factories/%s.rb'
-                \ )
-    call altr#define('app/controllers/%.rb', 'spec/controllers/%_spec.rb')
-    call altr#define('app/helpers/%.rb', 'spec/helpers/%_spec.rb')
-endfunction
-unlet s:bundle
 
 " -------------------------------------------------------
 " emmet-vim
@@ -1281,28 +1309,20 @@ call submode#map('bufmove', 'n', '', '-', '<C-w>-')
 " let g:multi_cursor_skip_key='<C-x>'
 " let g:multi_cursor_quit_key='<Esc>'
 
-" -------------------------------------------------------
-" yankround.vim
-" -------------------------------------------------------
-nmap p <Plug>(yankround-p)
-xmap p <Plug>(yankround-p)
-nmap P <Plug>(yankround-P)
-nmap gp <Plug>(yankround-gp)
-xmap gp <Plug>(yankround-gp)
-nmap gP <Plug>(yankround-gP)
-nmap <C-k> <Plug>(yankround-prev)
-nmap <C-j> <Plug>(yankround-next)
-
-" 履歴取得数
-let g:yankround_max_history = 50
+" " -------------------------------------------------------
+" " yankround.vim
+" " -------------------------------------------------------
+" nmap p <Plug>(yankround-p)
+" xmap p <Plug>(yankround-p)
+" nmap P <Plug>(yankround-P)
+" nmap gp <Plug>(yankround-gp)
+" xmap gp <Plug>(yankround-gp)
+" nmap gP <Plug>(yankround-gP)
+" nmap <C-p> <Plug>(yankround-prev)
+" nmap <C-n> <Plug>(yankround-next)
 "
-" -------------------------------------------------------
-" rainbow_parenttheses.vim
-" -------------------------------------------------------
-au VimEnter * RainbowParenthesesToggle
-au Syntax * RainbowParenthesesLoadRound
-au Syntax * RainbowParenthesesLoadSquare
-au Syntax * RainbowParenthesesLoadBraces
+" " 履歴取得数
+" let g:yankround_max_history = 50
 
 " -------------------------------------------------------
 " sass-compile

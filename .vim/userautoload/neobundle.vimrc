@@ -63,20 +63,20 @@ NeoBundleLazy 'honza/vim-snippets', {
 
 NeoBundle 'kana/vim-smartinput'
 NeoBundle 'tpope/vim-surround'
-NeoBundleLazy 'LeafCage/yankround.vim', {
-\   "autoload": {
-\     "mappings": [
-\           "<Plug>(yankround-p)", "<Plug>(yankround-P)",
-\           "<Plug>(yankround-gp)", "<Plug>(yankround-gP)",
-\           "<Plug>(yankround-prev)", "<Plug>(yankround-next)",
-\     ]
-\   }
-\ }
-NeoBundleLazy 'sjl/gundo.vim', {
-\   "autoload": {
-\     "commands": [ "GundoToggle" ]
-\   }
-\ }
+" NeoBundleLazy 'LeafCage/yankround.vim', {
+" \   "autoload": {
+" \     "mappings": [
+" \           "<Plug>(yankround-p)", "<Plug>(yankround-P)",
+" \           "<Plug>(yankround-gp)", "<Plug>(yankround-gP)",
+" \           "<Plug>(yankround-prev)", "<Plug>(yankround-next)",
+" \     ]
+" \   }
+" \ }
+" NeoBundleLazy 'sjl/gundo.vim', {
+" \   "autoload": {
+" \     "commands": [ "GundoToggle" ]
+" \   }
+" \ }
 NeoBundleLazy 'AndrewRadev/switch.vim', {
 \   "autoload": {
 \     "commands": [ "Switch" ]
@@ -168,9 +168,8 @@ NeoBundle 'tomasr/molokai'
 NeoBundle "Lokaltog/vim-easymotion"
 NeoBundle 't9md/vim-textmanip'
 NeoBundle "airblade/vim-rooter"
-NeoBundle "othree/eregex.vim"
-NeoBundle "rhysd/clever-f.vim"
-NeoBundle "terryma/vim-multiple-cursors"
+" NeoBundle "othree/eregex.vim"
+" NeoBundle "terryma/vim-multiple-cursors"
 
 NeoBundle "itchyny/lightline.vim"
 NeoBundleLazy 'h1mesuke/vim-alignta', {
@@ -179,13 +178,12 @@ NeoBundleLazy 'h1mesuke/vim-alignta', {
 \     }
 \ }
 NeoBundle 'nathanaelkane/vim-indent-guides'
-NeoBundle 'kien/rainbow_parentheses.vim'
-NeoBundleLazy 'tyru/open-browser.vim', {
-\     'autoload': {
-\           'commands': [ "OpenBrowserSearch" ],
-\           'mappings': [ "<Plug>(openbrowser-smart-search)" ],
-\     }
-\ }
+" NeoBundleLazy 'tyru/open-browser.vim', {
+" \     'autoload': {
+" \           'commands': [ "OpenBrowserSearch" ],
+" \           'mappings': [ "<Plug>(openbrowser-smart-search)" ],
+" \     }
+" \ }
 NeoBundle 'kana/vim-submode'
 
 " コメント
@@ -200,11 +198,6 @@ NeoBundleLazy 'DoxygenToolkit.vim', {
 \}
 
 " Test
-NeoBundleLazy "kana/vim-altr", {
-\     'autoload': {
-\           'mappings': [ "<Plug>(altr-forward)", "<Plug>(altr-back)" ],
-\     }
-\ }
 NeoBundleLazy "thinca/vim-quickrun", {
 \   'autoload': {
 \       'mappings': '<Plug>(quickrun)',
@@ -280,9 +273,9 @@ NeoBundleLazy 'python.vim', {
 NeoBundleLazy "davidhalter/jedi-vim", {
 \     'autoload': { "filetypes": [ "python" ] },
 \     'build': {
-\         'windows': 'pip install jedi',
-\         'mac': 'pip install jedi',
-\         'unix': 'pip install jedi',
+\         'windows': 'pip3 install jedi',
+\         'mac': 'pip3 install jedi',
+\         'unix': 'pip3 install jedi',
 \         'mingw32': 'echo "Please install jedi manually."',
 \         'mingw64': 'echo "Please install jedi manually."'
 \     },
@@ -348,9 +341,9 @@ NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \     'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
 \}
 " React
-NeoBundleLazy 'mxw/vim-jsx', {
-\     'autoload': { "filetypes": [ "javascript", "jsx" ] }
-\}
+" NeoBundleLazy 'mxw/vim-jsx', {
+" \     'autoload': { "filetypes": [ "javascript", "jsx" ] }
+" \}
 
 " version management
 "NeoBundle 'git://repo.or.cz/vcscommand.git'

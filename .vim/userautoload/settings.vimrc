@@ -36,8 +36,8 @@ set wrap         " 長い行を折り返して表示 (nowrap:折り返さない)
 set title        " タイトルを表示
 set showmatch    " 括弧の対応をハイライト
 set showcmd      " コマンドをステータス行に表示
-"set fdm=indent   " 折りたたみの指定
 set laststatus=2 " 常にステータス行を表示 (詳細は:he laststatus)
+set foldmethod=marker " 折りたたみの設定
 
 " -------------------------------------------------------
 " 検索

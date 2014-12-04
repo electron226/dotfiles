@@ -2,10 +2,10 @@
 " バインド(プラグイン未使用)
 " -------------------------------------------------------
 " <Leader><Leader>で変更があれば保存
-nnoremap <Leader><Leader> :up<CR>
+" nnoremap <Leader><Leader> :up<CR>
 
 "ビジュアルモード時vで行末まで選択
-vnoremap v $
+" vnoremap v $
 
 " 行の折り返しをしている時に見た目の次の行へ移動する
 nnoremap j gj
