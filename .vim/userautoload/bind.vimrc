@@ -46,9 +46,10 @@ nnoremap <silent>s= <C-w>=
 nnoremap <silent>sw <C-w>w
 nnoremap <silent>so <C-w>_<C-w>|
 nnoremap <silent>sO <C-w>=
-" nnoremap <silent>st :<C-u>tabnew<CR>
-" nnoremap <silent>sn gt
-" nnoremap <silent>sp gT
+nnoremap <silent>st :<C-u>tabnew<CR>
+nnoremap <silent>sc :<C-u>tabclose<CR>
+nnoremap <silent>sn gt
+nnoremap <silent>sp gT
 nnoremap <silent>ss :<C-u>sp<CR>
 nnoremap <silent>sv :<C-u>vs<CR>
 nnoremap <silent>sq :<C-u>q<CR>

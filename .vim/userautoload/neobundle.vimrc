@@ -116,15 +116,7 @@ NeoBundleLazy 'Shougo/vimfiler', {
 \       'explorer': 1,
 \   }
 \ }
-NeoBundle "wincent/Command-T", {
-            \ 'build': {
-            \       'windows': 'echo "Please build command-t manually."',
-            \       'mac': 'cd ./ruby/command-t; ruby extconf.rb; make',
-            \       'unix': 'cd ./ruby/command-t; ruby extconf.rb; ' + g:make,
-            \       'mingw32': 'cd ./ruby/command-t; ruby extconf.rb; make',
-            \       'mingw64': 'cd ./ruby/command-t; ruby extconf.rb; make',
-            \  }
-            \ }
+NeoBundle 'ctrlpvim/ctrlp.vim'
 
 " Search
 NeoBundle 'rking/ag.vim'
@@ -137,6 +129,16 @@ NeoBundleLazy 'koron/codic-vim', {
 \ }
 
 " Code Explorer
+" NeoBundleLazy 'alpaca-tc/alpaca_tags', {
+"             \   'depends': ['Shougo/vimproc'],
+"             \   'autoload' : {
+"             \     'commands' : [
+"             \       { 'name' : 'AlpacaTagsBundle', 'complete': 'customlist,alpaca_tags#complete_source' },
+"             \       { 'name' : 'AlpacaTagsUpdate', 'complete': 'customlist,alpaca_tags#complete_source' },
+"             \       'AlpacaTagsSet', 'AlpacaTagsCleanCache', 'AlpacaTagsEnable', 'AlpacaTagsDisable', 'AlpacaTagsKillProcess', 'AlpacaTagsProcessStatus',
+"             \     ],
+"             \   }
+"             \ }
 NeoBundleLazy 'majutsushi/tagbar', {
 \   'autoload': {
 \       'commands': [ "TagbarToggle" ],

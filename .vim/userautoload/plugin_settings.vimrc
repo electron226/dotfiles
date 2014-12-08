@@ -185,15 +185,25 @@ nnoremap <silent> <Leader>ub :<C-u>Unite buffer<CR>
 " ブックマーク一覧
 nnoremap <silent> <Leader>uk :<C-u>Unite bookmark<CR>
 " ファイル一覧
-nnoremap <silent> <Leader>uf :<C-u>file<CR>
+nnoremap <silent> <Leader>uf :<C-u>Unite file_rec<CR>
 " 再帰的なファイル一覧
-nnoremap <silent> <Leader>uf :<C-u>file_rec/async<CR>
+function! DispatchUniteFileRecAsyncOrGit()
+  if isdirectory(getcwd()."/.git")
+    Unite file_rec/git:!
+  else
+    " Unite file_rec/async:!
+    Unite file_rec
+  endif
+endfunction
+nnoremap <silent> <Leader>uf :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
 " レジスタ一覧
 nnoremap <silent> <Leader>ur :<C-u>Unite -buffer-name=register register<CR>
 " ヤンク履歴
-nnoremap <Leader>uy :<C-u>Unite history/yank<CR>
+nnoremap <silent> <Leader>uy :<C-u>Unite history/yank<CR>
+" タブ
+nnoremap <silent> <Leader>ut :<C-u>Unite tab<CR>
 " 全部乗せ
-nnoremap <silent> <Leader>ua :<C-u>UniteWithBufferDir window buffer bookmark file_rec/async register history/yank<CR>
+nnoremap <silent> <Leader>ua :<C-u>Unite window buffer bookmark tab file_rec register history/yank<CR>
 
 " grep検索
 nnoremap <silent> <Leader>ug  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
@@ -292,9 +302,33 @@ endfunction
 " ソースの関数一覧表示
 nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
 " ソースの関数一覧を上下分割で常に表示
-nnoremap <silent> ,uho :<C-u>Unite -winheight=15 -no-quit outline<CR>
+nnoremap <silent> <Leader>uoh :<C-u>Unite -winheight=15 -no-quit outline<CR>
 " ソースの関数一覧を左右分割で常に表示
-nnoremap <silent> ,uvo :<C-u>Unite -vertical -winwidth=25 -no-quit outline<CR>
+nnoremap <silent> <Leader>uov :<C-u>Unite -vertical -winwidth=25 -no-quit outline<CR>
+
+" " -------------------------------------------------------
+" " alpaca_tags
+" " -------------------------------------------------------
+" let g:alpaca_tags#config = {
+"             \ '_' : '-R --sort=yes --languages=+Ruby --languages=-js,JavaScript',
+"             \ 'js' : '--languages=+js',
+"             \ '-js' : '--languages=-js,JavaScript',
+"             \ 'vim' : '--languages=+Vim,vim',
+"             \ 'php' : '--languages=+php',
+"             \ '-vim' : '--languages=-Vim,vim',
+"             \ '-style': '--languages=-css,scss,js,JavaScript,html',
+"             \ 'scss' : '--languages=+scss --languages=-css',
+"             \ 'css' : '--languages=+css',
+"             \ 'java' : '--languages=+java $JAVA_HOME/src',
+"             \ 'ruby': '--languages=+Ruby',
+"             \ 'coffee': '--languages=+coffee',
+"             \ '-coffee': '--languages=-coffee',
+"             \ 'bundle': '--languages=+Ruby',
+"             \ 'c': '--languages=+c',
+"             \ 'cpp': '--languages=+c,cpp',
+"             \ 'cs': '--languages=+c#',
+"             \ 'py': '--languages=+python',
+"             \ }
 
 " -------------------------------------------------------
 " neocomplete
@@ -314,15 +348,6 @@ let g:neocomplete#enable_smart_case = 1
 " Set minimum syntax keyword length.
 let g:neocomplete#sources#syntax#min_keyword_length = 3
 let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
-
-" キャッシュ保存先
-if has('win32') || has('win64')
-    let g:neocomplete#data_directory = 'D:/.neocomplete'
-elseif has('macunix')
-    let g:neocomplete#data_directory = '/Volumes/RamDisk/.neocomplete'
-else
-    let g:neocomplete#data_directory = '/tmp/.neocomplete'
-endif
 
 " Define dictionary.
 let g:neocomplete#sources#dictionary#dictionaries = {
@@ -588,7 +613,7 @@ function! s:csharp_settings()
 
     " rename with dialog
     nnoremap <leader>nm :OmniSharpRename<cr>
-    nnoremap <F2> :OmniSharpRename<cr>      
+    nnoremap <F2> :OmniSharpRename<cr>
     " rename without dialog - with cursor on the symbol to rename... ':Rename newname'
     command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
 
@@ -787,7 +812,7 @@ let g:stargate#include_paths = {
 " -------------------------------------------------------
 " switch.vim
 " -------------------------------------------------------
-nmap ' :Switch<CR>
+nmap <silent> <C-j> :<C-u>Switch<CR>
 let g:switch_custom_definitions =
             \ [
             \   [ 'TRUE', 'FALSE' ],
@@ -809,8 +834,7 @@ let g:switch_custom_definitions =
 " Disable default mapping.
 " let g:EasyMotion_do_mapping = 0
 " map <Leader><Leader> <Plug>(easymotion-prefix)
-
-let g:EasyMotion_keys='abcdefghijklmnopqrstuvwxyz'
+map ; <Plug>(easymotion-prefix)
 
 " 2-character search motion
 " overwrite to f{char}, and t{char} of default key binding.
@@ -824,8 +848,8 @@ omap / <Plug>(easymotion-tn)
 " These `n` & `N` mappings are options. You do not have to map `n` & `N` to EasyMotion.
 " Without these mappings, `n` & `N` works fine. (These mappings just provide
 " different highlight method and have some other features )
-map  n <Plug>(easymotion-next)
-map  N <Plug>(easymotion-prev)
+" map  n <Plug>(easymotion-next)
+" map  N <Plug>(easymotion-prev)
 
 " hjkl motions
 map <Leader>l <Plug>(easymotion-lineforward)
@@ -881,13 +905,13 @@ xmap <C-l> <Plug>(textmanip-move-right)
 " 行の複製
 xmap <C-c> <Plug>(textmanip-duplicate-down)
 nmap <C-c> <Plug>(textmanip-duplicate-down)
-xmap <C-C> <Plug>(textmanip-duplicate-up)
-nmap <C-C> <Plug>(textmanip-duplicate-up)
+xmap <S-c> <Plug>(textmanip-duplicate-up)
+nmap <S-c> <Plug>(textmanip-duplicate-up)
 
-xmap <C-K> <Plug>(textmanip-duplicate-up)
-xmap <C-J> <Plug>(textmanip-duplicate-down)
-xmap <C-H> <Plug>(textmanip-duplicate-left)
-xmap <C-L> <Plug>(textmanip-duplicate-right)
+xmap <S-k> <Plug>(textmanip-duplicate-up)
+xmap <S-j> <Plug>(textmanip-duplicate-down)
+xmap <S-h> <Plug>(textmanip-duplicate-left)
+xmap <S-l> <Plug>(textmanip-duplicate-right)
 
 " use allow key to force replace movement
 xmap  <Up>     <Plug>(textmanip-move-up-r)
@@ -1004,7 +1028,7 @@ unlet s:bundle
 " -------------------------------------------------------
 " tagbar
 " -------------------------------------------------------
-nmap <silent> <Leader>tg :TagbarToggle<CR>
+nmap <silent> <Leader>t :TagbarToggle<CR>
 
 let s:bundle = neobundle#get("tagbar")
 function! s:bundle.hooks.on_source(bundle)
