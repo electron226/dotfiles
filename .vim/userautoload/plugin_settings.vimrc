@@ -179,13 +179,13 @@ let g:unite_enable_ignore_case = 1
 let g:unite_enable_smart_case = 1
 
 " ウインドウ一覧
-nnoremap <silent> <Leader>uw :<C-u>Unite window<CR>
+nnoremap <silent> <Leader>w :<C-u>Unite window<CR>
 " バッファ一覧
-nnoremap <silent> <Leader>ub :<C-u>Unite buffer<CR>
+nnoremap <silent> <Leader>b :<C-u>Unite buffer<CR>
 " ブックマーク一覧
-nnoremap <silent> <Leader>uk :<C-u>Unite bookmark<CR>
+nnoremap <silent> <Leader>m :<C-u>Unite bookmark<CR>
 " ファイル一覧
-nnoremap <silent> <Leader>uf :<C-u>Unite file_rec<CR>
+ nnoremap <silent> <Leader>q :<C-u>Unite file<CR>
 " 再帰的なファイル一覧
 function! DispatchUniteFileRecAsyncOrGit()
   if isdirectory(getcwd()."/.git")
@@ -195,22 +195,22 @@ function! DispatchUniteFileRecAsyncOrGit()
     Unite file_rec
   endif
 endfunction
-nnoremap <silent> <Leader>uf :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
+nnoremap <silent> <Leader>u :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
 " レジスタ一覧
-nnoremap <silent> <Leader>ur :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> <Leader>r :<C-u>Unite -buffer-name=register register<CR>
 " ヤンク履歴
-nnoremap <silent> <Leader>uy :<C-u>Unite history/yank<CR>
+nnoremap <silent> <Leader>y :<C-u>Unite history/yank<CR>
 " タブ
-nnoremap <silent> <Leader>ut :<C-u>Unite tab<CR>
+nnoremap <silent> <Leader>e :<C-u>Unite tab<CR>
 " 全部乗せ
-nnoremap <silent> <Leader>ua :<C-u>Unite window buffer bookmark tab file_rec register history/yank<CR>
+nnoremap <silent> <Leader>a :<C-u>Unite window buffer bookmark tab file_rec register history/yank<CR>
 
 " grep検索
-nnoremap <silent> <Leader>ug  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
+nnoremap <silent> <Leader>g  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
 " カーソル位置の単語をgrep検索
-nnoremap <silent> <Leader>ugc :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
+nnoremap <silent> <Leader>gc :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
 " grep検索結果の再呼出
-nnoremap <silent> <Leader>ugr  :<C-u>UniteResume search-buffer<CR>
+nnoremap <silent> <Leader>gr  :<C-u>UniteResume search-buffer<CR>
 " unite grep に ag(The Silver Searcher) を使う
 if executable('ag')
     let g:unite_source_grep_command = 'ag'
@@ -219,7 +219,7 @@ if executable('ag')
 endif
 
 " カーソル下のキーワードを含む行を表示
-nnoremap <silent> <Leader>ul :<C-u>UniteWithCursorWord -no-quit line<CR>
+nnoremap <silent> <Leader>n :<C-u>UniteWithCursorWord -no-quit line<CR>
 
 " unite.vim上でのキーマッピング
 autocmd FileType unite call s:unite_my_settings()
@@ -430,7 +430,6 @@ inoremap <expr><C-e>  neocomplete#cancel_popup()
 autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 "autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType javascript setlocal omnifunc=tern#CompleteJS
 "autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 
@@ -1408,3 +1407,9 @@ function! s:reverse_candidates(cand)
   endfor
   return _
 endfunction
+
+" -------------------------------------------------------
+" ctrlp.vim
+" -------------------------------------------------------
+" CtrlP to scan for dotfiles and dotdirs.
+let g:ctrlp_show_hidden = 1

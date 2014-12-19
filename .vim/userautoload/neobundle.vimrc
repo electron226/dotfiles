@@ -61,8 +61,12 @@ NeoBundleLazy 'honza/vim-snippets', {
 \   }
 \ }
 
+NeoBundle 'tpope/vim-commentary'
 NeoBundle 'kana/vim-smartinput'
 NeoBundle 'tpope/vim-surround'
+NeoBundleLazy 'tpope/vim-repeat', {
+            \   'depends' : [ "vim-surround", "vim-commentary" ],
+            \ }
 " NeoBundleLazy 'LeafCage/yankround.vim', {
 " \   "autoload": {
 " \     "mappings": [
@@ -188,9 +192,6 @@ NeoBundle 'nathanaelkane/vim-indent-guides'
 " \ }
 NeoBundle 'kana/vim-submode'
 
-" コメント
-NeoBundle 'tomtom/tcomment_vim'
-
 " Doxygen
 NeoBundleLazy 'DoxygenToolkit.vim', {
 \     'autoload': {
@@ -234,9 +235,9 @@ NeoBundleLazy 'osyo-manga/vim-stargate', {
 NeoBundleLazy 'nosami/Omnisharp', {
 \   'autoload': {'filetypes': ['cs']},
 \   'build': {
-\     'windows': 'cd server; msbuild /p:Platform="Any CPU"',
-\     'mac': 'cd server; xbuild',
-\     'unix': 'cd server; xbuild',
+\     'windows': 'msbuild server/OmniSharp.sln /p:Platform="Any CPU"',
+\     'mac': 'cd server && xbuild',
+\     'unix': 'cd server && xbuild',
 \     'mingw32': 'echo "Please build Omnisharp manually."',
 \     'mingw64': 'echo "Please build Omnisharp manually."'
 \   },
