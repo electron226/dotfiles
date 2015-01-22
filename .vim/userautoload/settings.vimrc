@@ -87,3 +87,11 @@ autocmd QuickfixCmdPost make,grep,grepadd,vimgrep if len(getqflist()) != 0 | cop
 
 " コメント行の改行した時に自動的にコメントアウトされるのを無効化
 " autocmd FileType * setlocal formatoptions-=ro"
+
+" -------------------------------------------------------
+" runtimeの読み込み
+" -------------------------------------------------------
+if !exists('loaded_matchit')
+  " matchitを有効化
+  runtime macros/matchit.vim
+endif

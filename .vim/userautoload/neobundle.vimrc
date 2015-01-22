@@ -93,6 +93,15 @@ NeoBundleLazy 'terryma/vim-expand-region', {
 \     ]
 \   }
 \ }
+NeoBundleLazy 'tpope/vim-endwise', {
+\     'autoload': {
+\           "filetypes": [
+\               "lua", "elixir", "ruby", "crystal", "sh", "zsh", "vb",
+\               "vbnet", "aspvbs", "vim", "c", "cpp", "xdefaults",
+\               "objc", "matlab"
+\           ]
+\     }
+\}
 
 " Explorer
 NeoBundleLazy 'Shougo/unite.vim', {
@@ -134,7 +143,7 @@ NeoBundleLazy 'koron/codic-vim', {
 
 " Code Explorer
 " NeoBundleLazy 'alpaca-tc/alpaca_tags', {
-"             \   'depends': ['Shougo/vimproc'],
+"             \   'depends': [ 'Shougo/vimproc' ],
 "             \   'autoload' : {
 "             \     'commands' : [
 "             \       { 'name' : 'AlpacaTagsBundle', 'complete': 'customlist,alpaca_tags#complete_source' },
@@ -178,11 +187,12 @@ NeoBundle "airblade/vim-rooter"
 " NeoBundle "terryma/vim-multiple-cursors"
 
 NeoBundle "itchyny/lightline.vim"
-NeoBundleLazy 'h1mesuke/vim-alignta', {
+NeoBundleLazy 'junegunn/vim-easy-align', {
 \     'autoload': {
-\           'commands' : [ "Alignta", "Align" ]
+\           "commands": [ "EasyAlign", "LiveEasyAlign" ],
+\           "mappings": [ "<Plug>(EasyAlign)", "<Plug>(LiveEasyAlign)" ],
 \     }
-\ }
+\}
 NeoBundle 'nathanaelkane/vim-indent-guides'
 " NeoBundleLazy 'tyru/open-browser.vim', {
 " \     'autoload': {
@@ -216,7 +226,7 @@ NeoBundleLazy "http://lh-vim.googlecode.com/svn/refactor/trunk/", {
 \}
 
 " C++11
-NeoBundle 'Rip-Rip/clang_complete', {
+NeoBundleLazy 'Rip-Rip/clang_complete', {
             \   'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
             \   'depends' : [ "neocomplete" ]
             \ }
@@ -287,13 +297,24 @@ NeoBundleLazy "davidhalter/jedi-vim", {
 NeoBundleLazy "klen/python-mode", {
             \ 'autoload': { "filetypes": [ "python" ] },
             \ 'build': {
-            \   'windows': 'easy_install rope ropemode ropevim',
-            \   'mac': 'easy_install rope ropemode ropevim',
-            \   'unix': 'easy_install rope ropemode ropevim',
+            \   'windows': 'easy_install-3.4 rope_py3k',
+            \   'mac': 'easy_install rope_py3k',
+            \   'unix': 'easy_install rope_py3k',
             \   'mingw32': 'echo "Please install python-mode manually."',
             \   'mingw64': 'echo "Please install python-mode manually."'
             \ }
 \}
+
+" Ruby
+NeoBundleLazy "vim-ruby/vim-ruby", {
+            \ 'autoload': { "filetypes": [ "ruby" ] }
+            \ }
+NeoBundleLazy "tpope/vim-rails", {
+            \ 'autoload': { "filetypes": [ "ruby" ] }
+            \ }
+NeoBundleLazy "tpope/vim-bundler", {
+            \ 'autoload': { "filetypes": [ "ruby" ] }
+            \ }
 
 " HTML
 NeoBundleLazy "mattn/emmet-vim", {
@@ -343,20 +364,11 @@ NeoBundleLazy 'kchmck/vim-coffee-script', {
 NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \     'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
 \}
-" React
-" NeoBundleLazy 'mxw/vim-jsx', {
-" \     'autoload': { "filetypes": [ "javascript", "jsx" ] }
-" \}
 
 " version management
 "NeoBundle 'git://repo.or.cz/vcscommand.git'
-"NeoBundle 'tpope/vim-fugitive'
-"NeoBundleLazy 'gregsexton/gitv', {
-"            \   'autoload': {
-"            \           'commands' : [ "Gitv" ],
-"            \           'depends' : [ "vim-fugitive" ]
-"            \   }
-"            \ }
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'cohama/agit.vim'
 
 " Others
 NeoBundleLazy 'JSON.vim', {

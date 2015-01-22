@@ -82,4 +82,5 @@ au BufNewFile *.cpp 0r $MY_VIMRUNTIME/template/cpp.txt
 au BufNewFile *.go 0r $MY_VIMRUNTIME/template/go.txt
 au BufNewFile *.py 0r $MY_VIMRUNTIME/template/python.txt
 au BufNewFile *.rb 0r $MY_VIMRUNTIME/template/ruby.txt
-au BufNewFile *.html 0r $MY_VIMRUNTIME/template/html5.txt
+au BufNewFile *.html 0r $MY_VIMRUNTIME/template/html5.html
+au BufNewFile *.js 0r $MY_VIMRUNTIME/template/javascript.js

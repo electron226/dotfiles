@@ -1,0 +1,74 @@
+snippet main_template
+abbr    (function(global) { // class, export })(global)
+alias   maint
+    (function(global) {
+      "use strict";
+
+      // // Get Execution environment.
+      // var isBrowser    = "document"       in global;
+      // var isWebWorkers = "WorkerLocation" in global;
+      // var isNode       = "process"        in global;
+    
+      // Class
+      function ${1:MyModule}()//{{{
+      {
+          ${2:initialize_variable}
+      }//}}}
+
+      // Header
+      MyModule.prototype.method = $1_$3; // $1#$3{a:any, b:int}:void
+
+      // Implementation
+      function $1_${3:method}(${4:arguments})//{{{
+      {
+          ${5:method_behavior}
+      }//}}}
+
+      // Exports
+      // Support the require function of CommonJS Style.
+      if ("process" in global) {
+        module.exports = $1;
+      }
+      // Support the require function of CommonJS Style.
+      global.$1 = $1;
+    })( (this || 0).self || global );
+
+snippet main_function
+abbr    (function(global) {})(global)
+alias   mainf
+    (function(global) {
+      "use strict";
+
+      ${0}
+
+    })( (this || 0).self || global );
+
+snippet export
+abbr    support require
+alias   exp, export
+    // Support the require function of CommonJS Style.
+    if ("process" in global) {
+      module.exports = ${1:MyModule};
+    }
+    // Support the require function of CommonJS Style.
+    global.$1 = $1;
+    
+    ${0}
+
+snippet class_template
+abbr    class template
+alias   cl, class, cltmp, cltemp,
+    // Class
+    function ${1:MyModule}()//{{{
+    {
+        ${2:initialize_variable}
+    }//}}}
+
+    // Header
+    MyModule.prototype.method = $1_$3; // $1#$3{a:any, b:int}:void
+
+    // Implementation
+    function $1_${3:method}(${4:arguments})//{{{
+    {
+        ${5:method_behavior}
+    }//}}}

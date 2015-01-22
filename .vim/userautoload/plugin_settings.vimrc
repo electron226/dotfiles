@@ -34,27 +34,30 @@ function! s:cpp_include_paths()
         if isdirectory(expand('$MINGW_HOME'))
             let s:mingw_path = expand('$MINGW_HOME')
         else
-            let s:mingw_path = 'f:/tools/mingw'
+            let s:mingw_path = 'F:/local/mingw64'
         endif
 
         if executable('gcc')
-            let s:gcc_list = systemlist("gcc -v")
-            for l in s:gcc_list
-                let s:temp = matchstr(l, 'Target: \zs.*')
-                if len(s:temp) > 0
-                    let s:target = s:temp
+            let l:target = ""
+            let l:gcc_ver = ""
+
+            let l:gcc_list = systemlist("gcc -v")
+            for l in l:gcc_list
+                let l:temp = matchstr(l, 'Target: \zs.*')
+                if len(l:temp) > 0
+                    let l:target = l:temp
                     continue
                 endif
 
-                let s:temp = matchstr(l, 'gcc version \zs[0-9.]\+')
-                if len(s:temp) > 0
-                    let s:gcc_ver = s:temp
+                let l:temp = matchstr(l, 'gcc version \zs[0-9.]\+')
+                if len(l:temp) > 0
+                    let l:gcc_ver = l:temp
                     continue
                 endif
             endfor
 
-            let s:mingw_build_target = s:target
-            let s:mingw_gcc_version = s:gcc_ver
+            let s:mingw_build_target = l:target
+            let s:mingw_gcc_version = l:gcc_ver
         endif
 
         " Windows
@@ -94,15 +97,15 @@ function! s:cpp_include_paths()
     endif
 
     " c/c++ include paths to string.
-    for path in s:include_paths_cpp
-        if (!isdirectory(path))
-            echo "Can't detect directory. : " . path
+    for l:path in s:include_paths_cpp
+        if (!isdirectory(l:path))
+            echo "Can't detect directory. : " . l:path
         endif
 
         " msvc
-        let s:include_paths_string_msvc = s:include_paths_string_msvc . '/I ' . path . ' '
+        let s:include_paths_string_msvc = s:include_paths_string_msvc . '/I ' . l:path . ' '
         " mingw64
-        let s:include_paths_string_mingw = s:include_paths_string_mingw . '-I ' . path . ' '
+        let s:include_paths_string_mingw = s:include_paths_string_mingw . '-I ' . l:path . ' '
     endfor
 
     " s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
@@ -448,91 +451,69 @@ endif
 " -------------------------------------------------------
 " clang_complete
 " -------------------------------------------------------
-let g:neocomplete#force_overwrite_completefunc = 1
-
-if !exists('g:neocomplete#force_omni_input_patterns')
-    let g:neocomplete#force_omni_input_patterns = {}
-endif
-let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-let g:neocomplete#force_omni_input_patterns.objc = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-let g:neocomplete#force_omni_input_patterns.objcpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-
-let g:clang_auto_select=0
-let g:clang_complete_auto=0
-
-let g:clang_use_library=1
-let g:clang_debug=1
-
-let g:clang_library_path = s:clang_path
-let g:clang_exec = expand(s:clang_path . '/clang.exe')
-
-" Build msvc
-if has('win32') || has('win64')
-    " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
-    let g:clang_user_options =
-                \ '"' . s:include_paths_string_msvc . '"' .
-                \ ' -std=c++11' .
-                \ ' 2> NUL || exit 0"'
-else
-    " Build mingw32
-    let g:clang_user_options =
-                \ '"' . s:include_paths_string_mingw . '"' .
-                \ ' -std=c++11 -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
-                \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
-                \ ' -include malloc.h'
-endif
-
-"" -------------------------------------------------------
-"" vim-matching
-"" -------------------------------------------------------
-"" clang コマンドの設定
-"let g:marching_clang_command = 'clang.exe'
-"
-"" オプションを追加する
-"" filetype=cpp に対して設定する場合
-"let g:marching#clang_command#options = {
-"\   "cpp" : "-std=gnu++1y"
-"\}
-"
-"" インクルードディレクトリのパスを設定
-"let g:marching_include_paths = s:include_paths_cpp
-"
-"" neocomplete.vim と併用して使用する場合
-"let g:marching_enable_neocomplete = 1
-"
-"if !exists('g:neocomplete#force_omni_input_patterns')
-"  let g:neocomplete#force_omni_input_patterns = {}
-"endif
-"
-"let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
-"
-"" 処理のタイミングを制御する
-"" 短いほうがより早く補完ウィンドウが表示される
-"" ただし、marching.vim 以外の処理にも影響するので注意する
-"set updatetime=200
-"
-"" オムニ補完時に補完ワードを挿入したくない場合
-"imap <buffer> <C-x><C-o> <Plug>(marching_start_omni_complete)
-"
-"" キャッシュを削除してからオムに補完を行う
-"imap <buffer> <C-x><C-x><C-o> <Plug>(marching_force_start_omni_complete)
-"
-"" 非同期ではなくて、同期処理でコード補完を行う場合
-"" この設定の場合は vimproc.vim に依存しない
-"" let g:marching_backend = "sync_clang_command"
-
-" -------------------------------------------------------
-" OmniSharp
-" -------------------------------------------------------
-autocmd FileType cs call s:csharp_settings()
-function! s:csharp_settings()
+let s:bundle = neobundle#get("clang_complete")
+function! s:bundle.hooks.on_source(bundle)
     let g:neocomplete#force_overwrite_completefunc = 1
 
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
     endif
-    let g:neocomplete#force_omni_input_patterns.cs = '.*'
+    let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+    let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+    let g:neocomplete#force_omni_input_patterns.objc = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+    let g:neocomplete#force_omni_input_patterns.objcpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+
+    let g:clang_auto_select=0
+    let g:clang_complete_auto=0
+
+    let g:clang_use_library=1
+    let g:clang_debug=1
+
+    let g:clang_library_path = s:clang_path
+    let g:clang_exec = expand(s:clang_path . '/clang.exe')
+
+    " Build msvc
+    if has('win32') || has('win64')
+        " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
+        let g:clang_user_options =
+                    \ '"' . s:include_paths_string_msvc . '"' .
+                    \ ' -std=c++1y' .
+                    \ ' 2> NUL || exit 0"'
+    else
+        " Build mingw32
+        let g:clang_user_options =
+                    \ '"' . s:include_paths_string_mingw . '"' .
+                    \ ' -std=c++1y -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
+                    \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
+                    \ ' -include malloc.h'
+    endif
+endfunction
+unlet s:bundle
+
+" -------------------------------------------------------
+" vim-ruby
+" -------------------------------------------------------
+let s:bundle = neobundle#get("vim-ruby")
+function! s:bundle.hooks.on_source(bundle)
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+
+    let g:neocomplete#sources#omni#input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
+endfunction
+unlet s:bundle
+
+" -------------------------------------------------------
+" OmniSharp
+" -------------------------------------------------------
+let s:bundle = neobundle#get("Omnisharp")
+function! s:bundle.hooks.on_source(bundle)
+    let g:neocomplete#force_overwrite_completefunc = 1
+
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+    let g:neocomplete#force_omni_input_patterns.cs = '[^.]\.\%(\u\{2,}\)\?'
 
     " recommended key-mappings of C#.
     inoremap <expr>.  neocomplcache#close_popup() . "."
@@ -632,6 +613,7 @@ function! s:csharp_settings()
     "Don't ask to save when changing buffers (i.e. when jumping to a type definition)
     set hidden
 endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " jedi.vim
@@ -639,8 +621,10 @@ endfunction
 " -------------------------------------------------------
 let s:jedi = neobundle#get("jedi-vim")
 function! s:jedi.hooks.on_source(bundle)
+    autocmd FileType python setlocal completeopt-=preview
     autocmd FileType python setlocal omnifunc=jedi#completions
 
+    let g:jedi#completions_enabled = 0
     let g:jedi#auto_vim_configuration = 0
 
     if !exists('g:neocomplete#force_omni_input_patterns')
@@ -648,14 +632,12 @@ function! s:jedi.hooks.on_source(bundle)
     endif
     let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
 
-    let g:jedi#popup_on_dot = 0
-
     let g:jedi#goto_definitions_command = "<leader>jd"
-    let g:jedi#documentation_command = "K"
-    let g:jedi#usages_command = "<leader>jn"
-    let g:jedi#completions_command = "<C-Space>"
-    let g:jedi#rename_command = "<leader>jr"
-    let g:jedi#show_call_signatures = "1"
+    let g:jedi#documentation_command    = "K"
+    let g:jedi#usages_command           = "<leader>jn"
+    let g:jedi#completions_command      = "<C-Space>"
+    let g:jedi#rename_command           = "<leader>jr"
+    let g:jedi#show_call_signatures     = "1"
 endfunction
 unlet s:jedi
 
@@ -672,12 +654,12 @@ function! s:bundle.hooks.on_source(bundle)
     xmap <C-m>     <Plug>(neosnippet_expand_target)
 
     " SuperTab like snippets behavior.
-    imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-                \ "\<Plug>(neosnippet_expand_or_jump)"
-                \ : pumvisible() ? "\<C-n>" : "\<TAB>"
-    smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-                \ "\<Plug>(neosnippet_expand_or_jump)"
-                \ : "\<TAB>"
+    " imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+    "             \ "\<Plug>(neosnippet_expand_or_jump)"
+    "             \ : pumvisible() ? "\<C-n>" : "\<TAB>"
+    " smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+    "             \ "\<Plug>(neosnippet_expand_or_jump)"
+    "             \ : "\<TAB>"
 
     " For snippet_complete marker.
     if has('conceal')
@@ -1132,24 +1114,24 @@ let g:quickrun_config = {
             \     "outputter/buffer/split": "botright",
             \ },
             \ }
-let s:clangcpp_cmdopt = '--std=c++11'
+let s:clangcpp_cmdopt = '--std=c++1y'
 if has('unix') || has('macunix')
     let s:clangcpp_cmdopt += '--stdlib=libc++'
 endif
 
-let s:clangcpp_cmdopt += s:include_paths_string_mingw
+let s:clangcpp_cmdopt = s:clangcpp_cmdopt . ' "' . s:include_paths_string_mingw . '"'
 
 if executable("clang++")
-    let g:quickrun_config['cpp/clang++11'] = {
+    let g:quickrun_config['cpp/clang++1y'] = {
                 \ 'cmdopt': s:clangcpp_cmdopt,
                 \ "exec" : "%c %o -fsyntax-only %s:p",
                 \ }
-    let g:quickrun_config['cpp'] = {'type': 'cpp/clang++11'}
+    let g:quickrun_config['cpp'] = {'type': 'cpp/clang++1y'}
 else
-    let g:quickrun_config['cpp/g++11'] = {
+    let g:quickrun_config['cpp/g++1y'] = {
                 \ 'cmdopt': s:clangcpp_cmdopt,
                 \ }
-    let g:quickrun_config['cpp'] = {'type': 'cpp/g++11'}
+    let g:quickrun_config['cpp'] = {'type': 'cpp/g++1y'}
 endif
 
 " -------------------------------------------------------
@@ -1167,12 +1149,11 @@ let g:syntastic_javascript_checkers = ['jshint']
 
 " C++
 if has('win32') || has('win64')
-    let g:syntastic_cpp_compiler_options = '--std=c++11'
+    let g:syntastic_cpp_compiler_options = '--std=c++1y'
 else
-    let g:syntastic_cpp_compiler_options = '--std=c++11 --stdlib=libc++'
+    let g:syntastic_cpp_compiler_options = '--std=c++1y --stdlib=libc++'
 endif
-
-let g:syntastic_cpp_compiler_options += s:include_paths_string_mingw
+let g:syntastic_cpp_compiler_options = g:syntastic_cpp_compiler_options . ' "' . s:include_paths_string_mingw . '"'
 
 if executable("clang++")
     let g:syntastic_cpp_compiler = 'clang++'
@@ -1413,3 +1394,14 @@ endfunction
 " -------------------------------------------------------
 " CtrlP to scan for dotfiles and dotdirs.
 let g:ctrlp_show_hidden = 1
+
+" -------------------------------------------------------
+" vim-easy-align
+" -------------------------------------------------------
+" Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
+" vmap <Enter> <Plug>(EasyAlign)
+vmap ga <Plug>(EasyAlign)
+vmap gl <Plug>(LiveEasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+nmap gl <Plug>(LiveEasyAlign)

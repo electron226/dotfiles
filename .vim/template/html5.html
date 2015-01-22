@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="title" content="$0">
+  <meta name="description" content="${1:ブログ記事詳細. 120字以内を心がけよう。その中でも最初の４０字は大事。}">
+  <meta name='keywords' content='${2:キーワード, 5~6個がお薦め, 本文に書けなかったキーワード}'>
+  <meta property="og:type" content="${3:article}"/> <!-- TOPは content="website" -->
+  <meta property="og:title" content="$0"/>
+  <meta property="og:description" content="$1" />
+  <meta property="og:image" content="${4:ページのサムネイル}" />
+  <meta property="og:url" content="${5:ページのURL}" />
+  <meta property="og:site_name" content="${6:サイト名}"/>
+  <!-- https://dev.twitter.com/ja/cards/overview に登録必須 -->
+  <meta content="summary" name="twitter:card" />
+  <meta content="@${7:twitter_acount}" name="twitter:site" />
+
+  <title>${0:title}</title>
+
+  <!-- <link rel="stylesheet" href="normalize.css"> -->
+  <link type="text/css" rel="stylesheet" href="${8:css_href}">
+</head>
+<body>
+  ${10:inbody}
+
+  <script type="text/javascript" src="${9:js_href}"></script>
+  <!-- <script type="text/javascript" src="$9" async></script> -->
+  <!-- <script type="text/javascript" src="$9" defer></script> -->
+</body>
+</html>
