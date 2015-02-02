@@ -65,27 +65,27 @@ nnoremap <silent>sQ :bdelete<CR>
 nnoremap <silent>sQQ :Kwbd<CR>
 
 " レイアウトを崩さずバッファを閉じる
-:com! Kwbd let kwbd_bn= bufnr("%")|enew|exe "bdel ".kwbd_bn|unlet kwbd_bn 
+com! Kwbd let kwbd_bn= bufnr("%")|enew|exe "bdel ".kwbd_bn|unlet kwbd_bn 
 
 " -------------------------------------------------------
 " Quickfix
 " -------------------------------------------------------
-command -bang -nargs=? QFix call QFixToggle(<bang>0)
-function! QFixToggle(forced)
-  if exists("g:qfix_win") && a:forced == 0
-    cclose
-    unlet g:qfix_win
-  else
-    copen 10
-    let g:qfix_win = bufnr("$")
-  endif
-endfunction
+" command -bang -nargs=? QFix call QFixToggle(<bang>0)
+" function! QFixToggle(forced)
+"   if exists("g:qfix_win") && a:forced == 0
+"     cclose
+"     unlet g:qfix_win
+"   else
+"     copen 10
+"     let g:qfix_win = bufnr("$")
+"   endif
+" endfunction
 
-nmap <silent> co :QFix<CR>
-nmap <silent> cn :cn<CR>
-nmap <silent> cp :cp<CR>
-nmap <silent> vn :lnext<CR>
-nmap <silent> vp :lprev<CR>
+" nmap <silent> co :QFix<CR>
+" nmap <silent> cn :cn<CR>
+" nmap <silent> cp :cp<CR>
+" nmap <silent> vn :lnext<CR>
+" nmap <silent> vp :lprev<CR>
 
 " -------------------------------------------------------
 " コマンド

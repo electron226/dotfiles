@@ -2,31 +2,17 @@
 " include paths use omni complements and other scripts.
 " -------------------------------------------------------
 " Define include Paths. and others are initializing.
-if !exists('s:include_paths_cpp')
-    let s:include_paths_cpp = []
-endif
-if !exists('s:mingw_path')
-    let s:mingw_path = ''
-endif
-" if !exists('s:mingw_build_target')
-"     let s:mingw_build_target = ''
-" endif
-" if !exists('s:mingw_gcc_version')
-"     let s:mingw_gcc_version = ''
-" endif
-if !exists('s:include_paths_string_msvc')
-    let s:include_paths_string_msvc = ''
-endif
-if !exists('s:include_paths_string_mingw')
-    let s:include_paths_string_mingw = ''
-endif
-if !exists('s:libclang_path')
-    let s:libclang_path = ''
-endif
-if !exists('s:clang_path')
-    let s:clang_path = ""
-endif
+let s:include_paths_cpp          = []
+let s:mingw_path                 = ''
+" let s:mingw_build_target         = ''
+" let s:mingw_gcc_version          = ''
+let s:include_paths_string_msvc  = ''
+let s:include_paths_string_mingw = ''
+let s:libclang_path              = ''
+let s:clang_path                 = ''
 
+" 二重読み込みしているため、c,cppファイルを開いた際に一度下記を実行した後、
+" もう一度読み込まれ、処理が行われてない状態にされる
 autocmd FileType c,cpp call s:cpp_include_paths()
 function! s:cpp_include_paths()
     if has('win32') || has('win64') || has('win32unix')
@@ -122,14 +108,13 @@ function! s:cpp_include_paths()
     " be using clang_complete.
     if has('win32') || has('win64')
         if isdirectory(expand('$LLVM_HOME'))
-            let s:libclang_path = globpath('$LLVM_HOME', 'Release/bin/libclang.dll')
+            let s:libclang_path = globpath('$LLVM_HOME', 'Release\bin\libclang.dll')
         else
-            let s:libdir = expand('F:/local/llvm/build/Release/bin')
+            let s:libdir = expand('F:\local\llvm\build\Release\bin')
             let s:libclang_path = globpath(s:libdir, 'libclang.dll')
         endif
         " If OS is windows, clang.exe is same directory at libclang.dll.
-        "let s:clang_path = strpart(s:libclang_path, 0, strridx(s:libclang_path, '/libclang.dll'))
-        let s:clang_path = strpart(s:libclang_path, 0, strridx(s:libclang_path, '/libclang.dll')) . '\clang.exe'
+        let s:clang_path = strpart(s:libclang_path, 0, strridx(s:libclang_path, '\libclang.dll')) . '\clang.exe'
     else
         let s:bindir        = expand('/usr/bin')
         let s:libdir        = expand('/usr/lib')
@@ -501,7 +486,7 @@ function! s:bundle.hooks.on_source(bundle)
         " linuxでオムニ変換が正常に行われない
         let g:clang_user_options =
                     \ '"' . s:include_paths_string_mingw . '"' .
-                    \ ' -std=c++1y'
+                    \ ' -std=c++1y -stdlib=libc++'
     endif
 endfunction
 unlet s:bundle
@@ -1130,9 +1115,9 @@ let g:quickrun_config = {
             \     "outputter/buffer/split": "botright",
             \ },
             \ }
-let s:clangcpp_cmdopt = '--std=c++1y'
+let s:clangcpp_cmdopt = '-std=c++1y'
 if has('unix') || has('macunix')
-    let s:clangcpp_cmdopt += '--stdlib=libc++'
+    let s:clangcpp_cmdopt += ' -stdlib=libc++'
 endif
 
 let s:clangcpp_cmdopt = s:clangcpp_cmdopt . ' "' . s:include_paths_string_mingw . '"'
@@ -1164,7 +1149,10 @@ let g:syntastic_mode_map = { 'mode': 'active',
 let g:syntastic_javascript_checkers = ['jshint']
 
 " C++
-let g:syntastic_cpp_compiler_options = '--std=c++1y'
+let g:syntastic_cpp_compiler_options = '-std=c++1y'
+if has('unix') || has('macunix')
+    let g:syntastic_cpp_compiler_options += ' -stdlib=libc++'
+endif
 let g:syntastic_cpp_compiler_options = g:syntastic_cpp_compiler_options . ' "' . s:include_paths_string_mingw . '"'
 
 if executable("clang++")
