@@ -1,3 +1,8 @@
+if exists('g:script_settings_loaded')
+    finish
+endif
+let g:script_settings_loaded = 1
+
 if has('syntax')
     "----------------------------------------
     " 全角スペースをハイライト表示

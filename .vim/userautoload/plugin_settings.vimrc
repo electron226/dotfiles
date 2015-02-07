@@ -1,26 +1,43 @@
+if exists('g:plugin_settings_loaded')
+    finish
+endif
+let g:plugin_settings_loaded = 1
+
 " -------------------------------------------------------
 " include paths use omni complements and other scripts.
 " -------------------------------------------------------
-" Define include Paths. and others are initializing.
-let s:include_paths_cpp          = []
-let s:mingw_path                 = ''
-" let s:mingw_build_target         = ''
-" let s:mingw_gcc_version          = ''
-let s:include_paths_string_msvc  = ''
-let s:include_paths_string_mingw = ''
-let s:libclang_path              = ''
-let s:clang_path                 = ''
+function! s:getClangLibraryPath()
+    if has('win32') || has('win64')
+        if isdirectory(expand('$LLVM_HOME'))
+            let l:libclang_path = globpath('$LLVM_HOME', 'Release\bin\libclang.dll')
+        else
+            let l:libdir = expand('F:\local\llvm\build\Release\bin')
+            let l:libclang_path = globpath(l:libdir, 'libclang.dll')
+        endif
 
-" 二重読み込みしているため、c,cppファイルを開いた際に一度下記を実行した後、
-" もう一度読み込まれ、処理が行われてない状態にされる
-autocmd FileType c,cpp call s:cpp_include_paths()
-function! s:cpp_include_paths()
+        let l:libclang_path = strpart(l:libclang_path, 0, strridx(l:libclang_path, '\libclang.dll'))
+    else
+        let l:bindir        = expand('/usr/bin')
+        let l:libdir        = expand('/usr/lib')
+        let l:libclang_path = globpath(l:libdir, 'libclang.so')
+        let l:libclang_path = strpart(l:libclang_path, 0, strridx(l:libclang_path, '/libclang.so'))
+    endif
+
+    if glob(l:libclang_path) == ''
+        echo "Can't detect libclang.dll or libclang.so."
+        echo l:libclang_path
+    endif
+
+    return l:libclang_path
+endfunction
+
+function! s:getCppIncludePaths()
     if has('win32') || has('win64') || has('win32unix')
         " mingw settings.
         if isdirectory(expand('$MINGW_HOME'))
-            let s:mingw_path = expand('$MINGW_HOME')
+            let l:mingw_path = expand('$MINGW_HOME')
         else
-            let s:mingw_path = 'F:/local/mingw64'
+            let l:mingw_path = 'F:/local/mingw64'
         endif
 
         " if executable('gcc')
@@ -42,24 +59,23 @@ function! s:cpp_include_paths()
         "         endif
         "     endfor
 
-        "     let s:mingw_build_target = l:target
-        "     let s:mingw_gcc_version = l:gcc_ver
+        "     let l:mingw_build_target = l:target
+        "     let l:mingw_gcc_version = l:gcc_ver
         " endif
 
         " Windows
-        let s:include_paths_cpp = filter(
+        let l:include_paths_cpp = filter(
                     \ [
-                    \   'F:/local/lib/opencv/build/include',
                     \ ] +
                     \ split(glob('f:/local/lib/*/include'), '\n') +
-                    \ split(glob(s:mingw_path . '/include'), '\n') +
-                    \ split(glob(s:mingw_path . '/include/*'), '\n') +
-                    \ split(glob(s:mingw_path . '/*/include'), '\n') +
-                    \ split(glob(s:mingw_path . '/*/include/*'), '\n'),
+                    \ split(glob(l:mingw_path . '/include'), '\n') +
+                    \ split(glob(l:mingw_path . '/include/*'), '\n') +
+                    \ split(glob(l:mingw_path . '/*/include'), '\n') +
+                    \ split(glob(l:mingw_path . '/*/include/*'), '\n'),
                     \ 'isdirectory(v:val)')
     else
         " Linux
-        let s:include_paths_cpp = filter(
+        let l:include_paths_cpp = filter(
                     \ split(glob('/usr/include'), '\n') +
                     \ split(glob('/usr/include/*'), '\n') +
                     \ split(glob('/usr/local/include'), '\n') +
@@ -68,64 +84,83 @@ function! s:cpp_include_paths()
     endif
 
     " Boost Path
-    let s:boost_root = expand('$BOOST_ROOT')
-    if !isdirectory(s:boost_root)
+    let l:boost_root = expand('$BOOST_ROOT')
+    if !isdirectory(l:boost_root)
         if has('win32') || has('win64')
-            let s:boost_root = 'f:/local/lib/boost'
+            let l:boost_root = 'f:/local/lib/boost'
         else
-            let s:boost_root = '/usr/include/boost'
+            let l:boost_root = '/usr/include/boost'
         endif
     endif
 
-    if !exists('s:include_paths_cpp')
-        let s:boost_include_path = []
-    endif
     if has('win32') || has('win64')
-        let s:boost_include_path = split(glob(s:boost_root . '/include/*'), '\n')[0]
+        let l:boost_include_path = split(glob(l:boost_root . '/include/*'), '\n')[0]
     else
-        let s:boost_include_path = split(glob(s:boost_root . '/*'), '\n')[0]
+        let l:boost_include_path = split(glob(l:boost_root . '/*'), '\n')[0]
     endif
 
-    if isdirectory(s:boost_include_path)
-        call add(s:include_paths_cpp, s:boost_include_path)
+    if isdirectory(l:boost_include_path)
+        call add(l:include_paths_cpp, l:boost_include_path)
     else
         echo "Boost library isn't found."
     endif
 
-    " c/c++ include paths to string.
-    for l:path in s:include_paths_cpp
-        if (!isdirectory(l:path))
-            echo "Can't detect directory. : " . l:path
-        endif
+    return l:include_paths_cpp
+endfunction
 
-        " msvc
-        let s:include_paths_string_msvc = s:include_paths_string_msvc . '/I ' . l:path . ' '
-        " mingw64
-        let s:include_paths_string_mingw = s:include_paths_string_mingw . '-I ' . l:path . ' '
-    endfor
+au FileType c,cpp,objc,objcpp call s:setCppIncludePaths()
+function! s:setCppIncludePaths()
+    let s:include_paths_cpp = s:getCppIncludePaths()
+    let s:include_paths_string_mingw =
+                \ len(s:include_paths_cpp) > 0 ?
+                \ '-I "' . join(s:include_paths_cpp, '" -I "') . '"' :
+                \ ''
 
-    " s:clang_path = Path in clang.dll or libclang.so or libclang.dll.
-    " be using clang_complete.
+    " neocomplete
+    " Define include.
+    let s:neocomplete_include_paths_cpp = join(s:include_paths_cpp, ',')
+
+    if !exists('g:neocomplete#sources#include#paths')
+        let g:neocomplete#sources#include#paths = {}
+    endif
+    let g:neocomplete#sources#include#paths = {
+                \ 'c' : s:neocomplete_include_paths_cpp,
+                \ 'cpp' : s:neocomplete_include_paths_cpp,
+                \ }
+
+    " vim-stargate
+    let g:stargate#include_paths['cpp'] = s:include_paths_cpp
+
+    " clang_complete
+    let g:clang_user_options =
+                \ s:include_paths_string_mingw .
+                \ ' -std=c++1y'
     if has('win32') || has('win64')
-        if isdirectory(expand('$LLVM_HOME'))
-            let s:libclang_path = globpath('$LLVM_HOME', 'Release\bin\libclang.dll')
-        else
-            let s:libdir = expand('F:\local\llvm\build\Release\bin')
-            let s:libclang_path = globpath(s:libdir, 'libclang.dll')
-        endif
-        " If OS is windows, clang.exe is same directory at libclang.dll.
-        let s:clang_path = strpart(s:libclang_path, 0, strridx(s:libclang_path, '\libclang.dll')) . '\clang.exe'
+        " Build msvc
+        " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
+        let g:clang_user_options += ' 2> NUL || exit 0"'
     else
-        let s:bindir        = expand('/usr/bin')
-        let s:libdir        = expand('/usr/lib')
-        let s:libclang_path = globpath(s:libdir, 'libclang.so')
-        let s:clang_path    = globpath(s:bindir, 'clang')
+        " linuxでオムニ変換が正常に行われない
+        let g:clang_user_options += ' -stdlib=libc++'
     endif
 
-    if glob(s:libclang_path) == '' || glob(s:clang_path) == ''
-        echo "Can't detect clang.exe or clang or libclang.dll or libclang.so."
-        echo s:clang_path
-        echo s:libclang_path
+    " Syntastic
+    let g:syntastic_cpp_compiler_options = g:syntastic_cpp_compiler_options . s:include_paths_string_mingw
+
+    " vim-quickrun
+    let s:clangcpp_cmdopt = s:clangcpp_cmdopt . s:include_paths_string_mingw
+
+    if executable("clang++")
+        let g:quickrun_config['cpp/clang++1y'] = {
+                    \ 'cmdopt': s:clangcpp_cmdopt,
+                    \ "exec" : "%c %o -fsyntax-only %s:p",
+                    \ }
+        let g:quickrun_config['cpp'] = {'type': 'cpp/clang++1y'}
+    else
+        let g:quickrun_config['cpp/g++1y'] = {
+                    \ 'cmdopt': s:clangcpp_cmdopt,
+                    \ }
+        let g:quickrun_config['cpp'] = {'type': 'cpp/g++1y'}
     endif
 endfunction
 
@@ -361,16 +396,16 @@ if !exists('g:neocomplete#keyword_patterns')
 endif
 let g:neocomplete#keyword_patterns['default'] = '\h\w*'
 
-" Define include.
-let s:neocomplete_include_paths_cpp = join(s:include_paths_cpp, ',')
+" " Define include.
+" let s:neocomplete_include_paths_cpp = join(s:include_paths_cpp, ',')
 
-if !exists('g:neocomplete#sources#include#paths')
-    let g:neocomplete#sources#include#paths = {}
-endif
-let g:neocomplete#sources#include#paths = {
-            \ 'c' : s:neocomplete_include_paths_cpp,
-            \ 'cpp' : s:neocomplete_include_paths_cpp,
-            \ }
+" if !exists('g:neocomplete#sources#include#paths')
+"     let g:neocomplete#sources#include#paths = {}
+" endif
+" let g:neocomplete#sources#include#paths = {
+"             \ 'c' : s:neocomplete_include_paths_cpp,
+"             \ 'cpp' : s:neocomplete_include_paths_cpp,
+"             \ }
 
 if !exists('g:neocomplete#sources#include#patterns')
     let g:neocomplete#sources#include#patterns = {}
@@ -449,45 +484,41 @@ endif
 " -------------------------------------------------------
 let s:bundle = neobundle#get("clang_complete")
 function! s:bundle.hooks.on_source(bundle)
-    let g:neocomplete#force_overwrite_completefunc = 1
+	if !exists('g:neocomplete#force_omni_input_patterns')
+	  let g:neocomplete#force_omni_input_patterns = {}
+	endif
+	let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\w*'
+	let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+	let g:neocomplete#force_omni_input_patterns.objc = '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)'
+	let g:neocomplete#force_omni_input_patterns.objcpp = '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)\|\h\w*::\w*'
 
-    if !exists('g:neocomplete#force_omni_input_patterns')
-        let g:neocomplete#force_omni_input_patterns = {}
-    endif
-    let g:neocomplete#force_omni_input_patterns.c      = '[^.[:digit:] *\t]\%(\.\|->\)'
-    let g:neocomplete#force_omni_input_patterns.cpp    = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-    let g:neocomplete#force_omni_input_patterns.objc   = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-    let g:neocomplete#force_omni_input_patterns.objcpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+    let g:clang_debug          = 0
+    let g:clang_complete_copen = 1
 
-    let g:clang_auto_select   = 0
-    let g:clang_complete_auto = 0
+    let g:clang_auto_select    = 0
+    let g:clang_complete_auto  = 1
 
-    let g:clang_use_library   = 1
-    let g:clang_debug         = 1
+    " conceal in insert (i), normal (n) and visual (v) modes
+    set concealcursor=inv
+    " hide concealed text completely unless replacement character is defined
+    set conceallevel=2
+    let g:clang_conceal_snippets = 1
 
-    let g:clang_library_path  = s:libclang_path
-    let g:clang_exec          = s:clang_path
+    let g:clang_use_library  = 1
+    let g:clang_library_path = s:getClangLibraryPath()
 
-    " Build msvc
-    if has('win32') || has('win64')
-        " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
-        let g:clang_user_options =
-                    \ '"' . s:include_paths_string_msvc . '"' .
-                    \ ' -std=c++1y' .
-                    \ ' 2> NUL || exit 0"'
+    " let g:clang_user_options =
+    "             \ s:include_paths_string_mingw .
+    "             \ ' -std=c++1y'
 
-        " " Build mingw32
-        " let g:clang_user_options =
-        "             \ '"' . s:include_paths_string_mingw . '"' .
-        "             \ ' -std=c++1y -fms-extensions -fmsc-version=1300 -fgnu-runtime' .
-        "             \ ' -D__MSVCRT_VERSION__=0x700 -D_WIN32_WINNT=0x0500' .
-        "             \ ' -include malloc.h'
-    else
-        " linuxでオムニ変換が正常に行われない
-        let g:clang_user_options =
-                    \ '"' . s:include_paths_string_mingw . '"' .
-                    \ ' -std=c++1y -stdlib=libc++'
-    endif
+    " " Build msvc
+    " if has('win32') || has('win64')
+    "     " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
+    "     let g:clang_user_options += ' 2> NUL || exit 0"'
+    " else
+    "     " linuxでオムニ変換が正常に行われない
+    "     let g:clang_user_options += ' -stdlib=libc++'
+    " endif
 endfunction
 unlet s:bundle
 
@@ -509,8 +540,6 @@ unlet s:bundle
 " -------------------------------------------------------
 let s:bundle = neobundle#get("Omnisharp")
 function! s:bundle.hooks.on_source(bundle)
-    let g:neocomplete#force_overwrite_completefunc = 1
-
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
     endif
@@ -787,9 +816,10 @@ endfunction
 " vim-stargate
 " -------------------------------------------------------
 " インクルードディレクトリのパスを設定
-let g:stargate#include_paths = {
-            \	"cpp" : s:include_paths_cpp
-            \}
+if !exists('g:stargate#include_paths')
+    let g:stargate#include_paths = {}
+endif
+" let g:stargate#include_paths['cpp'] = s:include_paths_cpp
 
 " -------------------------------------------------------
 " switch.vim
@@ -1120,20 +1150,20 @@ if has('unix') || has('macunix')
     let s:clangcpp_cmdopt += ' -stdlib=libc++'
 endif
 
-let s:clangcpp_cmdopt = s:clangcpp_cmdopt . ' "' . s:include_paths_string_mingw . '"'
+" let s:clangcpp_cmdopt = s:clangcpp_cmdopt . s:include_paths_string_mingw
 
-if executable("clang++")
-    let g:quickrun_config['cpp/clang++1y'] = {
-                \ 'cmdopt': s:clangcpp_cmdopt,
-                \ "exec" : "%c %o -fsyntax-only %s:p",
-                \ }
-    let g:quickrun_config['cpp'] = {'type': 'cpp/clang++1y'}
-else
-    let g:quickrun_config['cpp/g++1y'] = {
-                \ 'cmdopt': s:clangcpp_cmdopt,
-                \ }
-    let g:quickrun_config['cpp'] = {'type': 'cpp/g++1y'}
-endif
+" if executable("clang++")
+"     let g:quickrun_config['cpp/clang++1y'] = {
+"                 \ 'cmdopt': s:clangcpp_cmdopt,
+"                 \ "exec" : "%c %o -fsyntax-only %s:p",
+"                 \ }
+"     let g:quickrun_config['cpp'] = {'type': 'cpp/clang++1y'}
+" else
+"     let g:quickrun_config['cpp/g++1y'] = {
+"                 \ 'cmdopt': s:clangcpp_cmdopt,
+"                 \ }
+"     let g:quickrun_config['cpp'] = {'type': 'cpp/g++1y'}
+" endif
 
 " -------------------------------------------------------
 " Syntastic
@@ -1153,7 +1183,7 @@ let g:syntastic_cpp_compiler_options = '-std=c++1y'
 if has('unix') || has('macunix')
     let g:syntastic_cpp_compiler_options += ' -stdlib=libc++'
 endif
-let g:syntastic_cpp_compiler_options = g:syntastic_cpp_compiler_options . ' "' . s:include_paths_string_mingw . '"'
+" let g:syntastic_cpp_compiler_options = g:syntastic_cpp_compiler_options . s:include_paths_string_mingw
 
 if executable("clang++")
     let g:syntastic_cpp_compiler = 'clang++'

@@ -1,3 +1,8 @@
+if exists('g:accToLang_settings_loaded')
+    finish
+endif
+let g:accToLang_settings_loaded = 1
+
 " the golang config is into plugin_settings.vim.
 
 " NASM
