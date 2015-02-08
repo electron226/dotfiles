@@ -247,10 +247,8 @@ nnoremap <silent> <Leader>a :<C-u>Unite window buffer bookmark tab file_rec regi
 
 " grep検索
 nnoremap <silent> <Leader>g  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
-" カーソル位置の単語をgrep検索
-nnoremap <silent> <Leader>gc :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
 " grep検索結果の再呼出
-nnoremap <silent> <Leader>gr  :<C-u>UniteResume search-buffer<CR>
+nnoremap <silent> <Leader>p  :<C-u>UniteResume search-buffer<CR>
 " unite grep に ag(The Silver Searcher) を使う
 if executable('ag')
     let g:unite_source_grep_command = 'ag'
@@ -586,7 +584,7 @@ function! s:bundle.hooks.on_source(bundle)
     "don't autoselect first item in omnicomplete, show if only one item (for preview)
     "remove preview if you don't want to see any documentation whatsoever.
     set completeopt=longest,menuone,preview
-    " Fetch full documentation during omnicomplete requests. 
+    " Fetch full documentation during omnicomplete requests.
     " There is a performance penalty with this (especially on Mono)
     " By default, only Type/Method signatures are fetched. Full documentation can still be fetched when
     " you need it with the :OmniSharpDocumentation command.
@@ -733,106 +731,59 @@ function! s:bundle.hooks.on_source(bundle)
                 \ }
 endfunction
 unlet s:bundle
-            
+
 " -------------------------------------------------------
 " vim-go
 " :GoInstallBinaries in root after :NeoBundleInstall,
 " -------------------------------------------------------
 let s:bundle = neobundle#get("vim-go")
 function! s:bundle.hooks.on_source(bundle)
-    au FileType go nmap <Leader>s <Plug>(go-implements)
-    au FileType go nmap <Leader>i <Plug>(go-info)
-    au FileType go nmap <Leader>gd <Plug>(go-doc)
-    au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
-    au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
-    au FileType go nmap <leader>r <Plug>(go-run)
-    au FileType go nmap <leader>b <Plug>(go-build)
-    au FileType go nmap <leader>t <Plug>(go-test)
-    au FileType go nmap <leader>c <Plug>(go-coverage)
-    au FileType go nmap gd <Plug>(go-def)
-    au FileType go nmap <Leader>ds <Plug>(go-def-split)
-    au FileType go nmap <Leader>dv <Plug>(go-def-vertical)
-    au FileType go nmap <Leader>dt <Plug>(go-def-tab)
-    
+    au FileType go nmap <Leader>ds <Plug>(go-implements)
+    au FileType go nmap <Leader>di <Plug>(go-info)
+    au FileType go nmap <Leader>dd <Plug>(go-doc)
+    au FileType go nmap <Leader>dv <Plug>(go-doc-vertical)
+    au FileType go nmap <Leader>db <Plug>(go-doc-browser)
+    au FileType go nmap <Leader>dr <Plug>(go-run)
+    au FileType go nmap <Leader>db <Plug>(go-build)
+    au FileType go nmap <Leader>dt <Plug>(go-test)
+    au FileType go nmap <Leader>dc <Plug>(go-coverage)
+    au FileType go nmap vd <Plug>(go-def)
+    au FileType go nmap <Leader>vs <Plug>(go-def-split)
+    au FileType go nmap <Leader>vv <Plug>(go-def-vertical)
+    au FileType go nmap <Leader>vt <Plug>(go-def-tab)
+    au FileType go nmap <Leader>de <Plug>(go-rename)
+
     let g:go_snippet_engine = "neosnippet"
-    
+
     "Disable opening browser after posting to your snippet to play.golang.org
     "let g:go_play_open_browser = 0
-    
+
     "By default vim-go shows errors for the fmt command, to disable it
     "let g:go_fmt_fail_silently = 1
-    
+
     "Enable goimports to automatically insert import paths instead of gofmt
     let g:go_fmt_command = "goimports"
-    
+
     "Disable auto fmt on save
     "let g:go_fmt_autosave = 0
-    
+
     "By default binaries are installed to $GOBIN or $GOPATH/bin. To change it:
     "let g:go_bin_path = expand("~/.gotools")
     "let g:go_bin_path = "/home/fatih/.mypath"      "or give absolute path
+
+    " " By default syntax-highlighting for Functions, Methods and Structs is disabled. To change it:
+    " let g:go_highlight_functions = 1
+    " let g:go_highlight_methods = 1
+    " let g:go_highlight_structs = 1
 endfunction
 unlet s:bundle
 
-" -------------------------------------------------------
-" golang setting.
-" The following should installed.
-"
-" If you use vim-go, you are able to run :GoInstallBinaries.
-" If that case, in following command is unnecessary.
-"
-" If Windows.
-" go get -u -ldflags -H=windowsgui github.com/nsf/gocode
-" go get -u -ldflags -H=windowsgui github.com/golang/lint
-" go get -u -ldflags -H=windowsgui github.com/jstemmer/gotags
-" go get -u -ldflags -H=windowsgui golang.org/x/tools/cmd/godoc
-" If Linux.
-" go get github.com/nsf/gocode
-" go get github.com/golang/lint
-" go get -u github.com/jstemmer/gotags
-" go get golang.org/x/tools/cmd/godoc
-" -------------------------------------------------------
-au BufRead,BufNewFile *.go set filetype=go
-
 autocmd FileType go call s:golang_settings()
 function! s:golang_settings()
-    auto BufWritePre *.go Fmt
-
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
     endif
     let g:neocomplete#force_omni_input_patterns.go = '[^.[:digit:] *\t]\.\w*'
-
-    if isdirectory(expand('$GOPATH'))
-        " golint
-        exe "set rtp+=".globpath($GOPATH, "src/github.com/golang/lint/misc/vim")
-    else
-        echo "I don't find $GOPATH."
-    endif
-
-    nnoremap <buffer> <F5> :call <SID>runGo()<CR>
-    nnoremap <buffer> <F6> :call <SID>runGoToFile()<CR>
-    nnoremap <buffer> <F7> :call <SID>runGoTest()<CR>
-    nnoremap <buffer> <F8> :call <SID>compileGo()<CR>
-    function! s:compileGo()
-        :w
-        exe ':lcd %:p:h'
-        exe ":!go build %"
-    endfunction
-
-    function! s:runGoTest()
-        :w
-        exe ':lcd %:p:h'
-        exe ":!go test %"
-    endfunction
-
-    function! s:runGo()
-        exe ':!go run %'
-    endfunction
-
-    function! s:runGoToFile()
-        exe ":!go run % > %.data"
-    endfunction
 endfunction
 
 " -------------------------------------------------------
@@ -1022,9 +973,9 @@ endfunction
 " -------------------------------------------------------
 " DoxygenToolkit.vim
 " -------------------------------------------------------
-autocmd FileType c,cpp,python call s:doxygen()
-function! s:doxygen()
-    nmap <Leader>d :Dox<CR>
+let s:bundle = neobundle#get("DoxygenToolkit.vim")
+function! s:bundle.hooks.on_source(bundle)
+    nmap <Leader>dc :Dox<CR>
     nmap <Leader>da :DoxAuthor<CR>
     nmap <Leader>dl :DoxLic<CR>
     nmap <Leader>du :DoxUndoc<CR>
@@ -1035,6 +986,7 @@ function! s:doxygen()
         let g:DoxygenToolkit_returnTag="@retval "
     endfunction
 endfunction
+unlet s:bundle
 
 " -------------------------------------------------------
 " simple-javascript-indenter

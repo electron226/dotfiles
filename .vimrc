@@ -267,7 +267,12 @@ NeoBundleLazy 'DoxygenToolkit.vim', {
 \}
 
 " Test
-NeoBundle "thinca/vim-quickrun"
+NeoBundleLazy "thinca/vim-quickrun", {
+            \   'autoload': {
+            \       'commands': ['Quickrun'],
+            \       'mappings': ['<Plug>(quickrun)']
+            \   }
+            \ }
 NeoBundle 'reinh/vim-makegreen'
 NeoBundle "jceb/vim-hier"
 NeoBundle "dannyob/quickfixstatus"
