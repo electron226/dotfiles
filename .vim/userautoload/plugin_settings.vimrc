@@ -8,6 +8,8 @@ let g:plugin_settings_loaded = 1
 " -------------------------------------------------------
 function! s:getClangLibraryPath()
     if has('win32') || has('win64')
+        " When you are building clang,
+        " you should change a path of mingw in llvm\tools\clang\lib\Frontend\InitHeaderSearch.cpp
         if isdirectory(expand('$LLVM_HOME'))
             let l:libclang_path = globpath('$LLVM_HOME', 'Release\bin\libclang.dll')
         else

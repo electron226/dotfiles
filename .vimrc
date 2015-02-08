@@ -61,6 +61,7 @@ NeoBundle 'Shougo/vimproc', {
 \     'windows' : 'tools\\update-dll-mingw',
 \     'cygwin' : 'make -f make_cygwin.mak',
 \     'mac' : 'make -f make_mac.mak',
+\     'linux': 'make',
 \     'unix' : g:make,
 \    },
 \ }
@@ -80,7 +81,8 @@ NeoBundleLazy 'Shougo/vimshell', {
 NeoBundleLazy 'Shougo/neocomplete', {
 \   "autoload": {
 \       "insert": 1
-\   }
+\   },
+\   "disabled": !has('lua')
 \ }
 NeoBundleLazy 'Shougo/neosnippet', {
 \   "autoload": {
@@ -149,9 +151,30 @@ NeoBundleLazy 'Shougo/unite.vim', {
 NeoBundleLazy 'Shougo/neomru.vim', {
             \ 'depends': [ "unite.vim" ]
             \ }
-"NeoBundleLazy 'Shougo/unite-build', { 'depends' : [ "unite.vim" ] }
-"NeoBundleLazy 'tsukkee/unite-tag', { 'depends' : [ "unite.vim" ] }
-"NeoBundleLazy 'hewes/unite-gtags', { 'depends' : [ "unite.vim" ] }
+" NeoBundleLazy 'Shougo/unite-build', {
+"             \   'depends' : [
+"             \       "unite.vim"
+"             \   ],
+"             \   'autoload' : {
+"             \       "unite_sources": "build"
+"             \   }
+"             \ }
+" NeoBundleLazy 'tsukkee/unite-tag',
+"             \   'depends' : [
+"             \       "unite.vim"
+"             \   ],
+"             \   'autoload' : {
+"             \       "unite_sources": "tag"
+"             \   }
+"             \ }
+" NeoBundleLazy 'hewes/unite-gtags',
+"             \   'depends' : [
+"             \       "unite.vim"
+"             \   ],
+"             \   'autoload' : {
+"             \       "unite_sources": "gtags"
+"             \   }
+"             \ }
 NeoBundleLazy 'h1mesuke/unite-outline', {
 \   'depends' : [ "unite.vim" ],
 \   'autoload' : {
@@ -279,9 +302,9 @@ NeoBundleLazy 'nosami/Omnisharp', {
 \   'build': {
 \     'windows': 'msbuild server/OmniSharp.sln /p:Platform="Any CPU"',
 \     'mac': 'cd server && xbuild',
+\     'linux': 'cd server && xbuild',
 \     'unix': 'cd server && xbuild',
-\     'mingw32': 'echo "Please build Omnisharp manually."',
-\     'mingw64': 'echo "Please build Omnisharp manually."'
+\     'others': 'echo "Please build Omnisharp manually."',
 \   },
 \   'depends' : [ "neocomplete" ]
 \ }
@@ -295,9 +318,9 @@ NeoBundleLazy 'Blackrush/vim-gocode', {
             \ 'build': {
             \   'windows': 'go get -ldflags -H=windowsgui github.com/nsf/gocode',
             \   'mac': 'go get github.com/nsf/gocode',
+            \   'linux': 'go get github.com/nsf/gocode',
             \   'unix': 'go get github.com/nsf/gocode',
-            \   'mingw32': 'echo "Please install vim-gocode manually."',
-            \   'mingw64': 'echo "Please install vim-gocode manually."'
+            \   'others': 'echo "Please install vim-gocode manually."',
             \ }
 \ }
 NeoBundleLazy 'dgryski/vim-godef', {
@@ -305,9 +328,9 @@ NeoBundleLazy 'dgryski/vim-godef', {
             \ 'build': {
             \   'windows': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
             \   'mac': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
+            \   'linux': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
             \   'unix': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
-            \   'mingw32': 'echo "Please install vim-godef manually."',
-            \   'mingw64': 'echo "Please install vim-godef manually."'
+            \   'others': 'echo "Please install vim-godef manually."',
             \ }
 \ }
 
@@ -320,9 +343,9 @@ NeoBundleLazy "davidhalter/jedi-vim", {
 \     'build': {
 \         'windows': 'pip3 install jedi',
 \         'mac': 'pip3 install jedi',
+\         'linux': 'pip3 install jedi',
 \         'unix': 'pip3 install jedi',
-\         'mingw32': 'echo "Please install jedi manually."',
-\         'mingw64': 'echo "Please install jedi manually."'
+\         'others': 'echo "Please install jedi manually."',
 \     },
 \     'depends' : [ "neocomplete" ]
 \}
@@ -331,9 +354,9 @@ NeoBundleLazy "klen/python-mode", {
             \ 'build': {
             \   'windows': 'easy_install-3.4 rope_py3k',
             \   'mac': 'easy_install rope_py3k',
+            \   'linux': 'easy_install rope_py3k',
             \   'unix': 'easy_install rope_py3k',
-            \   'mingw32': 'echo "Please install python-mode manually."',
-            \   'mingw64': 'echo "Please install python-mode manually."'
+            \   'others': 'echo "Please install python-mode manually."',
             \ }
 \}
 
@@ -386,9 +409,9 @@ NeoBundleLazy 'marijnh/tern_for_vim', {
             \ 'build': {
             \   'windows': 'npm install',
             \   'mac': 'npm install',
+            \   'linux': 'npm install',
             \   'unix': 'npm install',
-            \   'mingw32': 'echo "Please install tern_for_vim manually."',
-            \   'mingw64': 'echo "Please install tern_for_vim manually."'
+            \   'others': 'echo "Please install tern_for_vim manually."',
             \}}
 NeoBundleLazy 'kchmck/vim-coffee-script', {
             \ 'autoload': { "filetypes": [ "coffee" ] }
@@ -400,7 +423,13 @@ NeoBundleLazy 'heavenshell/vim-jsdoc', {
 " version management
 "NeoBundle 'git://repo.or.cz/vcscommand.git'
 NeoBundle 'tpope/vim-fugitive'
-NeoBundle 'cohama/agit.vim'
+NeoBundleLazy 'cohama/agit.vim', {
+    \   'autoload' : {
+    \       'commands' : [
+    \           'Agit', 'AgitFile', 'AgitGit'
+    \       ]
+    \   }
+    \ }
 
 " Others
 NeoBundleLazy 'JSON.vim', {
