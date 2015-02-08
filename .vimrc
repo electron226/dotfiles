@@ -143,11 +143,7 @@ NeoBundleLazy 'tpope/vim-endwise', {
 \}
 
 " Explorer
-NeoBundleLazy 'Shougo/unite.vim', {
-\   "autoload": {
-\     "commands": [ "Unite", "UniteWithBufferDir", "UniteWithCurrentDir" ]
-\   }
-\ }
+NeoBundle 'Shougo/unite.vim'
 NeoBundleLazy 'Shougo/neomru.vim', {
             \ 'depends': [ "unite.vim" ]
             \ }
@@ -175,12 +171,12 @@ NeoBundleLazy 'Shougo/neomru.vim', {
 "             \       "unite_sources": "gtags"
 "             \   }
 "             \ }
-NeoBundleLazy 'h1mesuke/unite-outline', {
-\   'depends' : [ "unite.vim" ],
-\   'autoload' : {
-\       "unite_sources": "outline"
-\   }
-\ }
+" NeoBundleLazy 'h1mesuke/unite-outline', {
+" \   'depends' : [ "unite.vim" ],
+" \   'autoload' : {
+" \       "unite_sources": "outline"
+" \   }
+" \ }
 NeoBundleLazy 'Shougo/vimfiler', {
 \   'depends' : [ "unite.vim" ],
 \   'autoload': {

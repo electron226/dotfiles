@@ -208,147 +208,143 @@ unlet s:bundle
 " -------------------------------------------------------
 " unite.vim
 " -------------------------------------------------------
-let s:bundle = neobundle#get("unite.vim")
-function! s:bundle.hooks.on_source(bundle)
-    " 入力モードで開始する
-    let g:unite_enable_start_insert=1
+" 入力モードで開始する
+let g:unite_enable_start_insert=1
 
-    " Enable yank history.
-    let g:unite_source_history_yank_enable = 1
+" Enable yank history.
+let g:unite_source_history_yank_enable = 1
 
-    " 大文字小文字を区別しない
-    let g:unite_enable_ignore_case = 1
-    let g:unite_enable_smart_case = 1
+" 大文字小文字を区別しない
+let g:unite_enable_ignore_case = 1
+let g:unite_enable_smart_case = 1
 
-    " ウインドウ一覧
-    nnoremap <silent> <Leader>w :<C-u>Unite window<CR>
-    " バッファ一覧
-    nnoremap <silent> <Leader>b :<C-u>Unite buffer<CR>
-    " ブックマーク一覧
-    nnoremap <silent> <Leader>m :<C-u>Unite bookmark<CR>
-    " ファイル一覧
-    nnoremap <silent> <Leader>q :<C-u>Unite file<CR>
-    " 再帰的なファイル一覧
-    function! DispatchUniteFileRecAsyncOrGit()
-        if isdirectory(getcwd()."/.git")
-            Unite file_rec/git:!
-        else
-            " Unite file_rec/async:!
-            Unite file_rec
-        endif
-    endfunction
-    nnoremap <silent> <Leader>u :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
-    " レジスタ一覧
-    nnoremap <silent> <Leader>r :<C-u>Unite -buffer-name=register register<CR>
-    " ヤンク履歴
-    nnoremap <silent> <Leader>y :<C-u>Unite history/yank<CR>
-    " タブ
-    nnoremap <silent> <Leader>e :<C-u>Unite tab<CR>
-    " 全部乗せ
-    nnoremap <silent> <Leader>a :<C-u>Unite window buffer bookmark tab file_rec register history/yank<CR>
-
-    " grep検索
-    nnoremap <silent> <Leader>g  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
-    " カーソル位置の単語をgrep検索
-    nnoremap <silent> <Leader>gc :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
-    " grep検索結果の再呼出
-    nnoremap <silent> <Leader>gr  :<C-u>UniteResume search-buffer<CR>
-    " unite grep に ag(The Silver Searcher) を使う
-    if executable('ag')
-        let g:unite_source_grep_command = 'ag'
-        let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
-        let g:unite_source_grep_recursive_opt = ''
+" ウインドウ一覧
+nnoremap <silent> <Leader>w :<C-u>Unite window<CR>
+" バッファ一覧
+nnoremap <silent> <Leader>b :<C-u>Unite buffer<CR>
+" ブックマーク一覧
+nnoremap <silent> <Leader>m :<C-u>Unite bookmark<CR>
+" ファイル一覧
+nnoremap <silent> <Leader>q :<C-u>Unite file<CR>
+" 再帰的なファイル一覧
+function! DispatchUniteFileRecAsyncOrGit()
+    if isdirectory(getcwd()."/.git")
+        Unite file_rec/git:!
+    else
+        " Unite file_rec/async:!
+        Unite file_rec
     endif
-
-    " カーソル下のキーワードを含む行を表示
-    nnoremap <silent> <Leader>n :<C-u>UniteWithCursorWord -no-quit line<CR>
-
-    " unite.vim上でのキーマッピング
-    autocmd FileType unite call s:unite_my_settings()
-    function! s:unite_my_settings()
-        " 単語単位からパス単位で削除するように変更
-        "imap <buffer> <C-w> <Plug>(unite_delete_backward_path)
-
-        " ウィンドウを分割して開く
-        nmap <silent> <buffer> <expr> <C-j> unite#do_action('split')
-        imap <silent> <buffer> <expr> <C-j> unite#do_action('split')
-
-        " ウィンドウを縦に分割して開く
-        nmap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
-        imap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
-
-        " ESCキーを2回押すと終了する
-        nmap <silent><buffer> <ESC><ESC> q
-        imap <silent><buffer> <ESC><ESC> <ESC>q
-    endfunction
-
-    " -------------------------------------------------------
-    " unite-build
-    " -------------------------------------------------------
-    "    nnoremap <silent> <Leader>ubu :<C-u>Unite build<CR>
-    "    nnoremap <silent> <Leader>ubut :<C-u>Unite build:!<CR>
-
-    " -------------------------------------------------------
-    " unite-tag
-    " -------------------------------------------------------
-    "nnoremap <silent> <Leader>ut :<C-u>Unite tag<CR>
-    "nnoremap <silent> <Leader>utf :<C-u>Unite tag/file<CR>
-    "nnoremap <silent> <Leader>uti :<C-u>Unite tag/include<CR>
-    "
-    " path にヘッダーファイルのディレクトリを追加することで
-    " neocomplcache が include 時に tag ファイルを作成してくれる
-    "set path+=$LIBSTDCPP
-    "set path+=$BOOST_LATEST_ROOT
-    "
-    "    " unite-tagで表示する
-    "    command!
-    "        \ -nargs=? PopupTags
-    "        \ call <SID>TagsUpdate()
-    "        \ |Unite tag:<args>
-    "
-    " neocomplete が作成した tag ファイルのパスを tags に追加する
-    "function! s:TagsUpdate()
-    "    " include している tag ファイルが毎回同じとは限らないので毎回初期化
-    "    setlocal tags=
-    "    for filename in neocomplete#sources#include#get_include_files(bufnr('%'))
-    "        execute "setlocal tags+=".neocomplete#cache#encode_name('tags_output', filename)
-    "    endfor
-    "endfunction
-    "
-    "    function! s:get_func_name(word)
-    "        let end = match(a:word, '<\|[\|(')
-    "        return end == -1 ? a:word : a:word[ : end-1 ]
-    "    endfunction
-    "
-    "    " カーソル下のワード(word)で絞り込み
-    "    noremap <silent> g<C-]> :<C-u>execute "PopupTags ".expand('<cword>')<CR>
-    "
-    "    " カーソル下のワード(WORD)で ( か < か [ までが現れるまでで絞り込み
-    "    " 例)
-    "    " boost::array<std::stirng... → boost::array で絞り込み
-    "    noremap <silent> G<C-]> :<C-u>execute "PopupTags "
-    "        \.substitute(<SID>get_func_name(expand('<cWORD>')), '\:', '\\\:', "g")<CR>
-
-    " -------------------------------------------------------
-    " unite-gtag
-    " -------------------------------------------------------
-    "    nnoremap <silent> <Leader>ugt :<C-u>Unite gtags/context<CR>
-    "    nnoremap <silent> <Leader>ugtr :<C-u>Unite gtags/ref<CR>
-    "    nnoremap <silent> <Leader>ugtd :<C-u>Unite gtags/def<CR>
-    "    nnoremap <silent> <Leader>ugtg :<C-u>Unite gtags/grep<CR>
-    "    nnoremap <silent> <Leader>ugta :<C-u>Unite gtags/completion<CR>
-
-    " -------------------------------------------------------
-    " unite-outline
-    " -------------------------------------------------------
-    " ソースの関数一覧表示
-    nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
-    " ソースの関数一覧を上下分割で常に表示
-    nnoremap <silent> <Leader>uoh :<C-u>Unite -winheight=15 -no-quit outline<CR>
-    " ソースの関数一覧を左右分割で常に表示
-    nnoremap <silent> <Leader>uov :<C-u>Unite -vertical -winwidth=25 -no-quit outline<CR>
 endfunction
-unlet s:bundle
+nnoremap <silent> <Leader>u :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
+" レジスタ一覧
+nnoremap <silent> <Leader>r :<C-u>Unite -buffer-name=register register<CR>
+" ヤンク履歴
+nnoremap <silent> <Leader>y :<C-u>Unite history/yank<CR>
+" タブ
+nnoremap <silent> <Leader>e :<C-u>Unite tab<CR>
+" 全部乗せ
+nnoremap <silent> <Leader>a :<C-u>Unite window buffer bookmark tab file_rec register history/yank<CR>
+
+" grep検索
+nnoremap <silent> <Leader>g  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
+" カーソル位置の単語をgrep検索
+nnoremap <silent> <Leader>gc :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W>
+" grep検索結果の再呼出
+nnoremap <silent> <Leader>gr  :<C-u>UniteResume search-buffer<CR>
+" unite grep に ag(The Silver Searcher) を使う
+if executable('ag')
+    let g:unite_source_grep_command = 'ag'
+    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
+    let g:unite_source_grep_recursive_opt = ''
+endif
+
+" カーソル下のキーワードを含む行を表示
+nnoremap <silent> <Leader>n :<C-u>UniteWithCursorWord -no-quit line<CR>
+
+" unite.vim上でのキーマッピング
+autocmd FileType unite call s:unite_my_settings()
+function! s:unite_my_settings()
+    " 単語単位からパス単位で削除するように変更
+    "imap <buffer> <C-w> <Plug>(unite_delete_backward_path)
+
+    " ウィンドウを分割して開く
+    nmap <silent> <buffer> <expr> <C-j> unite#do_action('split')
+    imap <silent> <buffer> <expr> <C-j> unite#do_action('split')
+
+    " ウィンドウを縦に分割して開く
+    nmap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
+    imap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
+
+    " ESCキーを2回押すと終了する
+    nmap <silent><buffer> <ESC><ESC> q
+    imap <silent><buffer> <ESC><ESC> <ESC>q
+endfunction
+
+" -------------------------------------------------------
+" unite-build
+" -------------------------------------------------------
+" nnoremap <silent> <Leader>ubu :<C-u>Unite build<CR>
+" nnoremap <silent> <Leader>ubut :<C-u>Unite build:!<CR>
+
+" -------------------------------------------------------
+" unite-tag
+" -------------------------------------------------------
+" nnoremap <silent> <Leader>ut :<C-u>Unite tag<CR>
+" nnoremap <silent> <Leader>utf :<C-u>Unite tag/file<CR>
+" nnoremap <silent> <Leader>uti :<C-u>Unite tag/include<CR>
+
+" " path にヘッダーファイルのディレクトリを追加することで
+" " neocomplcache が include 時に tag ファイルを作成してくれる
+" set path+=$LIBSTDCPP
+" set path+=$BOOST_LATEST_ROOT
+
+" " unite-tagで表示する
+" command!
+"             \ -nargs=? PopupTags
+"             \ call <SID>TagsUpdate()
+"             \ |Unite tag:<args>
+
+" " neocomplete が作成した tag ファイルのパスを tags に追加する
+" function! s:TagsUpdate()
+"     " include している tag ファイルが毎回同じとは限らないので毎回初期化
+"     setlocal tags=
+"     for filename in neocomplete#sources#include#get_include_files(bufnr('%'))
+"         execute "setlocal tags+=".neocomplete#cache#encode_name('tags_output', filename)
+"     endfor
+" endfunction
+
+" function! s:get_func_name(word)
+"     let end = match(a:word, '<\|[\|(')
+"     return end == -1 ? a:word : a:word[ : end-1 ]
+" endfunction
+
+" " カーソル下のワード(word)で絞り込み
+" noremap <silent> g<C-]> :<C-u>execute "PopupTags ".expand('<cword>')<CR>
+
+" " カーソル下のワード(WORD)で ( か < か [ までが現れるまでで絞り込み
+" " 例)
+" " boost::array<std::stirng... → boost::array で絞り込み
+" noremap <silent> G<C-]> :<C-u>execute "PopupTags "
+"             \.substitute(<SID>get_func_name(expand('<cWORD>')), '\:', '\\\:', "g")<CR>
+
+" -------------------------------------------------------
+" unite-gtag
+" -------------------------------------------------------
+" nnoremap <silent> <Leader>ugt :<C-u>Unite gtags/context<CR>
+" nnoremap <silent> <Leader>ugtr :<C-u>Unite gtags/ref<CR>
+" nnoremap <silent> <Leader>ugtd :<C-u>Unite gtags/def<CR>
+" nnoremap <silent> <Leader>ugtg :<C-u>Unite gtags/grep<CR>
+" nnoremap <silent> <Leader>ugta :<C-u>Unite gtags/completion<CR>
+
+" -------------------------------------------------------
+" unite-outline
+" -------------------------------------------------------
+" " ソースの関数一覧表示
+" nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
+" " ソースの関数一覧を上下分割で常に表示
+" nnoremap <silent> <Leader>uoh :<C-u>Unite -winheight=15 -no-quit outline<CR>
+" " ソースの関数一覧を左右分割で常に表示
+" nnoremap <silent> <Leader>uov :<C-u>Unite -vertical -winwidth=25 -no-quit outline<CR>
 
 " " -------------------------------------------------------
 " " alpaca_tags
@@ -740,6 +736,7 @@ unlet s:bundle
             
 " -------------------------------------------------------
 " vim-go
+" :GoInstallBinaries in root after :NeoBundleInstall,
 " -------------------------------------------------------
 let s:bundle = neobundle#get("vim-go")
 function! s:bundle.hooks.on_source(bundle)
@@ -766,7 +763,7 @@ function! s:bundle.hooks.on_source(bundle)
     "let g:go_fmt_fail_silently = 1
     
     "Enable goimports to automatically insert import paths instead of gofmt
-    "let g:go_fmt_command = "goimports"
+    let g:go_fmt_command = "goimports"
     
     "Disable auto fmt on save
     "let g:go_fmt_autosave = 0
@@ -781,8 +778,16 @@ unlet s:bundle
 " golang setting.
 " The following should installed.
 "
+" If you use vim-go, you are able to run :GoInstallBinaries.
+" If that case, in following command is unnecessary.
+"
+" If Windows.
+" go get -u -ldflags -H=windowsgui github.com/nsf/gocode
+" go get -u -ldflags -H=windowsgui github.com/golang/lint
+" go get -u -ldflags -H=windowsgui github.com/jstemmer/gotags
+" go get -u -ldflags -H=windowsgui golang.org/x/tools/cmd/godoc
+" If Linux.
 " go get github.com/nsf/gocode
-" If Windows user = go get -u -ldflags -H=windowsgui github.com/nsf/gocode
 " go get github.com/golang/lint
 " go get -u github.com/jstemmer/gotags
 " go get golang.org/x/tools/cmd/godoc
