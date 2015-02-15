@@ -188,11 +188,7 @@ NeoBundleLazy 'Shougo/vimfiler', {
 \   }
 \ }
 NeoBundle 'ctrlpvim/ctrlp.vim'
-NeoBundleLazy 'pelodelfuego/vim-swoop', {
-\   'autoload': {
-\       'commands': [ "Swoop", "SwoopSelection", "SwoopMulti", "SwoopMultiSelection" ],
-\   }
-\ }
+NeoBundle 'pelodelfuego/vim-swoop'
 
 " Search
 NeoBundle 'rking/ag.vim'

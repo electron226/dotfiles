@@ -1135,7 +1135,8 @@ function! s:bundle.hooks.on_source(bundle)
                 \ "[場所リスト][-]",
                 \ "GoToFile",
                 \ "YankRing",
-                \ "__Gundo_Preview__"
+                \ "__Gundo_Preview__",
+                \ "swoopBuf"
                 \ ]
 endfunction
 unlet s:bundle
@@ -1443,12 +1444,12 @@ nmap gl <Plug>(LiveEasyAlign)
 " -------------------------------------------------------
 " vim-swoop
 " -------------------------------------------------------
-" " You can disabledefault mapping by:
-" let g:swoopUseDefaultKeyMap = 0
-" nmap <Leader>l :call Swoop()<CR>
-" vmap <Leader>l :call SwoopSelection()<CR>
-" nmap <Leader>ml :call SwoopMulti()<CR>
-" vmap <Leader>ml :call SwoopMultiSelection()<CR>
+" You can disabledefault mapping by:
+let g:swoopUseDefaultKeyMap = 0
+nmap <Leader>n :call Swoop()<CR>
+vmap <Leader>n :call SwoopSelection()<CR>
+nmap <Leader>m :call SwoopMulti()<CR>
+vmap <Leader>m :call SwoopMultiSelection()<CR>
 
 " " set search case insensitive
 " let g:swoopIgnoreCase = 1
