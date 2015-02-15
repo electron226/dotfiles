@@ -144,8 +144,10 @@ NeoBundleLazy 'tpope/vim-endwise', {
 
 " Explorer
 NeoBundle 'Shougo/unite.vim'
-NeoBundleLazy 'Shougo/neomru.vim', {
-            \ 'depends': [ "unite.vim" ]
+NeoBundle 'Shougo/neomru.vim', {
+            \   'depends' : [
+            \       "unite.vim"
+            \   ]
             \ }
 " NeoBundleLazy 'Shougo/unite-build', {
 "             \   'depends' : [
@@ -186,6 +188,11 @@ NeoBundleLazy 'Shougo/vimfiler', {
 \   }
 \ }
 NeoBundle 'ctrlpvim/ctrlp.vim'
+NeoBundleLazy 'pelodelfuego/vim-swoop', {
+\   'autoload': {
+\       'commands': [ "Swoop", "SwoopSelection", "SwoopMulti", "SwoopMultiSelection" ],
+\   }
+\ }
 
 " Search
 NeoBundle 'rking/ag.vim'
@@ -424,6 +431,7 @@ NeoBundleLazy 'heavenshell/vim-jsdoc', {
 " version management
 "NeoBundle 'git://repo.or.cz/vcscommand.git'
 NeoBundle 'tpope/vim-fugitive'
+" NeoBundle 'airblade/vim-gitgutter'
 NeoBundleLazy 'cohama/agit.vim', {
     \   'autoload' : {
     \       'commands' : [

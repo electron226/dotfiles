@@ -206,49 +206,47 @@ endfunction
 unlet s:bundle
 
 " -------------------------------------------------------
+" ctrlp.vim
+" -------------------------------------------------------
+" CtrlP to scan for dotfiles and dotdirs.
+let g:ctrlp_show_hidden = 1
+
+" -------------------------------------------------------
 " unite.vim
 " -------------------------------------------------------
-" 入力モードで開始する
-let g:unite_enable_start_insert=1
+call unite#custom#profile('default', 'context', {
+            \ 'start_insert': 1,
+            \ 'winheight': 10,
+            \ 'direction': 'botright',
+            \ })
+
+" The items of in .gitignore doesn't display in the result of the unite.vim.
+function! s:unite_setGitIgnoreSource()
+    let l:sources = []
+    let l:file = getcwd() . '/.gitignore'
+    let l:dir = getcwd() . '/.git'
+    if filereadable(l:file)
+        for l:line in readfile(l:file)
+            " a line of comment and empty line are skipping.
+            if l:line !~ "^#\\|^\s\*$"
+                call add(l:sources, l:line)
+            endif
+        endfor
+    endif
+
+    if isdirectory(l:dir)
+        call add(l:sources, '.git')
+    endif
+
+    let l:pattern = escape(join(sources, '|'), './|')
+    call unite#custom#source('file_rec,file_rec/async,file_rec/git', 'ignore_pattern', l:pattern)
+endfunction
+
+call s:unite_setGitIgnoreSource()
 
 " Enable yank history.
 let g:unite_source_history_yank_enable = 1
 
-" 大文字小文字を区別しない
-let g:unite_enable_ignore_case = 1
-let g:unite_enable_smart_case = 1
-
-" ウインドウ一覧
-nnoremap <silent> <Leader>w :<C-u>Unite window<CR>
-" バッファ一覧
-nnoremap <silent> <Leader>b :<C-u>Unite buffer<CR>
-" ブックマーク一覧
-nnoremap <silent> <Leader>m :<C-u>Unite bookmark<CR>
-" ファイル一覧
-nnoremap <silent> <Leader>q :<C-u>Unite file<CR>
-" 再帰的なファイル一覧
-function! DispatchUniteFileRecAsyncOrGit()
-    if isdirectory(getcwd()."/.git")
-        Unite file_rec/git:!
-    else
-        " Unite file_rec/async:!
-        Unite file_rec
-    endif
-endfunction
-nnoremap <silent> <Leader>u :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
-" レジスタ一覧
-nnoremap <silent> <Leader>r :<C-u>Unite -buffer-name=register register<CR>
-" ヤンク履歴
-nnoremap <silent> <Leader>y :<C-u>Unite history/yank<CR>
-" タブ
-nnoremap <silent> <Leader>e :<C-u>Unite tab<CR>
-" 全部乗せ
-nnoremap <silent> <Leader>a :<C-u>Unite window buffer bookmark tab file_rec register history/yank<CR>
-
-" grep検索
-nnoremap <silent> <Leader>g  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
-" grep検索結果の再呼出
-nnoremap <silent> <Leader>p  :<C-u>UniteResume search-buffer<CR>
 " unite grep に ag(The Silver Searcher) を使う
 if executable('ag')
     let g:unite_source_grep_command = 'ag'
@@ -256,14 +254,47 @@ if executable('ag')
     let g:unite_source_grep_recursive_opt = ''
 endif
 
+" ウインドウ/TAB一覧
+nnoremap <silent> <Leader>uw :<C-u>Unite window tab<CR>
+" バッファ/ブックマーク一覧
+nnoremap <silent> <Leader>ub :<C-u>Unite buffer bookmark<CR>
+" ファイル一覧
+nnoremap <silent> <Leader>uf :<C-u>Unite file<CR>
+" ファイル履歴一覧
+nnoremap <silent> <Leader>um :<C-u>Unite file_mru<CR>
+" 再帰的なファイル一覧
+function! DispatchUniteFileRecAsyncOrGit()
+    if isdirectory(getcwd()."/.git")
+        Unite file_rec/git:!
+    else
+        if has('win32') || has('win64')
+            Unite file_rec
+        else
+            Unite file_rec/async:!
+        endif
+    endif
+endfunction
+nnoremap <silent> <Leader>uu :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
+" レジスタ一覧
+nnoremap <silent> <Leader>ur :<C-u>Unite -buffer-name=register register<CR>
+" ヤンク履歴
+nnoremap <silent> <Leader>uy :<C-u>Unite history/yank<CR>
+" 全部乗せ
+nnoremap <silent> <Leader>ua :<C-u>Unite window buffer bookmark tab file_rec register history/yank<CR>
+
+" grep検索
+nnoremap <silent> <Leader>ug  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
+" grep検索結果の再呼出
+nnoremap <silent> <Leader>up  :<C-u>UniteResume search-buffer<CR>
+
 " カーソル下のキーワードを含む行を表示
-nnoremap <silent> <Leader>n :<C-u>UniteWithCursorWord -no-quit line<CR>
+nnoremap <silent> <Leader>uc :<C-u>UniteWithCursorWord -no-quit line<CR>
 
 " unite.vim上でのキーマッピング
 autocmd FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
     " 単語単位からパス単位で削除するように変更
-    "imap <buffer> <C-w> <Plug>(unite_delete_backward_path)
+    imap <buffer> <C-w> <Plug>(unite_delete_backward_path)
 
     " ウィンドウを分割して開く
     nmap <silent> <buffer> <expr> <C-j> unite#do_action('split')
@@ -1399,12 +1430,6 @@ function! s:reverse_candidates(cand)
 endfunction
 
 " -------------------------------------------------------
-" ctrlp.vim
-" -------------------------------------------------------
-" CtrlP to scan for dotfiles and dotdirs.
-let g:ctrlp_show_hidden = 1
-
-" -------------------------------------------------------
 " vim-easy-align
 " -------------------------------------------------------
 " Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
@@ -1414,3 +1439,26 @@ vmap gl <Plug>(LiveEasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 nmap gl <Plug>(LiveEasyAlign)
+
+" -------------------------------------------------------
+" vim-swoop
+" -------------------------------------------------------
+" " You can disabledefault mapping by:
+" let g:swoopUseDefaultKeyMap = 0
+" nmap <Leader>l :call Swoop()<CR>
+" vmap <Leader>l :call SwoopSelection()<CR>
+" nmap <Leader>ml :call SwoopMulti()<CR>
+" vmap <Leader>ml :call SwoopMultiSelection()<CR>
+
+" " set search case insensitive
+" let g:swoopIgnoreCase = 1
+" " Disable quick regex mode
+" let g:swoopPatternSpaceInsertsWildcard = 0
+" " Disable auto insert mode
+" let g:swoopAutoInserMode = 0
+" " Change default layout
+" let g:swoopWindowsVerticalLayout = 1
+" " Lazy Filetype Load
+" let g:swoopLazyLoadFileType = 0
+" " Edit default HightLight
+" let g:swoopHighlight = ["hi! link SwoopBufferLineHi Warning", "hi! link SwoopPatternHi Error"]
