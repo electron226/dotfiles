@@ -570,7 +570,7 @@ function! s:bundle.hooks.on_source(bundle)
         let g:neocomplete#force_omni_input_patterns = {}
     endif
 
-    let g:neocomplete#sources#omni#input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
+    let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
 endfunction
 unlet s:bundle
 
