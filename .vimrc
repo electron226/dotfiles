@@ -353,16 +353,16 @@ NeoBundleLazy "davidhalter/jedi-vim", {
 \     },
 \     'depends' : [ "neocomplete" ]
 \}
-NeoBundleLazy "klen/python-mode", {
-            \ 'autoload': { "filetypes": [ "python" ] },
-            \ 'build': {
-            \   'windows': 'easy_install-3.4 rope_py3k',
-            \   'mac': 'easy_install rope_py3k',
-            \   'linux': 'easy_install rope_py3k',
-            \   'unix': 'easy_install rope_py3k',
-            \   'others': 'echo "Please install python-mode manually."',
-            \ }
-\}
+" NeoBundleLazy "klen/python-mode", {
+"             \ 'autoload': { "filetypes": [ "python" ] },
+"             \ 'build': {
+"             \   'windows': 'easy_install-3.4 rope_py3k',
+"             \   'mac': 'easy_install rope_py3k',
+"             \   'linux': 'easy_install rope_py3k',
+"             \   'unix': 'easy_install rope_py3k',
+"             \   'others': 'echo "Please install python-mode manually."',
+"             \ }
+" \}
 
 " Ruby
 NeoBundleLazy "vim-ruby/vim-ruby", {

@@ -1200,8 +1200,8 @@ if executable("clang++")
     let g:syntastic_cpp_compiler = 'clang++'
 endif
 
-" ignore python for use python-mode.
-let g:syntastic_ignore_files = ['\.py$']
+" " ignore python for use python-mode.
+" let g:syntastic_ignore_files = ['\.py$']
 
 "with lightline
 let g:lightline = {
