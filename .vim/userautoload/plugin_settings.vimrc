@@ -561,18 +561,18 @@ function! s:bundle.hooks.on_source(bundle)
 endfunction
 unlet s:bundle
 
-" -------------------------------------------------------
-" vim-ruby
-" -------------------------------------------------------
-let s:bundle = neobundle#get("vim-ruby")
-function! s:bundle.hooks.on_source(bundle)
-    if !exists('g:neocomplete#force_omni_input_patterns')
-        let g:neocomplete#force_omni_input_patterns = {}
-    endif
+" " -------------------------------------------------------
+" " vim-ruby
+" " -------------------------------------------------------
+" let s:bundle = neobundle#get("vim-ruby")
+" function! s:bundle.hooks.on_source(bundle)
+"     if !exists('g:neocomplete#force_omni_input_patterns')
+"         let g:neocomplete#force_omni_input_patterns = {}
+"     endif
 
-    let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
-endfunction
-unlet s:bundle
+"     let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
+" endfunction
+" unlet s:bundle
 
 " -------------------------------------------------------
 " OmniSharp

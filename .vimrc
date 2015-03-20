@@ -364,16 +364,16 @@ NeoBundleLazy "davidhalter/jedi-vim", {
 "             \ }
 " \}
 
-" Ruby
-NeoBundleLazy "vim-ruby/vim-ruby", {
-            \ 'autoload': { "filetypes": [ "ruby" ] }
-            \ }
-NeoBundleLazy "tpope/vim-rails", {
-            \ 'autoload': { "filetypes": [ "ruby" ] }
-            \ }
-NeoBundleLazy "tpope/vim-bundler", {
-            \ 'autoload': { "filetypes": [ "ruby" ] }
-            \ }
+" " Ruby
+" NeoBundleLazy "vim-ruby/vim-ruby", {
+"             \ 'autoload': { "filetypes": [ "ruby" ] }
+"             \ }
+" NeoBundleLazy "tpope/vim-rails", {
+"             \ 'autoload': { "filetypes": [ "ruby" ] }
+"             \ }
+" NeoBundleLazy "tpope/vim-bundler", {
+"             \ 'autoload': { "filetypes": [ "ruby" ] }
+"             \ }
 
 " HTML
 NeoBundleLazy "mattn/emmet-vim", {
