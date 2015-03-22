@@ -72,9 +72,9 @@ nnoremap <silent>sQQ :Kwbd<CR>
 " レイアウトを崩さずバッファを閉じる
 com! Kwbd let kwbd_bn= bufnr("%")|enew|exe "bdel ".kwbd_bn|unlet kwbd_bn 
 
-" -------------------------------------------------------
-" Quickfix
-" -------------------------------------------------------
+" " -------------------------------------------------------
+" " Quickfix
+" " -------------------------------------------------------
 " command -bang -nargs=? QFix call QFixToggle(<bang>0)
 " function! QFixToggle(forced)
 "   if exists("g:qfix_win") && a:forced == 0

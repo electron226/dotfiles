@@ -796,7 +796,7 @@ function! s:bundle.hooks.on_source(bundle)
     let g:go_fmt_command = "goimports"
 
     "Disable auto fmt on save
-    "let g:go_fmt_autosave = 0
+    " let g:go_fmt_autosave = 0
 
     "By default binaries are installed to $GOBIN or $GOPATH/bin. To change it:
     "let g:go_bin_path = expand("~/.gotools")
@@ -811,6 +811,8 @@ unlet s:bundle
 
 autocmd FileType go call s:golang_settings()
 function! s:golang_settings()
+    exe "set rtp+=".globpath($GOPATH, 'src/github.com/nsf/gocode/vim')
+
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
     endif
