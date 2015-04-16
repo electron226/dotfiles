@@ -183,27 +183,15 @@ endif
 " -------------------------------------------------------
 " vimfiler
 " -------------------------------------------------------
-let s:bundle = neobundle#get("vimfiler")
-function! s:bundle.hooks.on_source(bundle)
-    " vimデフォルトのエクスプローラをvimfilerで置き換える
-    let g:vimfiler_as_default_explorer = 1
+" vimデフォルトのエクスプローラをvimfilerで置き換える
+let g:vimfiler_as_default_explorer = 1
 
-    " セーフモード無効
-    let g:vimfiler_safe_mode_by_default = 0
+" セーフモード無効
+let g:vimfiler_safe_mode_by_default = 0
 
-    "普通に開く
-    nnoremap <silent> <Leader>fn :<C-u>VimFiler<CR>
-
-    "現在開いているバッファのディレクトリを開く
-    nnoremap <silent> <Leader>fd :<C-u>VimFilerBufferDir -quit<CR>
-
-    "現在開いているバッファをIDE風に開く
-    "nnoremap <silent> ,f :<C-u>VimFilerBufferDir
-    "            \  -split -simple -direction=botright -winwidth=35 -no-quit<CR>
-    nnoremap <silent> <Leader>f :<C-u>VimFilerBufferDir
-                \ -split -simple -winwidth=30 -no-quit<CR>
-endfunction
-unlet s:bundle
+"現在開いているバッファをIDE風に開く
+nnoremap <silent> <Leader>f :<C-u>VimFilerBufferDir
+            \ -split -simple -winwidth=30 -no-quit<CR>
 
 " -------------------------------------------------------
 " ctrlp.vim
