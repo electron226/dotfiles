@@ -45,7 +45,7 @@ function! s:html_settings()
 endfunction
 
 " Lua
-"autocmd FileType lua setl fenc=cp932
+autocmd FileType lua setl fenc=cp932
 
 " Javascript
 autocmd FileType html,javascript call s:javascript_settings()

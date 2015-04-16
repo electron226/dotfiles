@@ -36,38 +36,73 @@ nnoremap <silent> ciy ciw<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 nnoremap <silent> cy   ce<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 vnoremap <silent> cy   c<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 
-" 画面分割
-nnoremap <silent>s <Nop>
-nnoremap <silent>sj <C-w>j
-nnoremap <silent>sk <C-w>k
-nnoremap <silent>sl <C-w>l
-nnoremap <silent>sh <C-w>h
-nnoremap <silent>sJ <C-w>J
-nnoremap <silent>sK <C-w>K
-nnoremap <silent>sL <C-w>L
-nnoremap <silent>sH <C-w>H
-nnoremap <silent>sr <C-w>r
-nnoremap <silent>s= <C-w>=
-nnoremap <silent>sw <C-w>w
-nnoremap <silent>so <C-w>_<C-w>|
-nnoremap <silent>sO <C-w>=
-nnoremap <silent>st :<C-u>tabnew<CR>
-nnoremap <silent>sc :<C-u>tabclose<CR>
-nnoremap <silent>sn gt
-nnoremap <silent>sp gT
-nnoremap <silent>ss :<C-u>sp<CR>
-nnoremap <silent>sv :<C-u>vs<CR>
-nnoremap <silent>sq :<C-u>q<CR>
+if g:use_dvorak
+    " 画面分割
+    nnoremap <silent>; <Nop>
+    nnoremap <silent>;j <C-w>j
+    nnoremap <silent>;k <C-w>k
+    nnoremap <silent>;l <C-w>l
+    nnoremap <silent>;h <C-w>h
+    nnoremap <silent>;J <C-w>J
+    nnoremap <silent>;K <C-w>K
+    nnoremap <silent>;L <C-w>L
+    nnoremap <silent>;H <C-w>H
+    nnoremap <silent>;r <C-w>r
+    nnoremap <silent>;= <C-w>=
+    nnoremap <silent>;w <C-w>w
+    nnoremap <silent>;o <C-w>_<C-w>|
+    nnoremap <silent>;O <C-w>=
+    nnoremap <silent>;t :<C-u>tabnew<CR>
+    nnoremap <silent>;c :<C-u>tabclose<CR>
+    nnoremap <silent>;n gt
+    nnoremap <silent>;p gT
+    nnoremap <silent>;s :<C-u>sp<CR>
+    nnoremap <silent>;v :<C-u>vs<CR>
+    nnoremap <silent>;q :<C-u>q<CR>
 
-" バッファ操作
-nnoremap <silent>sp :bprevious<CR>
-nnoremap <silent>sn :bnext<CR>
-nnoremap <silent>sb :b#<CR>
-nnoremap <silent>sf :bf<CR>
-nnoremap <silent>sg :bl<CR>
-nnoremap <silent>sm :bm<CR>
-nnoremap <silent>sQ :bdelete<CR>
-nnoremap <silent>sQQ :Kwbd<CR>
+    " バッファ操作
+    nnoremap <silent>;p :bprevious<CR>
+    nnoremap <silent>;n :bnext<CR>
+    nnoremap <silent>;b :b#<CR>
+    nnoremap <silent>;f :bf<CR>
+    nnoremap <silent>;g :bl<CR>
+    nnoremap <silent>;m :bm<CR>
+    nnoremap <silent>;Q :bdelete<CR>
+    nnoremap <silent>;QQ :Kwbd<CR>
+else
+    " 画面分割
+    nnoremap <silent>s <Nop>
+    nnoremap <silent>sj <C-w>j
+    nnoremap <silent>sk <C-w>k
+    nnoremap <silent>sl <C-w>l
+    nnoremap <silent>sh <C-w>h
+    nnoremap <silent>sJ <C-w>J
+    nnoremap <silent>sK <C-w>K
+    nnoremap <silent>sL <C-w>L
+    nnoremap <silent>sH <C-w>H
+    nnoremap <silent>sr <C-w>r
+    nnoremap <silent>s= <C-w>=
+    nnoremap <silent>sw <C-w>w
+    nnoremap <silent>so <C-w>_<C-w>|
+    nnoremap <silent>sO <C-w>=
+    nnoremap <silent>st :<C-u>tabnew<CR>
+    nnoremap <silent>sc :<C-u>tabclose<CR>
+    nnoremap <silent>sn gt
+    nnoremap <silent>sp gT
+    nnoremap <silent>ss :<C-u>sp<CR>
+    nnoremap <silent>sv :<C-u>vs<CR>
+    nnoremap <silent>sq :<C-u>q<CR>
+
+    " バッファ操作
+    nnoremap <silent>sp :bprevious<CR>
+    nnoremap <silent>sn :bnext<CR>
+    nnoremap <silent>sb :b#<CR>
+    nnoremap <silent>sf :bf<CR>
+    nnoremap <silent>sg :bl<CR>
+    nnoremap <silent>sm :bm<CR>
+    nnoremap <silent>sQ :bdelete<CR>
+    nnoremap <silent>sQQ :Kwbd<CR>
+end
 
 " レイアウトを崩さずバッファを閉じる
 com! Kwbd let kwbd_bn= bufnr("%")|enew|exe "bdel ".kwbd_bn|unlet kwbd_bn 

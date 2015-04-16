@@ -857,7 +857,11 @@ let g:switch_custom_definitions =
 " Disable default mapping.
 " let g:EasyMotion_do_mapping = 0
 " map <Leader><Leader> <Plug>(easymotion-prefix)
-map ; <Plug>(easymotion-prefix)
+if g:use_dvorak
+    map s <Plug>(easymotion-prefix)
+else
+    map ; <Plug>(easymotion-prefix)
+end
 
 " 2-character search motion
 " overwrite to f{char}, and t{char} of default key binding.
@@ -1448,10 +1452,18 @@ nmap gl <Plug>(LiveEasyAlign)
 " -------------------------------------------------------
 " You can disabledefault mapping by:
 let g:swoopUseDefaultKeyMap = 0
-nmap <Leader>n :call Swoop()<CR>
-vmap <Leader>n :call SwoopSelection()<CR>
-nmap <Leader>m :call SwoopMulti()<CR>
-vmap <Leader>m :call SwoopMultiSelection()<CR>
+
+if g:use_dvorak
+    nmap <Leader>b :call Swoop()<CR>
+    vmap <Leader>b :call SwoopSelection()<CR>
+    nmap <Leader>m :call SwoopMulti()<CR>
+    vmap <Leader>m :call SwoopMultiSelection()<CR>
+else
+    nmap <Leader>n :call Swoop()<CR>
+    vmap <Leader>n :call SwoopSelection()<CR>
+    nmap <Leader>m :call SwoopMulti()<CR>
+    vmap <Leader>m :call SwoopMultiSelection()<CR>
+end
 
 " " set search case insensitive
 " let g:swoopIgnoreCase = 1
