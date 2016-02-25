@@ -181,23 +181,34 @@ elseif has('win32')
 endif
 
 " -------------------------------------------------------
-" vimfiler
+" NERDTree
 " -------------------------------------------------------
-" vimデフォルトのエクスプローラをvimfilerで置き換える
-let g:vimfiler_as_default_explorer = 1
-
-" セーフモード無効
-let g:vimfiler_safe_mode_by_default = 0
-
-"現在開いているバッファをIDE風に開く
-nnoremap <silent> <Leader>f :<C-u>VimFilerBufferDir
-            \ -split -simple -winwidth=30 -no-quit<CR>
+map <C-n> :NERDTreeToggle<CR>
 
 " -------------------------------------------------------
 " ctrlp.vim
 " -------------------------------------------------------
 " CtrlP to scan for dotfiles and dotdirs.
 let g:ctrlp_show_hidden = 1
+
+if has('win32') || has('win64')
+    set wildignore+=*\\node_modules\\*
+else
+    set wildignore+=*/node_modules/*
+endif
+
+if has('unix')
+    if executable('ag')
+        let g:ctrlp_use_caching=0
+        let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
+              \ --ignore .git
+              \ --ignore .svn
+              \ --ignore .hg
+              \ --ignore .DS_Store
+              \ --ignore "**/*.pyc"
+              \ -g ""'
+    endif
+endif
 
 " -------------------------------------------------------
 " unite.vim
@@ -211,8 +222,8 @@ call unite#custom#profile('default', 'context', {
 " The items of in .gitignore doesn't display in the result of the unite.vim.
 function! s:unite_setGitIgnoreSource()
     let l:sources = []
-    let l:file = getcwd() . '/.gitignore'
-    let l:dir = getcwd() . '/.git'
+    let l:file    = getcwd() . '/.gitignore'
+    let l:dir     = getcwd() . '/.git'
     if filereadable(l:file)
         for l:line in readfile(l:file)
             " a line of comment and empty line are skipping.
@@ -237,46 +248,58 @@ let g:unite_source_history_yank_enable = 1
 
 " unite grep に ag(The Silver Searcher) を使う
 if executable('ag')
+    " Use ag in unite grep source.
     let g:unite_source_grep_command = 'ag'
-    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
+    let g:unite_source_grep_default_opts =
+                \ '-i --vimgrep --hidden --ignore ' .
+                \ '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.bzr'''
     let g:unite_source_grep_recursive_opt = ''
+elseif executable('pt')
+    " Use pt in unite grep source.
+    " https://github.com/monochromegane/the_platinum_searcher
+    let g:unite_source_grep_command = 'pt'
+    let g:unite_source_grep_default_opts = '--nogroup --nocolor'
+    let g:unite_source_grep_recursive_opt = ''
+elseif executable('ack-grep')
+    " Use ack in unite grep source.
+    let g:unite_source_grep_command = 'ack-grep'
+    let g:unite_source_grep_default_opts =
+                \ '-i --no-heading --no-color -k -H'
+    let g:unite_source_grep_recursive_opt = ''
+elseif executable('jvgrep')
+    " For jvgrep.
+    let g:unite_source_grep_command = 'jvgrep'
+    let g:unite_source_grep_default_opts =
+    \ '-i --exclude ''\.(git|svn|hg|bzr)'''
+    let g:unite_source_grep_recursive_opt = '-R'
 endif
 
-" ウインドウ/TAB一覧
-nnoremap <silent> <Leader>uw :<C-u>Unite window tab<CR>
-" バッファ/ブックマーク一覧
-nnoremap <silent> <Leader>ub :<C-u>Unite buffer bookmark<CR>
-" ファイル一覧
-nnoremap <silent> <Leader>uf :<C-u>Unite file<CR>
-" ファイル履歴一覧
-nnoremap <silent> <Leader>um :<C-u>Unite file_mru<CR>
-" 再帰的なファイル一覧
 function! DispatchUniteFileRecAsyncOrGit()
     if isdirectory(getcwd()."/.git")
-        Unite file_rec/git:!
+        Unite file_rec/git:--cached:--others:--exclude-standard
     else
-        if has('win32') || has('win64')
-            Unite file_rec
-        else
-            Unite file_rec/async:!
-        endif
+        Unite file_rec/async
     endif
 endfunction
-nnoremap <silent> <Leader>uu :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
-" レジスタ一覧
-nnoremap <silent> <Leader>ur :<C-u>Unite -buffer-name=register register<CR>
-" ヤンク履歴
-nnoremap <silent> <Leader>uy :<C-u>Unite history/yank<CR>
-" 全部乗せ
-nnoremap <silent> <Leader>ua :<C-u>Unite window buffer bookmark tab file_rec register history/yank<CR>
 
-" grep検索
-nnoremap <silent> <Leader>ug  :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
-" grep検索結果の再呼出
-nnoremap <silent> <Leader>up  :<C-u>UniteResume search-buffer<CR>
+" the prefix key.
+nnoremap [unite] <Nop>
+nmap , [unite]
 
-" カーソル下のキーワードを含む行を表示
-nnoremap <silent> <Leader>uc :<C-u>UniteWithCursorWord -no-quit line<CR>
+nnoremap <silent> [unite]w :<C-u>Unite window tab<CR>
+nnoremap <silent> [unite]a :<C-u>UniteBookmarkAdd<CR>
+nnoremap <silent> [unite]b :<C-u>Unite buffer bookmark<CR>
+nnoremap <silent> [unite]f :<C-u>Unite file<CR>
+nnoremap <silent> [unite]m :<C-u>Unite file_mru<CR>
+nnoremap <silent> [unite]d :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
+nnoremap <silent> [unite]u :<C-u>Unite register -buffer-name=register<CR>
+nnoremap <silent> [unite]y :<C-u>Unite history/yank -toggle<CR>
+nnoremap <silent> [unite]g :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
+nnoremap <silent> [unite]s :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W><CR>
+nnoremap <silent> [unite]r :<C-u>UniteResume search-buffer<CR>
+nnoremap <silent> [unite]c :<C-u>UniteWithCursorWord line -no-quit -toggle<CR>
+" unite-outline
+nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
 
 " unite.vim上でのキーマッピング
 autocmd FileType unite call s:unite_my_settings()
@@ -296,72 +319,6 @@ function! s:unite_my_settings()
     nmap <silent><buffer> <ESC><ESC> q
     imap <silent><buffer> <ESC><ESC> <ESC>q
 endfunction
-
-" -------------------------------------------------------
-" unite-build
-" -------------------------------------------------------
-" nnoremap <silent> <Leader>ubu :<C-u>Unite build<CR>
-" nnoremap <silent> <Leader>ubut :<C-u>Unite build:!<CR>
-
-" -------------------------------------------------------
-" unite-tag
-" -------------------------------------------------------
-" nnoremap <silent> <Leader>ut :<C-u>Unite tag<CR>
-" nnoremap <silent> <Leader>utf :<C-u>Unite tag/file<CR>
-" nnoremap <silent> <Leader>uti :<C-u>Unite tag/include<CR>
-
-" " path にヘッダーファイルのディレクトリを追加することで
-" " neocomplcache が include 時に tag ファイルを作成してくれる
-" set path+=$LIBSTDCPP
-" set path+=$BOOST_LATEST_ROOT
-
-" " unite-tagで表示する
-" command!
-"             \ -nargs=? PopupTags
-"             \ call <SID>TagsUpdate()
-"             \ |Unite tag:<args>
-
-" " neocomplete が作成した tag ファイルのパスを tags に追加する
-" function! s:TagsUpdate()
-"     " include している tag ファイルが毎回同じとは限らないので毎回初期化
-"     setlocal tags=
-"     for filename in neocomplete#sources#include#get_include_files(bufnr('%'))
-"         execute "setlocal tags+=".neocomplete#cache#encode_name('tags_output', filename)
-"     endfor
-" endfunction
-
-" function! s:get_func_name(word)
-"     let end = match(a:word, '<\|[\|(')
-"     return end == -1 ? a:word : a:word[ : end-1 ]
-" endfunction
-
-" " カーソル下のワード(word)で絞り込み
-" noremap <silent> g<C-]> :<C-u>execute "PopupTags ".expand('<cword>')<CR>
-
-" " カーソル下のワード(WORD)で ( か < か [ までが現れるまでで絞り込み
-" " 例)
-" " boost::array<std::stirng... → boost::array で絞り込み
-" noremap <silent> G<C-]> :<C-u>execute "PopupTags "
-"             \.substitute(<SID>get_func_name(expand('<cWORD>')), '\:', '\\\:', "g")<CR>
-
-" -------------------------------------------------------
-" unite-gtag
-" -------------------------------------------------------
-" nnoremap <silent> <Leader>ugt :<C-u>Unite gtags/context<CR>
-" nnoremap <silent> <Leader>ugtr :<C-u>Unite gtags/ref<CR>
-" nnoremap <silent> <Leader>ugtd :<C-u>Unite gtags/def<CR>
-" nnoremap <silent> <Leader>ugtg :<C-u>Unite gtags/grep<CR>
-" nnoremap <silent> <Leader>ugta :<C-u>Unite gtags/completion<CR>
-
-" -------------------------------------------------------
-" unite-outline
-" -------------------------------------------------------
-" " ソースの関数一覧表示
-" nnoremap <silent> <Leader>uo :<C-u>Unite outline<CR>
-" " ソースの関数一覧を上下分割で常に表示
-" nnoremap <silent> <Leader>uoh :<C-u>Unite -winheight=15 -no-quit outline<CR>
-" " ソースの関数一覧を左右分割で常に表示
-" nnoremap <silent> <Leader>uov :<C-u>Unite -vertical -winwidth=25 -no-quit outline<CR>
 
 " " -------------------------------------------------------
 " " alpaca_tags
@@ -391,411 +348,427 @@ endfunction
 " neocomplete
 " -------------------------------------------------------
 let s:bundle = neobundle#get("neocomplete")
-function! s:bundle.hooks.on_source(bundle)
-    " これをしないと候補選択時にScratch ウィンドウが開いてしまう
-    set completeopt=menuone
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        " これをしないと候補選択時にScratch ウィンドウが開いてしまう
+        set completeopt=menuone
 
-    " More neocomplete candidates.
-    let g:neocomplete#max_list = 100
+        " More neocomplete candidates.
+        let g:neocomplete#max_list = 100
 
-    " Disable AutoComplPop.
-    let g:acp_enableAtStartup = 0
-    " Use neocomplete.
-    let g:neocomplete#enable_at_startup = 1
-    " Use smartcase.
-    let g:neocomplete#enable_smart_case = 1
-    " Set minimum syntax keyword length.
-    let g:neocomplete#sources#syntax#min_keyword_length = 3
-    let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
+        " Disable AutoComplPop.
+        let g:acp_enableAtStartup = 0
+        " Use neocomplete.
+        let g:neocomplete#enable_at_startup = 1
+        " Use smartcase.
+        let g:neocomplete#enable_smart_case = 1
+        " Set minimum syntax keyword length.
+        let g:neocomplete#sources#syntax#min_keyword_length = 3
+        let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
 
-    " Define dictionary.
-    let g:neocomplete#sources#dictionary#dictionaries = {
-                \ 'default' : '',
-                \ 'vimshell' : $HOME.'/.vimshell_hist',
-                \ 'scheme' : $HOME.'/.gosh_completions'
-                \ }
+        " Define dictionary.
+        let g:neocomplete#sources#dictionary#dictionaries = {
+                    \ 'default' : '',
+                    \ 'vimshell' : $HOME.'/.vimshell_hist',
+                    \ 'scheme' : $HOME.'/.gosh_completions'
+                    \ }
 
-    " Define keyword.
-    if !exists('g:neocomplete#keyword_patterns')
-        let g:neocomplete#keyword_patterns = {}
-    endif
-    let g:neocomplete#keyword_patterns['default'] = '\h\w*'
+        " Define keyword.
+        if !exists('g:neocomplete#keyword_patterns')
+            let g:neocomplete#keyword_patterns = {}
+        endif
+        let g:neocomplete#keyword_patterns['default'] = '\h\w*'
 
-    " " Define include.
-    " let s:neocomplete_include_paths_cpp = join(s:include_paths_cpp, ',')
+        " " Define include.
+        " let s:neocomplete_include_paths_cpp = join(s:include_paths_cpp, ',')
 
-    " if !exists('g:neocomplete#sources#include#paths')
-    "     let g:neocomplete#sources#include#paths = {}
-    " endif
-    " let g:neocomplete#sources#include#paths = {
-    "             \ 'c' : s:neocomplete_include_paths_cpp,
-    "             \ 'cpp' : s:neocomplete_include_paths_cpp,
-    "             \ }
+        " if !exists('g:neocomplete#sources#include#paths')
+        "     let g:neocomplete#sources#include#paths = {}
+        " endif
+        " let g:neocomplete#sources#include#paths = {
+        "             \ 'c' : s:neocomplete_include_paths_cpp,
+        "             \ 'cpp' : s:neocomplete_include_paths_cpp,
+        "             \ }
 
-    if !exists('g:neocomplete#sources#include#patterns')
-        let g:neocomplete#sources#include#patterns = {}
-    endif
-    let g:neocomplete#sources#include#patterns = {
-                \ 'c' : '^\s*#\s*include',
-                \ 'cpp' : '^\s*#\s*include',
-                \ }
+        if !exists('g:neocomplete#sources#include#patterns')
+            let g:neocomplete#sources#include#patterns = {}
+        endif
+        let g:neocomplete#sources#include#patterns = {
+                    \ 'c' : '^\s*#\s*include',
+                    \ 'cpp' : '^\s*#\s*include',
+                    \ }
 
-    if !exists('g:neocomplete#ctags_arguments')
-        let g:neocomplete#ctags_arguments = {}
-    endif
+        if !exists('g:neocomplete#ctags_arguments')
+            let g:neocomplete#ctags_arguments = {}
+        endif
 
-    " Plugin key-mappings.
-    inoremap <expr><C-g>     neocomplete#undo_completion()
-    inoremap <expr><C-l>     neocomplete#complete_common_string()
+        " Plugin key-mappings.
+        inoremap <expr><C-g>     neocomplete#undo_completion()
+        inoremap <expr><C-l>     neocomplete#complete_common_string()
 
-    " Recommended key-mappings.
-    " <CR>: close popup and save indent.
-    inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-    function! s:my_cr_function()
-        return neocomplete#smart_close_popup() . "\<CR>"
-        " For no inserting <CR> key.
-        "return pumvisible() ? neocomplete#close_popup() : "\<CR>"
+        " Recommended key-mappings.
+        " <CR>: close popup and save indent.
+        inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+        function! s:my_cr_function()
+            return neocomplete#smart_close_popup() . "\<CR>"
+            " For no inserting <CR> key.
+            "return pumvisible() ? neocomplete#close_popup() : "\<CR>"
+        endfunction
+        " <TAB>: completion.
+        inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+        " <C-h>, <BS>: close popup and delete backword char.
+        inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+        inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+        inoremap <expr><C-y>  neocomplete#close_popup()
+        inoremap <expr><C-e>  neocomplete#cancel_popup()
+        " Close popup by <Space>.
+        "inoremap <expr><Space> pumvisible() ? neocomplete#close_popup() : "\<Space>"
+
+        " For cursor moving in insert mode(Not recommended)
+        "inoremap <expr><Left>  neocomplete#close_popup() . "\<Left>"
+        "inoremap <expr><Right> neocomplete#close_popup() . "\<Right>"
+        "inoremap <expr><Up>    neocomplete#close_popup() . "\<Up>"
+        "inoremap <expr><Down>  neocomplete#close_popup() . "\<Down>"
+        " Or set this.
+        "let g:neocomplete#enable_cursor_hold_i = 1
+        " Or set this.
+        "let g:neocomplete#enable_insert_char_pre = 1
+
+        " AutoComplPop like behavior.
+        "let g:neocomplete#enable_auto_select = 1
+
+        " Shell like behavior(not recommended).
+        "set completeopt+=longest
+        "let g:neocomplete#enable_auto_select = 1
+        "let g:neocomplete#disable_auto_complete = 1
+        "inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
+
+        " Enable omni completion.
+        autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+        autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+        "autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+        "autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+        autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+
+        " Enable heavy omni completion.
+        if !exists('g:neocomplete#sources#omni#input_patterns')
+            let g:neocomplete#sources#omni#input_patterns = {}
+        endif
+        "let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+        "let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+        "let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+
+        " For perlomni.vim setting.
+        " https://github.com/c9s/perlomni.vim
+        "let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
     endfunction
-    " <TAB>: completion.
-    inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-    " <C-h>, <BS>: close popup and delete backword char.
-    inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-    inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-    inoremap <expr><C-y>  neocomplete#close_popup()
-    inoremap <expr><C-e>  neocomplete#cancel_popup()
-    " Close popup by <Space>.
-    "inoremap <expr><Space> pumvisible() ? neocomplete#close_popup() : "\<Space>"
-
-    " For cursor moving in insert mode(Not recommended)
-    "inoremap <expr><Left>  neocomplete#close_popup() . "\<Left>"
-    "inoremap <expr><Right> neocomplete#close_popup() . "\<Right>"
-    "inoremap <expr><Up>    neocomplete#close_popup() . "\<Up>"
-    "inoremap <expr><Down>  neocomplete#close_popup() . "\<Down>"
-    " Or set this.
-    "let g:neocomplete#enable_cursor_hold_i = 1
-    " Or set this.
-    "let g:neocomplete#enable_insert_char_pre = 1
-
-    " AutoComplPop like behavior.
-    "let g:neocomplete#enable_auto_select = 1
-
-    " Shell like behavior(not recommended).
-    "set completeopt+=longest
-    "let g:neocomplete#enable_auto_select = 1
-    "let g:neocomplete#disable_auto_complete = 1
-    "inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
-
-    " Enable omni completion.
-    autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-    autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-    "autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-    "autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-    autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-
-    " Enable heavy omni completion.
-    if !exists('g:neocomplete#sources#omni#input_patterns')
-        let g:neocomplete#sources#omni#input_patterns = {}
-    endif
-    "let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-    "let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-    "let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-
-    " For perlomni.vim setting.
-    " https://github.com/c9s/perlomni.vim
-    "let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
-endfunction
-unlet s:bundle
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " clang_complete
 " -------------------------------------------------------
 let s:bundle = neobundle#get("clang_complete")
-function! s:bundle.hooks.on_source(bundle)
-	if !exists('g:neocomplete#force_omni_input_patterns')
-	  let g:neocomplete#force_omni_input_patterns = {}
-	endif
-	let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\w*'
-	let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
-	let g:neocomplete#force_omni_input_patterns.objc = '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)'
-	let g:neocomplete#force_omni_input_patterns.objcpp = '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)\|\h\w*::\w*'
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        if !exists('g:neocomplete#force_omni_input_patterns')
+          let g:neocomplete#force_omni_input_patterns = {}
+        endif
+        let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\w*'
+        let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+        let g:neocomplete#force_omni_input_patterns.objc = '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)'
+        let g:neocomplete#force_omni_input_patterns.objcpp = '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)\|\h\w*::\w*'
 
-    let g:clang_debug          = 0
-    let g:clang_complete_copen = 1
+        let g:clang_debug          = 0
+        let g:clang_complete_copen = 1
 
-    let g:clang_auto_select    = 0
-    let g:clang_complete_auto  = 1
+        let g:clang_auto_select    = 0
+        let g:clang_complete_auto  = 1
 
-    " conceal in insert (i), normal (n) and visual (v) modes
-    set concealcursor=inv
-    " hide concealed text completely unless replacement character is defined
-    set conceallevel=2
-    let g:clang_conceal_snippets = 1
+        " conceal in insert (i), normal (n) and visual (v) modes
+        set concealcursor=inv
+        " hide concealed text completely unless replacement character is defined
+        set conceallevel=2
+        let g:clang_conceal_snippets = 1
 
-    let g:clang_use_library  = 1
-    let g:clang_library_path = s:getClangLibraryPath()
+        let g:clang_use_library  = 1
+        let g:clang_library_path = s:getClangLibraryPath()
 
-    " let g:clang_user_options =
-    "             \ s:include_paths_string_mingw .
-    "             \ ' -std=c++1y'
+        " let g:clang_user_options =
+        "             \ s:include_paths_string_mingw .
+        "             \ ' -std=c++1y'
 
-    " " Build msvc
-    " if has('win32') || has('win64')
-    "     " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
-    "     let g:clang_user_options += ' 2> NUL || exit 0"'
-    " else
-    "     " linuxでオムニ変換が正常に行われない
-    "     let g:clang_user_options += ' -stdlib=libc++'
-    " endif
-endfunction
-unlet s:bundle
+        " " Build msvc
+        " if has('win32') || has('win64')
+        "     " You must compile clang on msvc of 64 bit If you use windows of 64 bit.
+        "     let g:clang_user_options += ' 2> NUL || exit 0"'
+        " else
+        "     " linuxでオムニ変換が正常に行われない
+        "     let g:clang_user_options += ' -stdlib=libc++'
+        " endif
+    endfunction
+    unlet s:bundle
+endif
 
 " " -------------------------------------------------------
 " " vim-ruby
 " " -------------------------------------------------------
 " let s:bundle = neobundle#get("vim-ruby")
-" function! s:bundle.hooks.on_source(bundle)
-"     if !exists('g:neocomplete#force_omni_input_patterns')
-"         let g:neocomplete#force_omni_input_patterns = {}
-"     endif
+" if s:bundle != {}
+    " function! s:bundle.hooks.on_source(bundle)
+    "     if !exists('g:neocomplete#force_omni_input_patterns')
+    "         let g:neocomplete#force_omni_input_patterns = {}
+    "     endif
 
-"     let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
-" endfunction
-" unlet s:bundle
+    "     let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
+    " endfunction
+    " unlet s:bundle
+" endif
 
 " -------------------------------------------------------
 " OmniSharp
 " -------------------------------------------------------
 let s:bundle = neobundle#get("Omnisharp")
-function! s:bundle.hooks.on_source(bundle)
-    if !exists('g:neocomplete#force_omni_input_patterns')
-        let g:neocomplete#force_omni_input_patterns = {}
-    endif
-    let g:neocomplete#force_omni_input_patterns.cs = '[^.]\.\%(\u\{2,}\)\?'
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        if !exists('g:neocomplete#force_omni_input_patterns')
+            let g:neocomplete#force_omni_input_patterns = {}
+        endif
+        let g:neocomplete#force_omni_input_patterns.cs = '[^.]\.\%(\u\{2,}\)\?'
 
-    " recommended key-mappings of C#.
-    inoremap <expr>.  neocomplcache#close_popup() . "."
-    inoremap <expr>(  neocomplcache#close_popup() . "("
-    inoremap <expr>)  neocomplcache#close_popup() . ")"
-    inoremap <expr><space>  neocomplcache#close_popup() . " "
-    inoremap <expr>;  neocomplcache#close_popup() . ";"
+        " recommended key-mappings of C#.
+        inoremap <expr>.  neocomplcache#close_popup() . "."
+        inoremap <expr>(  neocomplcache#close_popup() . "("
+        inoremap <expr>)  neocomplcache#close_popup() . ")"
+        inoremap <expr><space>  neocomplcache#close_popup() . " "
+        inoremap <expr>;  neocomplcache#close_popup() . ";"
 
-    "This is the default value, setting it isn't actually necessary
-    let g:OmniSharp_host = "http://localhost:2000"
+        "This is the default value, setting it isn't actually necessary
+        let g:OmniSharp_host = "http://localhost:2000"
 
-    "Set the type lookup function to use the preview window instead of the status line
-    "let g:OmniSharp_typeLookupInPreview = 1
+        "Set the type lookup function to use the preview window instead of the status line
+        "let g:OmniSharp_typeLookupInPreview = 1
 
-    "Timeout in seconds to wait for a response from the server
-    let g:OmniSharp_timeout = 1
+        "Timeout in seconds to wait for a response from the server
+        let g:OmniSharp_timeout = 1
 
-    "Showmatch significantly slows down omnicomplete
-    "when the first match contains parentheses.
-    set noshowmatch
-    "Set autocomplete function to OmniSharp (if not using YouCompleteMe completion plugin)
-    "autocmd FileType cs setlocal omnifunc=OmniSharp#Complete
+        "Showmatch significantly slows down omnicomplete
+        "when the first match contains parentheses.
+        set noshowmatch
+        "Set autocomplete function to OmniSharp (if not using YouCompleteMe completion plugin)
+        "autocmd FileType cs setlocal omnifunc=OmniSharp#Complete
 
-    "Super tab settings
-    "let g:SuperTabDefaultCompletionType = 'context'
-    "let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-    "let g:SuperTabDefaultCompletionTypeDiscovery = ["&omnifunc:<c-x><c-o>","&completefunc:<c-x><c-n>"]
-    "let g:SuperTabClosePreviewOnPopupClose = 1
+        "Super tab settings
+        "let g:SuperTabDefaultCompletionType = 'context'
+        "let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+        "let g:SuperTabDefaultCompletionTypeDiscovery = ["&omnifunc:<c-x><c-o>","&completefunc:<c-x><c-n>"]
+        "let g:SuperTabClosePreviewOnPopupClose = 1
 
-    "don't autoselect first item in omnicomplete, show if only one item (for preview)
-    "remove preview if you don't want to see any documentation whatsoever.
-    set completeopt=longest,menuone,preview
-    " Fetch full documentation during omnicomplete requests.
-    " There is a performance penalty with this (especially on Mono)
-    " By default, only Type/Method signatures are fetched. Full documentation can still be fetched when
-    " you need it with the :OmniSharpDocumentation command.
-    " let g:omnicomplete_fetch_documentation=1
+        "don't autoselect first item in omnicomplete, show if only one item (for preview)
+        "remove preview if you don't want to see any documentation whatsoever.
+        set completeopt=longest,menuone,preview
+        " Fetch full documentation during omnicomplete requests.
+        " There is a performance penalty with this (especially on Mono)
+        " By default, only Type/Method signatures are fetched. Full documentation can still be fetched when
+        " you need it with the :OmniSharpDocumentation command.
+        " let g:omnicomplete_fetch_documentation=1
 
-    "Move the preview window (code documentation) to the bottom of the screen, so it doesn't move the code!
-    "You might also want to look at the echodoc plugin
-    set splitbelow
+        "Move the preview window (code documentation) to the bottom of the screen, so it doesn't move the code!
+        "You might also want to look at the echodoc plugin
+        set splitbelow
 
-    " Synchronous build (blocks Vim)
-    "autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuild<cr>
-    " Builds can also run asynchronously with vim-dispatch installed
-    autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuildAsync<cr>
+        " Synchronous build (blocks Vim)
+        "autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuild<cr>
+        " Builds can also run asynchronously with vim-dispatch installed
+        autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuildAsync<cr>
 
-    "The following commands are contextual, based on the current cursor position.
+        "The following commands are contextual, based on the current cursor position.
 
-    autocmd FileType cs nnoremap gd :OmniSharpGotoDefinition<cr>
-    nnoremap <leader>fi :OmniSharpFindImplementations<cr>
-    nnoremap <leader>ft :OmniSharpFindType<cr>
-    nnoremap <leader>fs :OmniSharpFindSymbol<cr>
-    nnoremap <leader>fu :OmniSharpFindUsages<cr>
-    nnoremap <leader>fm :OmniSharpFindMembersInBuffer<cr>
-    " cursor can be anywhere on the line containing an issue for this one
-    nnoremap <leader>x  :OmniSharpFixIssue<cr>
-    nnoremap <leader>fx :OmniSharpFixUsings<cr>
-    nnoremap <leader>tt :OmniSharpTypeLookup<cr>
-    nnoremap <leader>dc :OmniSharpDocumentation<cr>
+        autocmd FileType cs nnoremap gd :OmniSharpGotoDefinition<cr>
+        nnoremap <leader>fi :OmniSharpFindImplementations<cr>
+        nnoremap <leader>ft :OmniSharpFindType<cr>
+        nnoremap <leader>fs :OmniSharpFindSymbol<cr>
+        nnoremap <leader>fu :OmniSharpFindUsages<cr>
+        nnoremap <leader>fm :OmniSharpFindMembersInBuffer<cr>
+        " cursor can be anywhere on the line containing an issue for this one
+        nnoremap <leader>x  :OmniSharpFixIssue<cr>
+        nnoremap <leader>fx :OmniSharpFixUsings<cr>
+        nnoremap <leader>tt :OmniSharpTypeLookup<cr>
+        nnoremap <leader>dc :OmniSharpDocumentation<cr>
 
-    "" Get Code Issues and syntax errors
-    "let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
-    "autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
+        "" Get Code Issues and syntax errors
+        "let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
+        "autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
 
-    "show type information automatically when the cursor stops moving
-    autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
-    " this setting controls how long to pause (in ms) before fetching type / symbol information.
-    set updatetime=500
-    " Remove 'Press Enter to continue' message when type information is longer than one line.
-    set cmdheight=2
+        "show type information automatically when the cursor stops moving
+        autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
+        " this setting controls how long to pause (in ms) before fetching type / symbol information.
+        set updatetime=500
+        " Remove 'Press Enter to continue' message when type information is longer than one line.
+        set cmdheight=2
 
-    " Contextual code actions (requires CtrlP)
-    nnoremap <leader><space> :OmniSharpGetCodeActions<cr>
-    " Run code actions with text selected in visual mode to extract method
-    vnoremap <leader><space> :call OmniSharp#GetCodeActions('visual')<cr>
+        " Contextual code actions (requires CtrlP)
+        nnoremap <leader><space> :OmniSharpGetCodeActions<cr>
+        " Run code actions with text selected in visual mode to extract method
+        vnoremap <leader><space> :call OmniSharp#GetCodeActions('visual')<cr>
 
-    " rename with dialog
-    nnoremap <leader>nm :OmniSharpRename<cr>
-    nnoremap <F2> :OmniSharpRename<cr>
-    " rename without dialog - with cursor on the symbol to rename... ':Rename newname'
-    command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
+        " rename with dialog
+        nnoremap <leader>nm :OmniSharpRename<cr>
+        nnoremap <F2> :OmniSharpRename<cr>
+        " rename without dialog - with cursor on the symbol to rename... ':Rename newname'
+        command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
 
-    " Force OmniSharp to reload the solution. Useful when switching branches etc.
-    nnoremap <leader>rl :OmniSharpReloadSolution<cr>
-    nnoremap <leader>cf :OmniSharpCodeFormat<cr>
-    " Load the current .cs file to the nearest project
-    nnoremap <leader>tp :OmniSharpAddToProject<cr>
-    " Automatically add new cs files to the nearest project on save
-    autocmd BufWritePost *.cs call OmniSharp#AddToProject()
-    " (Experimental - uses vim-dispatch or vimproc plugin) - Start the omnisharp server for the current solution
-    nnoremap <leader>ss :OmniSharpStartServer<cr>
-    nnoremap <leader>sp :OmniSharpStopServer<cr>
+        " Force OmniSharp to reload the solution. Useful when switching branches etc.
+        nnoremap <leader>rl :OmniSharpReloadSolution<cr>
+        nnoremap <leader>cf :OmniSharpCodeFormat<cr>
+        " Load the current .cs file to the nearest project
+        nnoremap <leader>tp :OmniSharpAddToProject<cr>
+        " Automatically add new cs files to the nearest project on save
+        autocmd BufWritePost *.cs call OmniSharp#AddToProject()
+        " (Experimental - uses vim-dispatch or vimproc plugin) - Start the omnisharp server for the current solution
+        nnoremap <leader>ss :OmniSharpStartServer<cr>
+        nnoremap <leader>sp :OmniSharpStopServer<cr>
 
-    " Add syntax highlighting for types and interfaces
-    nnoremap <leader>th :OmniSharpHighlightTypes<cr>
-    "Don't ask to save when changing buffers (i.e. when jumping to a type definition)
-    set hidden
-endfunction
-unlet s:bundle
+        " Add syntax highlighting for types and interfaces
+        nnoremap <leader>th :OmniSharpHighlightTypes<cr>
+        "Don't ask to save when changing buffers (i.e. when jumping to a type definition)
+        set hidden
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " jedi.vim
 " https://github.com/davidhalter/jedi-vim
 " -------------------------------------------------------
-let s:jedi = neobundle#get("jedi-vim")
-function! s:jedi.hooks.on_source(bundle)
-    autocmd FileType python setlocal completeopt-=preview
-    autocmd FileType python setlocal omnifunc=jedi#completions
+let s:bundle = neobundle#get("jedi-vim")
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        autocmd FileType python setlocal completeopt-=preview
+        autocmd FileType python setlocal omnifunc=jedi#completions
 
-    let g:jedi#completions_enabled = 0
-    let g:jedi#auto_vim_configuration = 0
+        let g:jedi#completions_enabled = 0
+        let g:jedi#auto_vim_configuration = 0
 
-    if !exists('g:neocomplete#force_omni_input_patterns')
-        let g:neocomplete#force_omni_input_patterns = {}
-    endif
-    let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
+        if !exists('g:neocomplete#force_omni_input_patterns')
+            let g:neocomplete#force_omni_input_patterns = {}
+        endif
+        let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
 
-    let g:jedi#goto_definitions_command = "<leader>jd"
-    let g:jedi#documentation_command    = "K"
-    let g:jedi#usages_command           = "<leader>jn"
-    let g:jedi#completions_command      = "<C-Space>"
-    let g:jedi#rename_command           = "<leader>jr"
-    let g:jedi#show_call_signatures     = "1"
-endfunction
-unlet s:jedi
+        let g:jedi#goto_definitions_command = "<leader>jd"
+        let g:jedi#documentation_command    = "K"
+        let g:jedi#usages_command           = "<leader>jn"
+        let g:jedi#completions_command      = "<C-Space>"
+        let g:jedi#rename_command           = "<leader>jr"
+        let g:jedi#show_call_signatures     = "1"
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " neosnippet
 " -------------------------------------------------------
 let s:bundle = neobundle#get("neosnippet")
-function! s:bundle.hooks.on_source(bundle)
-    let g:neosnippet#enable_snipmate_compatibility = 1
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        let g:neosnippet#enable_snipmate_compatibility = 1
 
-    " Plugin key-mappings.
-    imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-    smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-    xmap <C-m>     <Plug>(neosnippet_expand_target)
+        " Plugin key-mappings.
+        imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+        smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+        xmap <C-m>     <Plug>(neosnippet_expand_target)
 
-    " SuperTab like snippets behavior.
-    " imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-    "             \ "\<Plug>(neosnippet_expand_or_jump)"
-    "             \ : pumvisible() ? "\<C-n>" : "\<TAB>"
-    " smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-    "             \ "\<Plug>(neosnippet_expand_or_jump)"
-    "             \ : "\<TAB>"
+        " SuperTab like snippets behavior.
+        "imap <expr><TAB>
+        " \ pumvisible() ? "\<C-n>" :
+        " \ neosnippet#expandable_or_jumpable() ?
+        " \    "\<TAB>" : "\<Plug>(neosnippet_expand_or_jump)"
+        smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+        \ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
 
-    " For snippet_complete marker.
-    if has('conceal')
-        set conceallevel=2 concealcursor=i
-    endif
+        " For snippet_complete marker.
+        if has('conceal')
+            set conceallevel=2 concealcursor=i
+        endif
 
-    if !exists("g:neosnippet#snippets_directory")
-        let g:neosnippet#snippets_directory = ""
-    endif
-    let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/bundle/vim-snippets/snippets'
-endfunction
-unlet s:bundle
+        if !exists("g:neosnippet#snippets_directory")
+            let g:neosnippet#snippets_directory = ""
+        endif
+        let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/bundle/vim-snippets/snippets'
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " vim-clang-format
 " -------------------------------------------------------
 let s:bundle = neobundle#get("vim-clang-format")
-function! s:bundle.hooks.on_source(bundle)
-    autocmd FileType c,cpp,objc nmap <buffer><Leader>cf :<C-u>ClangFormat<CR>
-    autocmd FileType c,cpp,objc vmap <buffer><Leader>cf :ClangFormat<CR>
-    " base style.
-    " llvm, google, chromium, or mozilla
-    "let g:clang_format#code_style = 'google'
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        autocmd FileType c,cpp,objc nmap <buffer><Leader>cf :<C-u>ClangFormat<CR>
+        autocmd FileType c,cpp,objc vmap <buffer><Leader>cf :ClangFormat<CR>
+        " base style.
+        " llvm, google, chromium, or mozilla
+        "let g:clang_format#code_style = 'google'
 
-    " Coding style options as dictionary.
-    let g:clang_format#style_options = {
-                \ "AccessModifierOffset" : -4,
-                \ "AllowShortIfStatementsOnASingleLine" : "true",
-                \ "AlwaysBreakTemplateDeclarations" : "true",
-                \ "Standard" : "C++11"
-                \ }
-endfunction
-unlet s:bundle
+        " Coding style options as dictionary.
+        let g:clang_format#style_options = {
+                    \ "AccessModifierOffset" : -4,
+                    \ "AllowShortIfStatementsOnASingleLine" : "true",
+                    \ "AlwaysBreakTemplateDeclarations" : "true",
+                    \ "Standard" : "C++11"
+                    \ }
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " vim-go
 " :GoInstallBinaries in root after :NeoBundleInstall,
 " -------------------------------------------------------
 let s:bundle = neobundle#get("vim-go")
-function! s:bundle.hooks.on_source(bundle)
-    au FileType go nmap <Leader>ds <Plug>(go-implements)
-    au FileType go nmap <Leader>di <Plug>(go-info)
-    au FileType go nmap <Leader>dd <Plug>(go-doc)
-    au FileType go nmap <Leader>dv <Plug>(go-doc-vertical)
-    au FileType go nmap <Leader>db <Plug>(go-doc-browser)
-    au FileType go nmap <Leader>dr <Plug>(go-run)
-    au FileType go nmap <Leader>db <Plug>(go-build)
-    au FileType go nmap <Leader>dt <Plug>(go-test)
-    au FileType go nmap <Leader>dc <Plug>(go-coverage)
-    au FileType go nmap vd <Plug>(go-def)
-    au FileType go nmap <Leader>vs <Plug>(go-def-split)
-    au FileType go nmap <Leader>vv <Plug>(go-def-vertical)
-    au FileType go nmap <Leader>vt <Plug>(go-def-tab)
-    au FileType go nmap <Leader>de <Plug>(go-rename)
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        au FileType go nmap <Leader>ds <Plug>(go-implements)
+        au FileType go nmap <Leader>di <Plug>(go-info)
+        au FileType go nmap <Leader>dd <Plug>(go-doc)
+        au FileType go nmap <Leader>dv <Plug>(go-doc-vertical)
+        au FileType go nmap <Leader>db <Plug>(go-doc-browser)
+        au FileType go nmap <Leader>dr <Plug>(go-run)
+        au FileType go nmap <Leader>db <Plug>(go-build)
+        au FileType go nmap <Leader>dt <Plug>(go-test)
+        au FileType go nmap <Leader>dc <Plug>(go-coverage)
+        au FileType go nmap vd <Plug>(go-def)
+        au FileType go nmap <Leader>vs <Plug>(go-def-split)
+        au FileType go nmap <Leader>vv <Plug>(go-def-vertical)
+        au FileType go nmap <Leader>vt <Plug>(go-def-tab)
+        au FileType go nmap <Leader>de <Plug>(go-rename)
 
-    let g:go_snippet_engine = "neosnippet"
+        let g:go_snippet_engine = "neosnippet"
 
-    "Disable opening browser after posting to your snippet to play.golang.org
-    "let g:go_play_open_browser = 0
+        "Disable opening browser after posting to your snippet to play.golang.org
+        "let g:go_play_open_browser = 0
 
-    "By default vim-go shows errors for the fmt command, to disable it
-    "let g:go_fmt_fail_silently = 1
+        "By default vim-go shows errors for the fmt command, to disable it
+        "let g:go_fmt_fail_silently = 1
 
-    "Enable goimports to automatically insert import paths instead of gofmt
-    let g:go_fmt_command = "goimports"
+        "Enable goimports to automatically insert import paths instead of gofmt
+        let g:go_fmt_command = "goimports"
 
-    "Disable auto fmt on save
-    " let g:go_fmt_autosave = 0
+        "Disable auto fmt on save
+        " let g:go_fmt_autosave = 0
 
-    "By default binaries are installed to $GOBIN or $GOPATH/bin. To change it:
-    "let g:go_bin_path = expand("~/.gotools")
-    "let g:go_bin_path = "/home/fatih/.mypath"      "or give absolute path
+        "By default binaries are installed to $GOBIN or $GOPATH/bin. To change it:
+        "let g:go_bin_path = expand("~/.gotools")
+        "let g:go_bin_path = "/home/fatih/.mypath"      "or give absolute path
 
-    " " By default syntax-highlighting for Functions, Methods and Structs is disabled. To change it:
-    " let g:go_highlight_functions = 1
-    " let g:go_highlight_methods = 1
-    " let g:go_highlight_structs = 1
-endfunction
-unlet s:bundle
+        " " By default syntax-highlighting for Functions, Methods and Structs is disabled. To change it:
+        " let g:go_highlight_functions = 1
+        " let g:go_highlight_methods = 1
+        " let g:go_highlight_structs = 1
+    endfunction
+    unlet s:bundle
+endif
 
 autocmd FileType go call s:golang_settings()
 function! s:golang_settings()
@@ -811,14 +784,16 @@ endfunction
 " vim-stargate
 " -------------------------------------------------------
 let s:bundle = neobundle#get("vim-stargate")
-function! s:bundle.hooks.on_source(bundle)
-    " インクルードディレクトリのパスを設定
-    if !exists('g:stargate#include_paths')
-        let g:stargate#include_paths = {}
-    endif
-    " let g:stargate#include_paths['cpp'] = s:include_paths_cpp
-endfunction
-unlet s:bundle
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        " インクルードディレクトリのパスを設定
+        if !exists('g:stargate#include_paths')
+            let g:stargate#include_paths = {}
+        endif
+        " let g:stargate#include_paths['cpp'] = s:include_paths_cpp
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " switch.vim
@@ -826,6 +801,7 @@ unlet s:bundle
 nmap <silent> <C-j> :<C-u>Switch<CR>
 let g:switch_custom_definitions =
             \ [
+            \   [ 'true', 'false' ],
             \   [ 'TRUE', 'FALSE' ],
             \   {
             \         '\(\k\+\)'    : '''\1''',
@@ -845,11 +821,7 @@ let g:switch_custom_definitions =
 " Disable default mapping.
 " let g:EasyMotion_do_mapping = 0
 " map <Leader><Leader> <Plug>(easymotion-prefix)
-if g:use_dvorak
-    map s <Plug>(easymotion-prefix)
-else
-    map ; <Plug>(easymotion-prefix)
-end
+map ; <Plug>(easymotion-prefix)
 
 " 2-character search motion
 " overwrite to f{char}, and t{char} of default key binding.
@@ -950,42 +922,44 @@ let g:indent_guides_enable_on_vim_startup = 1
 " emmet-vim
 " -------------------------------------------------------
 let s:bundle = neobundle#get("emmet-vim")
-function! s:bundle.hooks.on_source(bundle)
-    " オムニ補完
-    let g:use_emmet_complete_tag = 1
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        " オムニ補完
+        let g:use_emmet_complete_tag = 1
 
-    " キーマップ
-    let g:user_emmet_expandabbr_key = '<Leader>z,'
-    let g:user_emmet_expandword_key = '<Leader>z;'
-    let g:user_emmet_balancetaginward_key = '<Leader>zd'
-    let g:user_emmet_balancetagoutward_key = '<Leader>zD'
-    let g:user_emmet_next_key = '<Leader>zn'
-    let g:user_emmet_prev_key = '<Leader>zN'
-    let g:user_emmet_imagesize_key = '<Leader>zi'
-    let g:user_emmet_togglecomment_key = '<Leader>z/'
-    let g:user_emmet_splitjointag_key = '<Leader>zj'
-    let g:user_emmet_removetag_key = '<Leader>zk'
-    let g:user_emmet_anchorizeurl_key = '<Leader>za'
-    let g:user_emmet_anchorizesummary_key = '<Leader>zA'
-    let g:user_emmet_mergelines_key = '<Leader>zm'
-    let g:user_emmet_codepretty_key = '<Leader>zc'
+        " キーマップ
+        let g:user_emmet_expandabbr_key = '<Leader>z,'
+        let g:user_emmet_expandword_key = '<Leader>z;'
+        let g:user_emmet_balancetaginward_key = '<Leader>zd'
+        let g:user_emmet_balancetagoutward_key = '<Leader>zD'
+        let g:user_emmet_next_key = '<Leader>zn'
+        let g:user_emmet_prev_key = '<Leader>zN'
+        let g:user_emmet_imagesize_key = '<Leader>zi'
+        let g:user_emmet_togglecomment_key = '<Leader>z/'
+        let g:user_emmet_splitjointag_key = '<Leader>zj'
+        let g:user_emmet_removetag_key = '<Leader>zk'
+        let g:user_emmet_anchorizeurl_key = '<Leader>za'
+        let g:user_emmet_anchorizesummary_key = '<Leader>zA'
+        let g:user_emmet_mergelines_key = '<Leader>zm'
+        let g:user_emmet_codepretty_key = '<Leader>zc'
 
-    let g:user_emmet_settings = {
-                \  'lang': "jp",
-                \  'html': {
-                \       'default_attributes': {
-                \           'link:less': [
-                \               { 'rel': 'stylesheet/less',
-                \                 'type': 'text/css',
-                \                 'href': '|style.less',
-                \                 'media': 'all'
-                \               }
-                \           ],
-                \       },
-                \   },
-                \ }
-endfunction
-unlet s:bundle
+        let g:user_emmet_settings = {
+                    \  'lang': "jp",
+                    \  'html': {
+                    \       'default_attributes': {
+                    \           'link:less': [
+                    \               { 'rel': 'stylesheet/less',
+                    \                 'type': 'text/css',
+                    \                 'href': '|style.less',
+                    \                 'media': 'all'
+                    \               }
+                    \           ],
+                    \       },
+                    \   },
+                    \ }
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " vim-jsdoc
@@ -999,31 +973,35 @@ endfunction
 " DoxygenToolkit.vim
 " -------------------------------------------------------
 let s:bundle = neobundle#get("DoxygenToolkit.vim")
-function! s:bundle.hooks.on_source(bundle)
-    nmap <Leader>dc :Dox<CR>
-    nmap <Leader>da :DoxAuthor<CR>
-    nmap <Leader>dl :DoxLic<CR>
-    nmap <Leader>du :DoxUndoc<CR>
-    nmap <Leader>db :DoxBlock<CR>
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        nmap <Leader>dc :Dox<CR>
+        nmap <Leader>da :DoxAuthor<CR>
+        nmap <Leader>dl :DoxLic<CR>
+        nmap <Leader>du :DoxUndoc<CR>
+        nmap <Leader>db :DoxBlock<CR>
 
-    autocmd FileType c,cpp call s:doxygen_cpp()
-    function! s:doxygen_cpp()
-        let g:DoxygenToolkit_returnTag="@retval "
+        autocmd FileType c,cpp call s:doxygen_cpp()
+        function! s:doxygen_cpp()
+            let g:DoxygenToolkit_returnTag="@retval "
+        endfunction
     endfunction
-endfunction
-unlet s:bundle
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " simple-javascript-indenter
 " -------------------------------------------------------
 let s:bundle = neobundle#get("simple-javascript-indenter")
-function! s:bundle.hooks.on_source(bundle)
-    " この設定入れるとshiftwidthを1にしてインデントしてくれる
-    let g:SimpleJsIndenter_BriefMode = 1
-    " この設定入れるとswitchのインデントがいくらかマシに
-    let g:SimpleJsIndenter_CaseIndentLevel = -1
-endfunction
-unlet s:bundle
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        " この設定入れるとshiftwidthを1にしてインデントしてくれる
+        let g:SimpleJsIndenter_BriefMode = 1
+        " この設定入れるとswitchのインデントがいくらかマシに
+        let g:SimpleJsIndenter_CaseIndentLevel = -1
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " JSON.vim
@@ -1031,15 +1009,17 @@ unlet s:bundle
 au! BufRead,BufNewFile *.json set filetype=json
 
 let s:bundle = neobundle#get("JSON.vim")
-function! s:bundle.hooks.on_source(bundle)
-    setl autoindent
-    setl formatoptions=tcq2l
-    setl textwidth=78 shiftwidth=2
-    setl softtabstop=2 tabstop=8
-    setl expandtab
-    setl foldmethod=syntax
-endfunction
-unlet s:bundle
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        setl autoindent
+        setl formatoptions=tcq2l
+        setl textwidth=78 shiftwidth=2
+        setl softtabstop=2 tabstop=8
+        setl expandtab
+        setl foldmethod=syntax
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " tagbar
@@ -1047,37 +1027,39 @@ unlet s:bundle
 nmap <silent> <Leader>t :TagbarToggle<CR>
 
 let s:bundle = neobundle#get("tagbar")
-function! s:bundle.hooks.on_source(bundle)
-    " you should run for use 'go get -u github.com/jstemmer/gotags'
-    let g:tagbar_type_go = {
-                \ 'ctagstype' : 'go',
-                \ 'kinds'     : [
-                \ 'p:package',
-                \ 'i:imports:1',
-                \ 'c:constants',
-                \ 'v:variables',
-                \ 't:types',
-                \ 'n:interfaces',
-                \ 'w:fields',
-                \ 'e:embedded',
-                \ 'm:methods',
-                \ 'r:constructor',
-                \ 'f:functions'
-                \ ],
-                \ 'sro' : '.',
-                \ 'kind2scope' : {
-                \ 't' : 'ctype',
-                \ 'n' : 'ntype'
-                \ },
-                \ 'scope2kind' : {
-                \ 'ctype' : 't',
-                \ 'ntype' : 'n'
-                \ },
-                \ 'ctagsbin'  : 'gotags',
-                \ 'ctagsargs' : '-sort -silent'
-                \ }
-endfunction
-unlet s:bundle
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        " you should run for use 'go get -u github.com/jstemmer/gotags'
+        let g:tagbar_type_go = {
+                    \ 'ctagstype' : 'go',
+                    \ 'kinds'     : [
+                    \ 'p:package',
+                    \ 'i:imports:1',
+                    \ 'c:constants',
+                    \ 'v:variables',
+                    \ 't:types',
+                    \ 'n:interfaces',
+                    \ 'w:fields',
+                    \ 'e:embedded',
+                    \ 'm:methods',
+                    \ 'r:constructor',
+                    \ 'f:functions'
+                    \ ],
+                    \ 'sro' : '.',
+                    \ 'kind2scope' : {
+                    \ 't' : 'ctype',
+                    \ 'n' : 'ntype'
+                    \ },
+                    \ 'scope2kind' : {
+                    \ 'ctype' : 't',
+                    \ 'ntype' : 'n'
+                    \ },
+                    \ 'ctagsbin'  : 'gotags',
+                    \ 'ctagsargs' : '-sort -silent'
+                    \ }
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " SrcExpl
@@ -1087,53 +1069,55 @@ unlet s:bundle
 nmap <silent> <Leader>s :SrcExplToggle<CR>
 
 let s:bundle = neobundle#get("SrcExpl")
-function! s:bundle.hooks.on_source(bundle)
-    " Set the height of Source Explorer window
-    "let g:SrcExpl_winHeight = 8
-    " Set 100 ms for refreshing the Source Explorer
-    let g:SrcExpl_refreshTime = 100
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        " Set the height of Source Explorer window
+        "let g:SrcExpl_winHeight = 8
+        " Set 100 ms for refreshing the Source Explorer
+        let g:SrcExpl_refreshTime = 100
 
-    " Set "Enter" key to jump into the exact definition context
-    "let g:SrcExpl_jumpKey = "<ENTER>"
+        " Set "Enter" key to jump into the exact definition context
+        "let g:SrcExpl_jumpKey = "<ENTER>"
 
-    " Set "Space" key for back from the definition context
-    "let g:SrcExpl_gobackKey = "<SPACE>"
+        " Set "Space" key for back from the definition context
+        "let g:SrcExpl_gobackKey = "<SPACE>"
 
-    " // Enable/Disable the local definition searching, and note that this is not
-    " // guaranteed to work, the Source Explorer doesn't check the syntax for now.
-    " // It only searches for a match with the keyword according to command 'gd'
-    "let g:SrcExpl_searchLocalDef = 1
+        " // Enable/Disable the local definition searching, and note that this is not
+        " // guaranteed to work, the Source Explorer doesn't check the syntax for now.
+        " // It only searches for a match with the keyword according to command 'gd'
+        "let g:SrcExpl_searchLocalDef = 1
 
-    " // Do not let the Source Explorer update the tags file when opening
-    let g:SrcExpl_isUpdateTags = 0
+        " // Do not let the Source Explorer update the tags file when opening
+        let g:SrcExpl_isUpdateTags = 0
 
-    " // Use 'Exuberant Ctags' with '--sort=foldcase -R .' or '-L cscope.files' to
-    " //  create/update a tags file
-    let g:SrcExpl_updateTagsCmd = "ctags --sort=foldcase -R ."
+        " // Use 'Exuberant Ctags' with '--sort=foldcase -R .' or '-L cscope.files' to
+        " //  create/update a tags file
+        let g:SrcExpl_updateTagsCmd = "ctags --sort=foldcase -R ."
 
-    "
-    " // Set "<F12>" key for updating the tags file artificially
-    let g:SrcExpl_updateTagsKey = "<Leader>su"
+        "
+        " // Set "<F12>" key for updating the tags file artificially
+        let g:SrcExpl_updateTagsKey = "<Leader>su"
 
-    " // Set "<F3>" key for displaying the previous definition in the jump list
-    "let g:SrcExpl_prevDefKey = "<F3>"
-    "
-    " // Set "<F4>" key for displaying the next definition in the jump list
-    "let g:SrcExpl_nextDefKey = "<F4>"
+        " // Set "<F3>" key for displaying the previous definition in the jump list
+        "let g:SrcExpl_prevDefKey = "<F3>"
+        "
+        " // Set "<F4>" key for displaying the next definition in the jump list
+        "let g:SrcExpl_nextDefKey = "<F4>"
 
-    " SrcExplが競合を避けるために知っておくべきバッファ
-    let g:SrcExpl_pluginList = [
-                \ "__Tag_bar__",
-                \ "[vimfiler] - default",
-                \ "Source_Explorer",
-                \ "[場所リスト][-]",
-                \ "GoToFile",
-                \ "YankRing",
-                \ "__Gundo_Preview__",
-                \ "swoopBuf"
-                \ ]
-endfunction
-unlet s:bundle
+        " SrcExplが競合を避けるために知っておくべきバッファ
+        let g:SrcExpl_pluginList = [
+                    \ "__Tag_bar__",
+                    \ "[vimfiler] - default",
+                    \ "Source_Explorer",
+                    \ "[場所リスト][-]",
+                    \ "GoToFile",
+                    \ "YankRing",
+                    \ "__Gundo_Preview__",
+                    \ "swoopBuf"
+                    \ ]
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 " vim-hier
@@ -1180,9 +1164,6 @@ let g:syntastic_mode_map = { 'mode': 'active',
             \ 'passive_filetypes': [],
             \ }
 
-" JavaScript
-let g:syntastic_javascript_checkers = ['jshint']
-
 " C++
 let g:syntastic_cpp_compiler_options = '-std=c++1y'
 if has('unix') || has('macunix')
@@ -1193,6 +1174,12 @@ endif
 if executable("clang++")
     let g:syntastic_cpp_compiler = 'clang++'
 endif
+
+" CSS
+let g:syntastic_css_csslint_args = '--ignore=adjoining-classes'
+
+" JavaScript
+let g:syntastic_javascript_checkers = ['jshint']
 
 " " ignore python for use python-mode.
 " let g:syntastic_ignore_files = ['\.py$']
@@ -1327,18 +1314,6 @@ call smartinput#define_rule({
             \   })
 
 " -------------------------------------------------------
-" vim-submode
-" -------------------------------------------------------
-call submode#enter_with('bufmove', 'n', '', 's>', '<C-w>>')
-call submode#enter_with('bufmove', 'n', '', 's<', '<C-w><')
-call submode#enter_with('bufmove', 'n', '', 's+', '<C-w>+')
-call submode#enter_with('bufmove', 'n', '', 's-', '<C-w>-')
-call submode#map('bufmove', 'n', '', '>', '<C-w>>')
-call submode#map('bufmove', 'n', '', '<', '<C-w><')
-call submode#map('bufmove', 'n', '', '+', '<C-w>+')
-call submode#map('bufmove', 'n', '', '-', '<C-w>-')
-
-" -------------------------------------------------------
 " vim-multiple-cursors
 " -------------------------------------------------------
 " let g:multi_cursor_use_default_mapping = 0
@@ -1367,28 +1342,30 @@ call submode#map('bufmove', 'n', '', '-', '<C-w>-')
 " sass-compile
 " -------------------------------------------------------
 let s:bundle = neobundle#get("sass-compile.vim")
-function! s:bundle.hooks.on_source(bundle)
-    "" 編集したファイルから遡るフォルダの最大数
-    let g:sass_compile_cdloop = 5
+if s:bundle != {}
+    function! s:bundle.hooks.on_source(bundle)
+        "" 編集したファイルから遡るフォルダの最大数
+        let g:sass_compile_cdloop = 5
 
-    " ファイル保存時に自動コンパイル（1で自動実行）
-    let g:sass_compile_auto = 0
+        " ファイル保存時に自動コンパイル（1で自動実行）
+        let g:sass_compile_auto = 0
 
-    " 自動コンパイルを実行する拡張子
-    let g:sass_compile_file = ['scss', 'sass']
+        " 自動コンパイルを実行する拡張子
+        let g:sass_compile_file = ['scss', 'sass']
 
-    " cssファイルが入っているディレクトリ名（前のディレクトリほど優先）
-    let g:sass_compile_cssdir = ['css', 'stylesheet']
+        " cssファイルが入っているディレクトリ名（前のディレクトリほど優先）
+        let g:sass_compile_cssdir = ['css', 'stylesheet']
 
-    " コンパイル実行前に実行したいコマンドを設定
-    " 例：growlnotifyによる通知
-    " let g:sass_compile_beforecmd = "growlnotify -t 'sass-compile.vim' -m 'start sass compile.'"
+        " コンパイル実行前に実行したいコマンドを設定
+        " 例：growlnotifyによる通知
+        " let g:sass_compile_beforecmd = "growlnotify -t 'sass-compile.vim' -m 'start sass compile.'"
 
-    " コンパイル実行後に実行したいコマンドを設定
-    " 例：growlnotifyによる通知(${sasscompileresult}は実行結果)
-    " let g:sass_compile_aftercmd = "growlnotify -t 'sass-compile.vim' -m ${sasscompileresult}"
-endfunction
-unlet s:bundle
+        " コンパイル実行後に実行したいコマンドを設定
+        " 例：growlnotifyによる通知(${sasscompileresult}は実行結果)
+        " let g:sass_compile_aftercmd = "growlnotify -t 'sass-compile.vim' -m ${sasscompileresult}"
+    endfunction
+    unlet s:bundle
+endif
 
 " -------------------------------------------------------
 "  codic-complete for codic.
@@ -1441,17 +1418,10 @@ nmap gl <Plug>(LiveEasyAlign)
 " You can disabledefault mapping by:
 let g:swoopUseDefaultKeyMap = 0
 
-if g:use_dvorak
-    nmap <Leader>b :call Swoop()<CR>
-    vmap <Leader>b :call SwoopSelection()<CR>
-    nmap <Leader>m :call SwoopMulti()<CR>
-    vmap <Leader>m :call SwoopMultiSelection()<CR>
-else
-    nmap <Leader>n :call Swoop()<CR>
-    vmap <Leader>n :call SwoopSelection()<CR>
-    nmap <Leader>m :call SwoopMulti()<CR>
-    vmap <Leader>m :call SwoopMultiSelection()<CR>
-end
+nmap <Leader>n :call Swoop()<CR>
+vmap <Leader>n :call SwoopSelection()<CR>
+nmap <Leader>m :call SwoopMulti()<CR>
+vmap <Leader>m :call SwoopMultiSelection()<CR>
 
 " " set search case insensitive
 " let g:swoopIgnoreCase = 1

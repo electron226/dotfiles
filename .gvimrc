@@ -51,8 +51,14 @@ if has('win32') || has('win64')
     " Enable DirectWrite
     "set rop=type:directx
     set guifont=Ricty\ Diminished\ Discord:h12
+  " 行間隔の設定
+  set linespace=1
+  " 一部のUCS文字の幅を自動計測して決める
+  if has('kaoriya')
+    set ambiwidth=auto
+  endif
 else
-    set guifont=Ricty\ Discord\ 12
+    set guifont=Ricty\ Diminished\ Discord\ 12
 endif
 
 highlight CursorIM guibg=Purple guifg=NONE " IME ON時のカーソルの色を設定

@@ -1,37 +1,38 @@
 snippet main_template
 abbr    (function(global) { // class, export })(global)
 alias   maint
+    /*jshint latedef:false, sub:true */
     (function(global) {
       "use strict";
-
-      // // Get Execution environment.
-      // var isBrowser    = "document"       in global;
+      
+      // var isBrowser    = "document" in global;
       // var isWebWorkers = "WorkerLocation" in global;
-      // var isNode       = "process"        in global;
-    
-      // Class
-      function ${1:MyModule}()//{{{
+      // var isNode       = "process" in global;
+      
+      // Class ------------------------------------------------//{{{
+      function ${1:ModuleName}()//{{{
       {
-          ${2:initialize_variable}
       }//}}}
+      //}}}
 
-      // Header
-      MyModule.prototype.method = $1_$3; // $1#$3{a:any, b:int}:void
+      // Header -----------------------------------------------//{{{
+      $1["prototype"]["$2"] = ${2:Function}; // $1#$2($3:any):void
+      //}}}
 
-      // Implementation
-      function $1_${3:method}(${4:arguments})//{{{
+      // Implementation ---------------------------------------//{{{
+      function $2(${3:args})//{{{
       {
-          ${5:method_behavior}
+          ${4}
       }//}}}
+      //}}}
 
-      // Exports
-      // Support the require function of CommonJS Style.
+      // Exports ----------------------------------------------//{{{
       if ("process" in global) {
-        module.exports = $1;
+          module["exports"] = $1;
       }
-      // Support the require function of CommonJS Style.
-      global.$1 = $1;
-    })( (this || 0).self || global );
+      global["$1"] = $1;
+      //}}}
+    })((this || 0).self || global);
 
 snippet main_function
 abbr    (function(global) {})(global)
@@ -40,35 +41,74 @@ alias   mainf
       "use strict";
 
       ${0}
-
-    })( (this || 0).self || global );
-
-snippet export
-abbr    support require
-alias   exp, export
-    // Support the require function of CommonJS Style.
-    if ("process" in global) {
-      module.exports = ${1:MyModule};
-    }
-    // Support the require function of CommonJS Style.
-    global.$1 = $1;
+    })((this || 0).self || global);
     
-    ${0}
+snippet main_native
+abbr    (function(window, document) {})(this, this.document)
+alias   mainn
+    (function(global) {
+      "use strict";
 
-snippet class_template
-abbr    class template
-alias   cl, class, cltmp, cltemp,
-    // Class
-    function ${1:MyModule}()//{{{
-    {
-        ${2:initialize_variable}
-    }//}}}
+      ${0}
+    })(this, this.document);
 
-    // Header
-    MyModule.prototype.method = $1_$3; // $1#$3{a:any, b:int}:void
+snippet forl
+abbr    for (i; i < length; i = (i + 1) | 0)
+alias   forl
+    for (var ${1:i} = ${2:first}; $1 < ${3:end}; $1 = ($1 + 1) | 0) {
+        ${4}
+    }
 
-    // Implementation
-    function $1_${3:method}(${4:arguments})//{{{
-    {
-        ${5:method_behavior}
-    }//}}}
+snippet for_iter
+abbr    for (i = iter.next(); !i.done; i = iter.next())
+alias   fori
+    for (var ${2:iter} = ${1:MapOrSet}.entries(), ${3:i} = $2.next();
+         !$3.done; $3 = $2.next()) {
+        ${4}
+    }
+
+snippet while_loop
+abbr    i = 0; while (i < length) { ++i; }
+alias   wl
+    var ${1:i} = 0;
+    while ($1 < ${2:array}.length) {
+      ${3}
+      ++$1;
+    }
+
+snippet while_iter
+abbr    i = iter.next(); while (!i.done) { i = i.next(); }
+alias   wi
+    var ${2:iter} = ${1:MapOrSet}.entries();
+    var ${3:i}    = $2.next();
+    while (!$3.done) {
+      ${4}
+      $3 = $2.next();
+    }
+
+snippet forEach
+alias   fe
+    ${1:array}.forEach(${2:pValue} => {
+        ${3}
+    });
+
+snippet obj_loop
+alias   objloop
+    Object.keys(${1:obj}).forEach(${2:pKey} => {
+        ${3}
+    });
+
+snippet array.prototype.slice.call
+alias   slicecall
+    Array.prototype.slice.call(${1:obj})
+
+snippet loop_with_array.prototype.slice.call
+alias   sliceloop
+    Array.prototype.slice.call(${1:obj}).forEach(${2:pValue} => {
+        ${3}
+    });
+
+snippet console
+abbr    console.${1:log}();
+alias   log
+    console.${1:log}(${2});

@@ -8,13 +8,10 @@ scriptencoding utf-8
 ":echo $MY_VIMRUNTIMEで実際のパスを確認できます。
 if isdirectory($HOME . '/.vim')
     let $MY_VIMRUNTIME = $HOME . '/.vim'
-    let $MY_VIMDIR     = $HOME
 elseif isdirectory($HOME . '\vimfiles')
     let $MY_VIMRUNTIME = $HOME . '\vimfiles'
-    let $MY_VIMDIR     = $HOME
 elseif isdirectory($VIM . '\vimfiles')
     let $MY_VIMRUNTIME = $VIM . '\vimfiles'
-    let $MY_VIMDIR     = $VIM
 endif
 
 "ランタイムパスを通す必要のあるプラグインを使用する場合、
@@ -28,11 +25,6 @@ endif
 "mswin.vimを読み込む
 "source $MY_VIMRUNTIME/mswin.vim
 "behave mswin
-
-"----------------------------------------
-" Do you use Dvorak?
-"----------------------------------------
-let g:use_dvorak = 1 " 1 = yes
 
 " -------------------------------------------------------
 " NeoBundle
@@ -55,6 +47,8 @@ endif
 let g:neobundle#install_process_timeout = 600
 
 call neobundle#begin(expand('$MY_VIMRUNTIME/bundle/'))
+
+call neobundle#load_cache() " Load plugin cache.
 
 " let NeoBundle manage NeoBundle
 " required!
@@ -154,50 +148,20 @@ NeoBundle 'Shougo/neomru.vim', {
             \       "unite.vim"
             \   ]
             \ }
-" NeoBundleLazy 'Shougo/unite-build', {
-"             \   'depends' : [
-"             \       "unite.vim"
-"             \   ],
-"             \   'autoload' : {
-"             \       "unite_sources": "build"
-"             \   }
-"             \ }
-" NeoBundleLazy 'tsukkee/unite-tag',
-"             \   'depends' : [
-"             \       "unite.vim"
-"             \   ],
-"             \   'autoload' : {
-"             \       "unite_sources": "tag"
-"             \   }
-"             \ }
-" NeoBundleLazy 'hewes/unite-gtags',
-"             \   'depends' : [
-"             \       "unite.vim"
-"             \   ],
-"             \   'autoload' : {
-"             \       "unite_sources": "gtags"
-"             \   }
-"             \ }
-" NeoBundleLazy 'h1mesuke/unite-outline', {
-" \   'depends' : [ "unite.vim" ],
-" \   'autoload' : {
-" \       "unite_sources": "outline"
-" \   }
-" \ }
-NeoBundleLazy 'Shougo/vimfiler', {
+NeoBundleLazy 'Shougo/unite-outline', {
 \   'depends' : [ "unite.vim" ],
-\   'autoload': {
-\       'commands': [ "VimFiler", "VimFilerBufferDir", "VimFilerCurrentDir", "VimFilerSplit", "VimFilerTab" ],
-\       'mappings': ['<Plug>(vimfiler_switch)'],
-\       'explorer': 1,
+\   'autoload' : {
+\       "unite_sources": "outline"
 \   }
 \ }
+NeoBundle 'scrooloose/nerdtree'
 NeoBundle 'ctrlpvim/ctrlp.vim'
 NeoBundle 'pelodelfuego/vim-swoop'
 
 " Search
-NeoBundle 'rking/ag.vim'
 NeoBundle 'AtsushiM/search-parent.vim'
+NeoBundle 'rking/ag.vim'
+NeoBundle 'thinca/vim-qfreplace'
 NeoBundleLazy 'koron/codic-vim', {
 \   'autoload': {
 \       'commands': [ "Codic" ],
@@ -241,7 +205,7 @@ NeoBundleLazy 'wesleyche/SrcExpl', {
 " endif
 
 " colorscheme
-NeoBundle 'tomasr/molokai'
+NeoBundle 'altercation/vim-colors-solarized'
 
 " 整形 & 表示 & 動作
 NeoBundle "Lokaltog/vim-easymotion"
@@ -264,15 +228,14 @@ NeoBundle 'nathanaelkane/vim-indent-guides'
 " \           'mappings': [ "<Plug>(openbrowser-smart-search)" ],
 " \     }
 " \ }
-NeoBundle 'kana/vim-submode'
 
-" Doxygen
-NeoBundleLazy 'DoxygenToolkit.vim', {
-\     'autoload': {
-\           "commands": [ "Dox", "DoxAuthor", "DoxLic", "DoxUndoc", "DoxBlock" ],
-\           "filetypes": [ "c", "cpp", "python" ]
-\     }
-\}
+" " Doxygen
+" NeoBundleLazy 'DoxygenToolkit.vim', {
+" \     'autoload': {
+" \           "commands": [ "Dox", "DoxAuthor", "DoxLic", "DoxUndoc", "DoxBlock" ],
+" \           "filetypes": [ "c", "cpp", "python" ]
+" \     }
+" \}
 
 " Test
 NeoBundleLazy "thinca/vim-quickrun", {
@@ -285,89 +248,94 @@ NeoBundle 'reinh/vim-makegreen'
 NeoBundle "jceb/vim-hier"
 NeoBundle "dannyob/quickfixstatus"
 NeoBundle 'scrooloose/syntastic'
-NeoBundleLazy "http://lh-vim.googlecode.com/svn/refactor/trunk/", {
-\     'autoload': { "filetypes": [ "c", "cpp", "java", "pascal", "vim" ] }
-\}
-
-" C++11
-NeoBundleLazy 'Rip-Rip/clang_complete', {
-            \   'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
-            \   'depends' : [ "neocomplete" ]
-            \ }
-NeoBundleLazy 'vim-jp/cpp-vim', {
-\     'autoload': { "filetypes": [ "c", "cpp" ] }
-\ }
-NeoBundleLazy 'rhysd/vim-clang-format', {
-\     'autoload': { "filetypes": [ "c", "cpp", "objc" ] },
-\     'depends' : [ "vimproc" ]
-\ }
-NeoBundleLazy 'osyo-manga/vim-stargate', {
-\     'autoload': { "filetypes": [ "c", "cpp", "ruby", "python" ] }
-\ }
-
-" C#
-NeoBundleLazy 'nosami/Omnisharp', {
-\   'autoload': {'filetypes': ['cs']},
-\   'build': {
-\     'windows': 'msbuild server/OmniSharp.sln /p:Platform="Any CPU"',
-\     'mac': 'cd server && xbuild',
-\     'linux': 'cd server && xbuild',
-\     'unix': 'cd server && xbuild',
-\     'others': 'echo "Please build Omnisharp manually."',
-\   },
-\   'depends' : [ "neocomplete" ]
-\ }
-
-" Golang
-NeoBundleLazy 'fatih/vim-go', {
-            \ 'autoload': { "filetypes": [ "go" ] }
-\ }
-NeoBundleLazy 'Blackrush/vim-gocode', {
-            \ 'autoload': { "filetypes": [ "go" ] },
-            \ 'build': {
-            \   'windows': 'go get -ldflags -H=windowsgui github.com/nsf/gocode',
-            \   'mac': 'go get github.com/nsf/gocode',
-            \   'linux': 'go get github.com/nsf/gocode',
-            \   'unix': 'go get github.com/nsf/gocode',
-            \   'others': 'echo "Please install vim-gocode manually."',
-            \ }
-\ }
-NeoBundleLazy 'dgryski/vim-godef', {
-            \ 'autoload': { "filetypes": [ "go" ] },
-            \ 'build': {
-            \   'windows': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
-            \   'mac': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
-            \   'linux': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
-            \   'unix': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
-            \   'others': 'echo "Please install vim-godef manually."',
-            \ }
-\ }
-
-" Python
-NeoBundleLazy 'python.vim', {
-            \     'autoload': { "filetypes": [ "python" ] },
-            \ }
-NeoBundleLazy "davidhalter/jedi-vim", {
-\     'autoload': { "filetypes": [ "python" ] },
-\     'build': {
-\         'windows': 'pip3 install jedi',
-\         'mac': 'pip3 install jedi',
-\         'linux': 'pip3 install jedi',
-\         'unix': 'pip3 install jedi',
-\         'others': 'echo "Please install jedi manually."',
-\     },
-\     'depends' : [ "neocomplete" ]
-\}
-" NeoBundleLazy "klen/python-mode", {
-"             \ 'autoload': { "filetypes": [ "python" ] },
-"             \ 'build': {
-"             \   'windows': 'easy_install-3.4 rope_py3k',
-"             \   'mac': 'easy_install rope_py3k',
-"             \   'linux': 'easy_install rope_py3k',
-"             \   'unix': 'easy_install rope_py3k',
-"             \   'others': 'echo "Please install python-mode manually."',
-"             \ }
+" NeoBundle 'LucHermitte/lh-vim-lib'
+" NeoBundle 'LucHermitte/lh-tags'
+" NeoBundle 'LucHermitte/lh-dev'
+" NeoBundle 'LucHermitte/lh-brackets'
+" NeoBundleLazy "LucHermitte/vim-refactor", {
+" \     'autoload': { "filetypes": [ "c", "cpp", "java", "pascal", "vim" ] },
+" \     'depends': { 'lh-vim-lib', 'lh-tags', 'lh-dev', 'lh-brackets' }
 " \}
+"
+" " C++11
+" NeoBundleLazy 'Rip-Rip/clang_complete', {
+"             \   'autoload' : { 'filetypes' : [ 'c', 'cpp' ] },
+"             \   'depends' : [ "neocomplete" ]
+"             \ }
+" NeoBundleLazy 'vim-jp/cpp-vim', {
+" \     'autoload': { "filetypes": [ "c", "cpp" ] }
+" \ }
+" NeoBundleLazy 'rhysd/vim-clang-format', {
+" \     'autoload': { "filetypes": [ "c", "cpp", "objc" ] },
+" \     'depends' : [ "vimproc" ]
+" \ }
+" NeoBundleLazy 'osyo-manga/vim-stargate', {
+" \     'autoload': { "filetypes": [ "c", "cpp", "ruby", "python" ] }
+" \ }
+
+" " C#
+" NeoBundleLazy 'nosami/Omnisharp', {
+" \   'autoload': {'filetypes': ['cs']},
+" \   'build': {
+" \     'windows': 'msbuild server/OmniSharp.sln /p:Platform="Any CPU"',
+" \     'mac': 'cd server && xbuild',
+" \     'linux': 'cd server && xbuild',
+" \     'unix': 'cd server && xbuild',
+" \     'others': 'echo "Please build Omnisharp manually."',
+" \   },
+" \   'depends' : [ "neocomplete" ]
+" \ }
+
+" " Golang
+" NeoBundleLazy 'fatih/vim-go', {
+"             \ 'autoload': { "filetypes": [ "go" ] }
+" \ }
+" NeoBundleLazy 'Blackrush/vim-gocode', {
+"             \ 'autoload': { "filetypes": [ "go" ] },
+"             \ 'build': {
+"             \   'windows': 'go get -ldflags -H=windowsgui github.com/nsf/gocode',
+"             \   'mac': 'go get github.com/nsf/gocode',
+"             \   'linux': 'go get github.com/nsf/gocode',
+"             \   'unix': 'go get github.com/nsf/gocode',
+"             \   'others': 'echo "Please install vim-gocode manually."',
+"             \ }
+" \ }
+" NeoBundleLazy 'dgryski/vim-godef', {
+"             \ 'autoload': { "filetypes": [ "go" ] },
+"             \ 'build': {
+"             \   'windows': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
+"             \   'mac': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
+"             \   'linux': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
+"             \   'unix': 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef',
+"             \   'others': 'echo "Please install vim-godef manually."',
+"             \ }
+" \ }
+
+" " Python
+" NeoBundleLazy 'python.vim', {
+"             \     'autoload': { "filetypes": [ "python" ] },
+"             \ }
+" NeoBundleLazy "davidhalter/jedi-vim", {
+" \     'autoload': { "filetypes": [ "python" ] },
+" \     'build': {
+" \         'windows': 'pip3 install jedi',
+" \         'mac': 'pip3 install jedi',
+" \         'linux': 'pip3 install jedi',
+" \         'unix': 'pip3 install jedi',
+" \         'others': 'echo "Please install jedi manually."',
+" \     },
+" \     'depends' : [ "neocomplete" ]
+" \}
+" " NeoBundleLazy "klen/python-mode", {
+" "             \ 'autoload': { "filetypes": [ "python" ] },
+" "             \ 'build': {
+" "             \   'windows': 'easy_install-3.4 rope_py3k',
+" "             \   'mac': 'easy_install rope_py3k',
+" "             \   'linux': 'easy_install rope_py3k',
+" "             \   'unix': 'easy_install rope_py3k',
+" "             \   'others': 'echo "Please install python-mode manually."',
+" "             \ }
+" " \}
 
 " " Ruby
 " NeoBundleLazy "vim-ruby/vim-ruby", {
@@ -390,10 +358,10 @@ NeoBundleLazy 'othree/html5.vim', {
 
 " CSS
 NeoBundleLazy 'hail2u/vim-css3-syntax', {
-            \ 'autoload': { "filetypes": [ "css", "less", "scss" ] }
+            \ 'autoload': { "filetypes": [ "html", "css", "less", "scss" ] }
             \ }
-NeoBundleLazy 'css_color.vim', {
-            \ 'autoload': { "filetypes": [ "css", "scss" ] },
+NeoBundleLazy 'gorodinskiy/vim-coloresque', {
+            \ 'autoload': { "filetypes": [ "html", "css", "scss", "less" ] },
             \ }
 NeoBundleLazy 'groenewege/vim-less', {
             \ 'autoload': { "filetypes": [ "less" ] }
@@ -428,11 +396,14 @@ NeoBundleLazy 'kchmck/vim-coffee-script', {
 NeoBundleLazy 'heavenshell/vim-jsdoc', {
 \     'autoload': { "filetypes": [ "html", "javascript", "coffee" ] }
 \}
+NeoBundleLazy 'moll/vim-node', {
+\     'autoload': { "filetypes": [ "javascript", "coffee" ] }
+\}
 
 " version management
 "NeoBundle 'git://repo.or.cz/vcscommand.git'
-NeoBundle 'tpope/vim-fugitive'
-" NeoBundle 'airblade/vim-gitgutter'
+"NeoBundle 'tpope/vim-fugitive'
+"NeoBundle 'airblade/vim-gitgutter'
 NeoBundleLazy 'cohama/agit.vim', {
     \   'autoload' : {
     \       'commands' : [
@@ -445,6 +416,8 @@ NeoBundleLazy 'cohama/agit.vim', {
 NeoBundleLazy 'JSON.vim', {
 \     'autoload': { "filetypes": [ "json" ] }
 \}
+
+NeoBundleSaveCache " Save plugin cache.
 
 call neobundle#end()
 
