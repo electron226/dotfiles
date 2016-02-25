@@ -20,6 +20,7 @@ fi
 for f in .??*
 do
     [ "$f" = ".git" ] && continue
+    [ "$f" = ".gitignore" ] && continue
 
     ln -snfv $currentDir/"$f" "$HOME"/"$f"
 done
