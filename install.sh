@@ -2,18 +2,13 @@
 
 currentDir=$(cd $(dirname $0) && pwd)
 
-apt-get update
-
 # Do you have git?
 if ! type "git"; then
-    # have not git.
-    apt-get -y install git
+    echo 'you must install git'
 fi
-
 # Do you have curl?
 if ! type "curl"; then
-    # have not git.
-    apt-get -y install curl
+    echo 'you must install curl'
 fi
 
 # create link.
@@ -30,4 +25,4 @@ curl https://raw.githubusercontent.com/Shougo/neobundle.vim/master/bin/install.s
 sh neobundle.sh
 rm -f neobundle.sh
 
-echo 'install processes are completed.'
+echo 'Dotfiles install processes are completed.'
