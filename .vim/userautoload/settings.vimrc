@@ -31,8 +31,11 @@ set complete+=k        " 補完に辞書ファイル追加
 " -------------------------------------------------------
 " 表示
 " -------------------------------------------------------
-syntax on
+syntax enable
+
+" colorscheme
 set background=dark
+let g:solarized_termtrans=1
 colorscheme solarized " テーマ
 
 set shortmess+=I " 起動時のメッセージを表示しない
