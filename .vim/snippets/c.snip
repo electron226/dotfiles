@@ -112,3 +112,23 @@ abbr        func() {}
 snippet     normal_cast
 alias       cast
     (${1:type})${2:value}
+
+snippet     in
+abbr        intN_t, uintN_t
+    ${1}int${2:8}_t ${3}
+
+snippet     il
+abbr        int_leastN_t, uint_leastN_t
+    ${1}int_least${2:8}_t ${3}
+
+snippet     ifa
+abbr        int_fastN_t, uint_fastN_t
+    ${1}int_fast${2:8}_t ${3}
+
+snippet     im
+abbr        intmax_t, uintmax_t
+    ${1}intmax_t ${2}
+
+snippet     ip
+abbr        intptr_t, uintptr_t
+    ${1}intptr_t ${2}

@@ -26,7 +26,10 @@ endif
 "source $MY_VIMRUNTIME/mswin.vim
 "behave mswin
 
-" for vimproc option.
+"----------------------------------------
+" need set the options before the plugins install.
+"----------------------------------------
+" for vimproc.
 let g:vimproc#download_windows_dll = 1
 
 "----------------------------------------

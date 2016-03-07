@@ -14,7 +14,7 @@ repo = 'tpope/vim-commentary'
 repo = 'AndrewRadev/switch.vim'
 
 [[plugins]]
-repo = 'kana/vim-smartinput'
+repo = 'cohama/lexima.vim'
 
 [[plugins]]
 repo = 'tpope/vim-surround'
@@ -29,10 +29,10 @@ repo = 'scrooloose/nerdtree'
 repo = 'ctrlpvim/ctrlp.vim'
 
 [[plugins]]
-repo = 'pelodelfuego/vim-swoop'
+repo = 'rking/ag.vim'
 
 [[plugins]]
-repo = 'rking/ag.vim'
+repo = 'pelodelfuego/vim-swoop'
 
 [[plugins]]
 repo = 'thinca/vim-qfreplace'
@@ -64,13 +64,7 @@ repo = 'itchyny/lightline.vim'
 repo = 'nathanaelkane/vim-indent-guides'
 
 [[plugins]]
-repo = 'reinh/vim-makegreen'
-
-[[plugins]]
-repo = 'jceb/vim-hier'
-
-[[plugins]]
-repo = 'dannyob/quickfixstatus'
-
-[[plugins]]
 repo = 'scrooloose/syntastic'
+
+[[plugins]]
+repo = 'sheerun/vim-polyglot'

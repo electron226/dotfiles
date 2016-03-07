@@ -7,17 +7,14 @@ let g:bind_settings_loaded = 1
 " バインド(プラグイン未使用)
 " -------------------------------------------------------
 " <Leader><Leader>で変更があれば保存
-" nnoremap <Leader><Leader> :up<CR>
+" nmap <Leader><Leader> :up<CR>
 
 "ビジュアルモード時vで行末まで選択
-" vnoremap v $
+" vmap v $
 
 " 行の折り返しをしている時に見た目の次の行へ移動する
-nnoremap j gj
-nnoremap k gk
-
-" 現在なんという関数の中にいるか表示する
-nnoremap [f [[k:let t=getline(".")<CR>``:echo t<CR>
+nmap j gj
+nmap k gk
 
 " Windowsで矩形選択を正常に動作
 if has('win32') || has('win64')
@@ -26,51 +23,51 @@ if has('win32') || has('win64')
 endif
 
 " c* or cg* でカーソル下のキーワードを置換
-nnoremap <expr> c* ':%s/' . expand('<cword>') . '/' . input('All replace "' . expand('<cword>') . '" to: ') . '/g'
-vnoremap <expr> c* ':s/' . expand('<cword>') . '/' . input('All replace "' . expand('<cword>') . '" to: ') . '/g'
-nnoremap <expr> cg* ':%s/' . expand('<cword>') . '/' . input('Replace while checking: "' . expand('<cword>') . '" to:') . '/cg'
-vnoremap <expr> cg* ':s/' . expand('<cword>') . '/' . input('Replace while checking: "' . expand('<cword>') . '" to:') . '/cg'
+nmap <expr> c* ':%s/' . expand('<cword>') . '/' . input('All replace "' . expand('<cword>') . '" to: ') . '/g'
+vmap <expr> c* ':s/' . expand('<cword>') . '/' . input('All replace "' . expand('<cword>') . '" to: ') . '/g'
+nmap <expr> cg* ':%s/' . expand('<cword>') . '/' . input('Replace while checking: "' . expand('<cword>') . '" to:') . '/cg'
+vmap <expr> cg* ':s/' . expand('<cword>') . '/' . input('Replace while checking: "' . expand('<cword>') . '" to:') . '/cg'
 
 " vimでカーソル位置の単語とヤンクした文字列を置換する
-nnoremap <silent> ciy ciw<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
-nnoremap <silent> cy   ce<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
-vnoremap <silent> cy   c<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
+nmap <silent> ciy ciw<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
+nmap <silent> cy   ce<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
+vmap <silent> cy   c<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 
 " 画面分割
-nnoremap <silent>s <Nop>
-nnoremap <silent>sj <C-w>j
-nnoremap <silent>sk <C-w>k
-nnoremap <silent>sl <C-w>l
-nnoremap <silent>sh <C-w>h
-nnoremap <silent>sJ <C-w>J
-nnoremap <silent>sK <C-w>K
-nnoremap <silent>sL <C-w>L
-nnoremap <silent>sH <C-w>H
-nnoremap <silent>sr <C-w>r
-nnoremap <silent>s= <C-w>=
-nnoremap <silent>sw <C-w>w
-nnoremap <silent>so <C-w>_<C-w>|
-nnoremap <silent>sO <C-w>=
-nnoremap <silent>st :<C-u>tabnew<CR>
-nnoremap <silent>sc :<C-u>tabclose<CR>
-nnoremap <silent>sn gt
-nnoremap <silent>sp gT
-nnoremap <silent>ss :<C-u>sp<CR>
-nnoremap <silent>sv :<C-u>vs<CR>
-nnoremap <silent>sq :<C-u>q<CR>
+nmap <silent>s <Nop>
+nmap <silent>sj <C-w>j
+nmap <silent>sk <C-w>k
+nmap <silent>sl <C-w>l
+nmap <silent>sh <C-w>h
+nmap <silent>sJ <C-w>J
+nmap <silent>sK <C-w>K
+nmap <silent>sL <C-w>L
+nmap <silent>sH <C-w>H
+nmap <silent>sr <C-w>r
+nmap <silent>s= <C-w>=
+nmap <silent>sw <C-w>w
+nmap <silent>so <C-w>_<C-w>|
+nmap <silent>sO <C-w>=
+nmap <silent>st :<C-u>tabnew<CR>
+nmap <silent>sc :<C-u>tabclose<CR>
+nmap <silent>sn gt
+nmap <silent>sp gT
+nmap <silent>ss :<C-u>sp<CR>
+nmap <silent>sv :<C-u>vs<CR>
+nmap <silent>sq :<C-u>q<CR>
 
 " バッファ操作
-nnoremap <silent>sp :bprevious<CR>
-nnoremap <silent>sn :bnext<CR>
-nnoremap <silent>sb :b#<CR>
-nnoremap <silent>sf :bf<CR>
-nnoremap <silent>sg :bl<CR>
-nnoremap <silent>sm :bm<CR>
-nnoremap <silent>sQ :bdelete<CR>
-nnoremap <silent>sQQ :Kwbd<CR>
+nmap <silent>sp :bprevious<CR>
+nmap <silent>sn :bnext<CR>
+nmap <silent>sb :b#<CR>
+nmap <silent>sf :bf<CR>
+nmap <silent>sg :bl<CR>
+nmap <silent>sm :bm<CR>
+nmap <silent>sQ :bdelete<CR>
+nmap <silent>sQQ :Kwbd<CR>
 
 " レイアウトを崩さずバッファを閉じる
-com! Kwbd let kwbd_bn= bufnr("%")|enew|exe "bdel ".kwbd_bn|unlet kwbd_bn 
+com! Kwbd let kwbd_bn= bufnr("%")|enew|exe "bdel ".kwbd_bn|unlet kwbd_bn
 
 " -------------------------------------------------------
 " Quickfix
@@ -108,10 +105,16 @@ function! s:ide_open(srcexpl)
     SM6
 
     if a:srcexpl == 1
-        SrcExpl
+        if !exists('b:Source_Explorer')
+            SrcExpl
+        endif
     endif
-    VimFilerBufferDir -split -simple -winwidth=30 -no-quit
-    TagbarOpen
+    if !exists('b:NERDTree')
+        NERDTree
+    endif
+    if !exists('b:Tagbar')
+        TagbarOpen
+    endif
 endfunction
 command! -nargs=0 IDE call s:ide_open(0)
 command! -nargs=0 IDE2 call s:ide_open(1)

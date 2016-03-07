@@ -46,36 +46,13 @@ function! s:getClangLibraryPath()
 endfunction
 
 function! s:getCppIncludePaths()
-    if has('win32') || has('win64') || has('win32unix')
+    if has('win32') || has('win64')
         " mingw settings.
         if isdirectory(expand('$MINGW_HOME'))
             let l:mingw_path = expand('$MINGW_HOME')
         else
-            let l:mingw_path = 'e:/local/mingw64'
+            let l:mingw_path = 'e:/local/mingw-w64/*/mingw64'
         endif
-
-        " if executable('gcc')
-        "     let l:target = ""
-        "     let l:gcc_ver = ""
-
-        "     let l:gcc_list = systemlist("gcc -v")
-        "     for l in l:gcc_list
-        "         let l:temp = matchstr(l, 'Target: \zs.*')
-        "         if len(l:temp) > 0
-        "             let l:target = l:temp
-        "             continue
-        "         endif
-
-        "         let l:temp = matchstr(l, 'gcc version \zs[0-9.]\+')
-        "         if len(l:temp) > 0
-        "             let l:gcc_ver = l:temp
-        "             continue
-        "         endif
-        "     endfor
-
-        "     let l:mingw_build_target = l:target
-        "     let l:mingw_gcc_version = l:gcc_ver
-        " endif
 
         " Windows
         let l:include_paths_cpp = filter(
@@ -100,21 +77,23 @@ function! s:getCppIncludePaths()
     return l:include_paths_cpp
 endfunction
 
-if !exists('s:include_paths_cpp')
-    let s:include_paths_cpp = []
-endif
-
-if !exists('s:include_paths_string_mingw')
-    let s:include_paths_string_mingw = ''
+if !exists('g:include_paths_string')
+    let g:include_paths_string = ''
 endif
 
 au FileType c,cpp,objc,objcpp call s:setCppIncludePaths()
 function! s:setCppIncludePaths()
-    let s:include_paths_cpp = s:getCppIncludePaths()
-    let s:include_paths_string_mingw =
-                \ len(s:include_paths_cpp) > 0 ?
-                \ '-I "' . join(s:include_paths_cpp, '" -I "') . '"' :
-                \ ''
+    if exists('g:cppIncludePath_initialized')
+        return
+    else
+        let g:cppIncludePath_initialized = 1
+    endif
+
+    let l:include_paths_cpp = s:getCppIncludePaths()
+    if len(l:include_paths_cpp) > 0
+        let g:include_paths_string = join(l:include_paths_cpp, ',')
+        execute 'set path ^=' . g:include_paths_string
+    endif
 endfunction
 
 " -------------------------------------------------------
@@ -137,16 +116,22 @@ if dein#tap("ctrlp.vim")
         set wildignore+=*/node_modules/*
     endif
 
-    if has('unix')
-        if executable('ag')
-            let g:ctrlp_use_caching=0
-            let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
-                  \ --ignore .git
-                  \ --ignore .svn
-                  \ --ignore .hg
-                  \ --ignore .DS_Store
-                  \ --ignore "**/*.pyc"
-                  \ -g ""'
+    if executable('ag')
+        "let g:ctrlp_use_caching=0
+        let s:ctrlp_options =
+                    \ ' -i --nocolor --nogroup --hidden
+                    \ --ignore .cache
+                    \ --ignore .git
+                    \ --ignore .svn
+                    \ --ignore .hg
+                    \ --ignore .DS_Store
+                    \ --ignore "**/*.pyc"
+                    \ -g "" '
+
+        if has('win32') || has('win64')
+            let g:ctrlp_user_command = 'ag' . s:ctrlp_options . '%s'
+        else
+            let g:ctrlp_user_command = 'ag %s' . s:ctrlp_options
         endif
     endif
 endif
@@ -273,16 +258,6 @@ if dein#tap("neocomplete")
     " More neocomplete candidates.
     let g:neocomplete#max_list = 100
 
-    " Define include.
-    let s:neocomplete_include_paths_cpp = join(s:include_paths_cpp, ',')
-    if !exists('g:neocomplete#sources#include#paths')
-        let g:neocomplete#sources#include#paths = {}
-    endif
-    let g:neocomplete#sources#include#paths = {
-                \ 'c' : s:neocomplete_include_paths_cpp,
-                \ 'cpp' : s:neocomplete_include_paths_cpp,
-                \ }
-
     "Note: This option must set it in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
     " Disable AutoComplPop.
     let g:acp_enableAtStartup = 0
@@ -384,9 +359,7 @@ if dein#tap("clang_complete")
         let g:clang_use_library  = 1
         let g:clang_library_path = s:getClangLibraryPath()
 
-        let g:clang_user_options =
-                    \ s:include_paths_string_mingw .
-                    \ ' -std=c++11'
+        let g:clang_user_options = ' -std=c++11'
 
         " Build msvc
         if has('win32') || has('win64')
@@ -403,21 +376,51 @@ if dein#tap("clang_complete")
 endif
 
 " -------------------------------------------------------
+" vim-clang-format
+" -------------------------------------------------------
+if dein#tap("vim-clang-format")
+    function! s:clang_format_settings() abort
+        autocmd FileType c,cpp,objc nmap <buffer><Leader>cf :<C-u>ClangFormat<CR>
+        autocmd FileType c,cpp,objc vmap <buffer><Leader>cf :ClangFormat<CR>
+        " base style.
+        " llvm, google, chromium, or mozilla. set Google by default.
+        " let g:clang_format#code_style = 'Google'
+
+        " Coding style options as dictionary.
+        let g:clang_format#style_options = {
+                    \ "AccessModifierOffset" : -4,
+                    \ "AllowShortIfStatementsOnASingleLine" : "true",
+                    \ "AlwaysBreakTemplateDeclarations" : "true",
+                    \ "Standard" : "C++11"
+                    \ "BreakBeforeBraces" : "Stroustrup"
+                    \ }
+    endfunction
+
+    execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
+            \ 'call s:clang_format_settings()'
+endif
+
+
+" -------------------------------------------------------
 " OmniSharp
 " -------------------------------------------------------
 if dein#tap("Omnisharp")
     function! s:omnisharp_settings() abort
-        if !exists('g:neocomplete#force_omni_input_patterns')
-            let g:neocomplete#force_omni_input_patterns = {}
-        endif
-        let g:neocomplete#force_omni_input_patterns.cs = '[^.]\.\%(\u\{2,}\)\?'
+        autocmd FileType cs setlocal omnifunc=OmniSharp#Complete
 
-        " recommended key-mappings of C#.
-        inoremap <expr>.  neocomplcache#close_popup() . "."
-        inoremap <expr>(  neocomplcache#close_popup() . "("
-        inoremap <expr>)  neocomplcache#close_popup() . ")"
-        inoremap <expr><space>  neocomplcache#close_popup() . " "
-        inoremap <expr>;  neocomplcache#close_popup() . ";"
+        if !exists('g:neocomplete#force_omni_input_patterns')
+          let g:neocomplete#force_omni_input_patterns = {}
+        endif
+        let g:neocomplete#force_omni_input_patterns.cs = '.*[^=\);]'
+
+        if dein#tap("ctrlp.vim")
+            let g:OmniSharp_selector_ui = 'ctrlp'  " Use ctrlp.vim
+        elseif dein#tap("unite.vim")
+            let g:OmniSharp_selector_ui = 'unite'  " Use unite.vim
+        endif
+
+        " OmniSharp won't work without this setting
+        filetype plugin on
 
         "This is the default value, setting it isn't actually necessary
         let g:OmniSharp_host = "http://localhost:2000"
@@ -431,10 +434,8 @@ if dein#tap("Omnisharp")
         "Showmatch significantly slows down omnicomplete
         "when the first match contains parentheses.
         set noshowmatch
-        "Set autocomplete function to OmniSharp (if not using YouCompleteMe completion plugin)
-        "autocmd FileType cs setlocal omnifunc=OmniSharp#Complete
 
-        "Super tab settings
+        "Super tab settings - uncomment the next 4 lines
         "let g:SuperTabDefaultCompletionType = 'context'
         "let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
         "let g:SuperTabDefaultCompletionTypeDiscovery = ["&omnifunc:<c-x><c-o>","&completefunc:<c-x><c-n>"]
@@ -453,37 +454,57 @@ if dein#tap("Omnisharp")
         "You might also want to look at the echodoc plugin
         set splitbelow
 
-        " Synchronous build (blocks Vim)
-        "autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuild<cr>
-        " Builds can also run asynchronously with vim-dispatch installed
-        autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuildAsync<cr>
+        " Get Code Issues and syntax errors
+        let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
+        " If you are using the omnisharp-roslyn backend, use the following
+        " let g:syntastic_cs_checkers = ['code_checker']
+        augroup omnisharp_commands
+            autocmd!
 
-        "The following commands are contextual, based on the current cursor position.
+            "Set autocomplete function to OmniSharp (if not using YouCompleteMe completion plugin)
+            autocmd FileType cs setlocal omnifunc=OmniSharp#Complete
 
-        autocmd FileType cs nnoremap gd :OmniSharpGotoDefinition<cr>
-        nnoremap <leader>fi :OmniSharpFindImplementations<cr>
-        nnoremap <leader>ft :OmniSharpFindType<cr>
-        nnoremap <leader>fs :OmniSharpFindSymbol<cr>
-        nnoremap <leader>fu :OmniSharpFindUsages<cr>
-        nnoremap <leader>fm :OmniSharpFindMembersInBuffer<cr>
-        " cursor can be anywhere on the line containing an issue for this one
-        nnoremap <leader>x  :OmniSharpFixIssue<cr>
-        nnoremap <leader>fx :OmniSharpFixUsings<cr>
-        nnoremap <leader>tt :OmniSharpTypeLookup<cr>
-        nnoremap <leader>dc :OmniSharpDocumentation<cr>
+            " Synchronous build (blocks Vim)
+            "autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuild<cr>
+            " Builds can also run asynchronously with vim-dispatch installed
+            autocmd FileType cs nnoremap <leader>b :wa!<cr>:OmniSharpBuildAsync<cr>
+            " automatic syntax check on events (TextChanged requires Vim 7.4)
+            autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
 
-        "" Get Code Issues and syntax errors
-        "let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
-        "autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
+            " Automatically add new cs files to the nearest project on save
+            autocmd BufWritePost *.cs call OmniSharp#AddToProject()
 
-        "show type information automatically when the cursor stops moving
-        autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
-        " this setting controls how long to pause (in ms) before fetching type / symbol information.
+            "show type information automatically when the cursor stops moving
+            autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
+
+            "The following commands are contextual, based on the current cursor position.
+
+            autocmd FileType cs nnoremap gd :OmniSharpGotoDefinition<cr>
+            autocmd FileType cs nnoremap <leader>oi :OmniSharpFindImplementations<cr>
+            autocmd FileType cs nnoremap <leader>ot :OmniSharpFindType<cr>
+            autocmd FileType cs nnoremap <leader>os :OmniSharpFindSymbol<cr>
+            autocmd FileType cs nnoremap <leader>ou :OmniSharpFindUsages<cr>
+            "finds members in the current buffer
+            autocmd FileType cs nnoremap <leader>om :OmniSharpFindMembers<cr>
+            " cursor can be anywhere on the line containing an issue
+            autocmd FileType cs nnoremap <leader>of  :OmniSharpFixIssue<cr>
+            autocmd FileType cs nnoremap <leader>ox :OmniSharpFixUsings<cr>
+            autocmd FileType cs nnoremap <leader>ot :OmniSharpTypeLookup<cr>
+            autocmd FileType cs nnoremap <leader>oc :OmniSharpDocumentation<cr>
+            "navigate up by method/property/field
+            autocmd FileType cs nnoremap <C-K> :OmniSharpNavigateUp<cr>
+            "navigate down by method/property/field
+            autocmd FileType cs nnoremap <C-J> :OmniSharpNavigateDown<cr>
+
+        augroup END
+
+
+        " this setting controls how long to wait (in ms) before fetching type / symbol information.
         set updatetime=500
         " Remove 'Press Enter to continue' message when type information is longer than one line.
         set cmdheight=2
 
-        " Contextual code actions (requires CtrlP)
+        " Contextual code actions (requires CtrlP or unite.vim)
         nnoremap <leader><space> :OmniSharpGetCodeActions<cr>
         " Run code actions with text selected in visual mode to extract method
         vnoremap <leader><space> :call OmniSharp#GetCodeActions('visual')<cr>
@@ -498,9 +519,8 @@ if dein#tap("Omnisharp")
         nnoremap <leader>rl :OmniSharpReloadSolution<cr>
         nnoremap <leader>cf :OmniSharpCodeFormat<cr>
         " Load the current .cs file to the nearest project
-        nnoremap <leader>tp :OmniSharpAddToProject<cr>
-        " Automatically add new cs files to the nearest project on save
-        autocmd BufWritePost *.cs call OmniSharp#AddToProject()
+        nnoremap <leader>ap :OmniSharpAddToProject<cr>
+
         " (Experimental - uses vim-dispatch or vimproc plugin) - Start the omnisharp server for the current solution
         nnoremap <leader>ss :OmniSharpStartServer<cr>
         nnoremap <leader>sp :OmniSharpStopServer<cr>
@@ -532,12 +552,13 @@ if dein#tap("jedi-vim")
         endif
         let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
 
-        let g:jedi#goto_definitions_command = "<leader>jd"
-        let g:jedi#documentation_command    = "K"
-        let g:jedi#usages_command           = "<leader>jn"
-        let g:jedi#completions_command      = "<C-Space>"
-        let g:jedi#rename_command           = "<leader>jr"
-        let g:jedi#show_call_signatures     = "1"
+        let g:jedi#goto_command = "<leader>pd"
+        let g:jedi#goto_assignments_command = "<leader>pg"
+        let g:jedi#goto_definitions_command = ""
+        let g:jedi#documentation_command = "K"
+        let g:jedi#usages_command = "<leader>pn"
+        let g:jedi#completions_command = "<C-Space>"
+        let g:jedi#rename_command = "<leader>pr"
     endfunction
 
     execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
@@ -572,35 +593,11 @@ if dein#tap("neosnippet")
         if !exists("g:neosnippet#snippets_directory")
             let g:neosnippet#snippets_directory = ""
         endif
-        let g:neosnippet#snippets_directory=$MY_VIMRUNTIME . '/bundle/vim-snippets/snippets'
+        let g:neosnippet#snippets_directory=expand($MY_VIMRUNTIME) . '.cache/dein/repos/github.com/honza/vim-snippets/snippets'
     endfunction
 
     execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
             \ 'call s:neosnippet_settings()'
-endif
-
-" -------------------------------------------------------
-" vim-clang-format
-" -------------------------------------------------------
-if dein#tap("vim-clang-format")
-    function! s:clang_format_settings() abort
-        autocmd FileType c,cpp,objc nmap <buffer><Leader>cf :<C-u>ClangFormat<CR>
-        autocmd FileType c,cpp,objc vmap <buffer><Leader>cf :ClangFormat<CR>
-        " base style.
-        " llvm, google, chromium, or mozilla
-        "let g:clang_format#code_style = 'google'
-
-        " Coding style options as dictionary.
-        let g:clang_format#style_options = {
-                    \ "AccessModifierOffset" : -4,
-                    \ "AllowShortIfStatementsOnASingleLine" : "true",
-                    \ "AlwaysBreakTemplateDeclarations" : "true",
-                    \ "Standard" : "C++11"
-                    \ }
-    endfunction
-
-    execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
-            \ 'call s:clang_format_settings()'
 endif
 
 " -------------------------------------------------------
@@ -663,22 +660,6 @@ function! s:golang_settings()
 endfunction
 
 " -------------------------------------------------------
-" vim-stargate
-" -------------------------------------------------------
-if dein#tap("vim-stargate")
-    function! s:stargate_settings() abort
-        " インクルードディレクトリのパスを設定
-        if !exists('g:stargate#include_paths')
-            let g:stargate#include_paths = {}
-        endif
-        let g:stargate#include_paths['cpp'] = s:include_paths_cpp
-    endfunction
-
-    execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
-            \ 'call s:stargate_settings()'
-endif
-
-" -------------------------------------------------------
 " switch.vim
 " -------------------------------------------------------
 if dein#tap("switch.vim")
@@ -717,14 +698,31 @@ if dein#tap('vim-easymotion')
     " These `n` & `N` mappings are options. You do not have to map `n` & `N` to EasyMotion.
     " Without these mappings, `n` & `N` works fine. (These mappings just provide
     " different highlight method and have some other features )
-    " map  n <Plug>(easymotion-next)
-    " map  N <Plug>(easymotion-prev)
+    map  n <Plug>(easymotion-next)
+    map  N <Plug>(easymotion-prev)
+    
+    " hjkl motions (already set (easymotion-j) and (easymotion-k) by default)
+    map ;h <Plug>(easymotion-linebackward)
+    " map ;j <Plug>(easymotion-j)
+    " map ;k <Plug>(easymotion-k)
+    map ;l <Plug>(easymotion-lineforward)
 
-    " hjkl motions
-    map <Leader>l <Plug>(easymotion-lineforward)
-    map <Leader>j <Plug>(easymotion-j)
-    map <Leader>k <Plug>(easymotion-k)
-    map <Leader>h <Plug>(easymotion-linebackward)
+    " Overwin motions
+    nmap <Leader>f <Plug>(easymotion-overwin-f)
+    xmap <Leader>f <Plug>(easymotion-bd-f)
+    omap <Leader>f <Plug>(easymotion-bd-f)
+    nmap <Leader>s <Plug>(easymotion-overwin-f2)
+    xmap <Leader>s <Plug>(easymotion-bd-f2)
+    omap <Leader>s <Plug>(easymotion-bd-f2)
+    nmap <Leader>l <Plug>(easymotion-overwin-line)
+    xmap <Leader>l <Plug>(easymotion-bd-jk)
+    omap <Leader>l <Plug>(easymotion-bd-jk)
+    nmap <Leader>w <Plug>(easymotion-overwin-w)
+    xmap <Leader>w <Plug>(easymotion-bd-w)
+    omap <Leader>w <Plug>(easymotion-bd-w)
+
+    " repeat
+    map ;r <Plug>(easymotion-repeat)
 
     let g:EasyMotion_startofline = 0 " keep cursor colum when JK motion
 
@@ -754,10 +752,24 @@ endif
 if dein#tap('vim-textmanip')
     " use Enter and Shift-Enter to insert blank line.
     " which is useful since I enforce duplicate with '-r(replace' mode.
-    nmap <CR>   <Plug>(textmanip-blank-below)
-    nmap <S-CR> <Plug>(textmanip-blank-above)
-    xmap <CR>   <Plug>(textmanip-blank-below)
-    xmap <S-CR> <Plug>(textmanip-blank-above)
+    augroup MyGroup
+        function! s:textmanip_space()
+            if &filetype !=? 'help'
+                nmap <CR>   <Plug>(textmanip-blank-below)
+                nmap <S-CR> <Plug>(textmanip-blank-above)
+                xmap <CR>   <Plug>(textmanip-blank-below)
+                xmap <S-CR> <Plug>(textmanip-blank-above)
+            else
+                nmap <CR>   <CR>
+                nmap <S-CR> <S-CR>
+                xmap <CR>   <CR>
+                xmap <S-CR> <S-CR>
+            endif
+        endfunction
+
+        autocmd!
+        autocmd BufEnter * call s:textmanip_space()
+    augroup END
 
     " 選択したテキストの移動
     xmap <C-j> <Plug>(textmanip-move-down)
@@ -875,40 +887,6 @@ if dein#tap("DoxygenToolkit.vim")
 endif
 
 " -------------------------------------------------------
-" simple-javascript-indenter
-" -------------------------------------------------------
-if dein#tap("simple-javascript-indenter")
-    function! s:js_indent_conf() abort
-        " この設定入れるとshiftwidthを1にしてインデントしてくれる
-        let g:SimpleJsIndenter_BriefMode = 1
-        " この設定入れるとswitchのインデントがいくらかマシに
-        let g:SimpleJsIndenter_CaseIndentLevel = -1
-    endfunction
-
-    execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
-            \ 'call s:js_indent_conf()'
-endif
-
-" -------------------------------------------------------
-" JSON.vim
-" -------------------------------------------------------
-if dein#tap("JSON.vim")
-    au! BufRead,BufNewFile *.json set filetype=json
-
-    function! s:json_conf() abort
-        setl autoindent
-        setl formatoptions=tcq2l
-        setl textwidth=78 shiftwidth=2
-        setl softtabstop=2 tabstop=8
-        setl expandtab
-        setl foldmethod=syntax
-    endfunction
-
-    execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
-            \ 'call s:json_conf()'
-endif
-
-" -------------------------------------------------------
 " tagbar
 " -------------------------------------------------------
 if dein#tap("tagbar")
@@ -955,7 +933,7 @@ endif
 if dein#tap("SrcExpl")
     " 機能ON/OFF
     " The switch of the Source Explorer
-    nmap <silent> <Leader>s :SrcExplToggle<CR>
+    nmap <silent> <Leader>e :SrcExplToggle<CR>
 
     function! s:srcExpl_conf() abort
         " Set the height of Source Explorer window
@@ -983,7 +961,7 @@ if dein#tap("SrcExpl")
 
         "
         " // Set "<F12>" key for updating the tags file artificially
-        let g:SrcExpl_updateTagsKey = "<Leader>su"
+        let g:SrcExpl_updateTagsKey = "<F12>"
 
         " // Set "<F3>" key for displaying the previous definition in the jump list
         "let g:SrcExpl_prevDefKey = "<F3>"
@@ -1009,46 +987,6 @@ if dein#tap("SrcExpl")
 endif
 
 " -------------------------------------------------------
-" vim-hier
-" -------------------------------------------------------
-if dein#tap('vim-hier')
-    let g:hier_enabled = 1
-endif
-
-" -------------------------------------------------------
-" quickrun.vim
-" -------------------------------------------------------
-if dein#tap('quickrun.vim')
-    let g:quickrun_config = {
-                \ "_" : {
-                \     "hook/quickfix_replate_tempname_to_bufnr/enable_exit" : 1,
-                \     "hook/quickfix_replate_tempname_to_bufnr/priority_exit" : -10,
-                \     "outputter/buffer/split": "botright",
-                \ },
-                \}
-
-    let s:clangcpp_cmdopt = '-std=c++11'
-    if has('unix') || has('macunix')
-        let s:clangcpp_cmdopt += ' -stdlib=libc++'
-    endif
-
-    let s:clangcpp_cmdopt = s:clangcpp_cmdopt . s:include_paths_string_mingw
-
-    if executable("clang++")
-        let g:quickrun_config['cpp/clang++1y'] = {
-                    \ 'cmdopt': s:clangcpp_cmdopt,
-                    \ "exec" : "%c %o -fsyntax-only %s:p",
-                    \ }
-        let g:quickrun_config['cpp'] = {'type': 'cpp/clang++1y'}
-    else
-        let g:quickrun_config['cpp/g++1y'] = {
-                    \ 'cmdopt': s:clangcpp_cmdopt,
-                    \ }
-        let g:quickrun_config['cpp'] = {'type': 'cpp/g++1y'}
-    endif
-endif
-
-" -------------------------------------------------------
 " Syntastic
 " -------------------------------------------------------
 if dein#tap('syntastic')
@@ -1067,15 +1005,33 @@ if dein#tap('syntastic')
                 \ 'passive_filetypes': [],
                 \ }
 
-    " C++
-    let g:syntastic_cpp_compiler_options = '-std=c++1y'
+    " C/C++
+    let s:gccOptions = '-Wall -Wextra -pedantic -Werror -Wshadow -Wstrict-overflow -fno-strict-aliasing'
+
+    if !exists('g:syntastic_c_compiler_options')
+        let g:syntastic_c_compiler_options = ''
+    endif
+    if !exists('g:syntastic_cpp_compiler_options')
+        let g:syntastic_cpp_compiler_options = ''
+    endif
+
+    let g:syntastic_c_compiler_options += '-std=c11'
+    let g:syntastic_cpp_compiler_options += '-std=c++11'
     if has('unix') || has('macunix')
+        let g:syntastic_c_compiler_options += ' -stdlib=libc'
         let g:syntastic_cpp_compiler_options += ' -stdlib=libc++'
     endif
-    let g:syntastic_cpp_compiler_options = g:syntastic_cpp_compiler_options . s:include_paths_string_mingw
+
+    if executable("clang")
+        let g:syntastic_c_compiler = 'clang++'
+    else " gcc
+        let g:syntastic_c_compiler_options += ' ' . s:gccOptions
+    endif
 
     if executable("clang++")
         let g:syntastic_cpp_compiler = 'clang++'
+    else " g++
+        let g:syntastic_cpp_compiler_options += ' ' . s:gccOptions
     endif
 
     " CSS
@@ -1086,22 +1042,133 @@ if dein#tap('syntastic')
 
     " " ignore python for use python-mode.
     " let g:syntastic_ignore_files = ['\.py$']
+endif
 
-    "with lightline
+" -------------------------------------------------------
+" lightline.vim
+" -------------------------------------------------------
+if dein#tap("lightline.vim")
     let g:lightline = {
+          \ 'colorscheme': 'wombat',
           \ 'active': {
-          \   'right': [ [ 'syntastic', 'lineinfo' ],
-          \              [ 'percent' ],
-          \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
+          \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
+          \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+          \ },
+          \ 'component_function': {
+          \   'fugitive': 'LightLineFugitive',
+          \   'filename': 'LightLineFilename',
+          \   'fileformat': 'LightLineFileformat',
+          \   'filetype': 'LightLineFiletype',
+          \   'fileencoding': 'LightLineFileencoding',
+          \   'mode': 'LightLineMode',
+          \   'ctrlpmark': 'CtrlPMark',
           \ },
           \ 'component_expand': {
           \   'syntastic': 'SyntasticStatuslineFlag',
           \ },
           \ 'component_type': {
           \   'syntastic': 'error',
+          \ },
+          \ 'subseparator': { 'left': '|', 'right': '|' }
           \ }
-          \ }
-    let g:syntastic_mode_map = { 'mode': 'passive' }
+
+    function! LightLineModified()
+      return &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+    endfunction
+
+    function! LightLineReadonly()
+      return &ft !~? 'help' && &readonly ? 'RO' : ''
+    endfunction
+
+    function! LightLineFilename()
+      let fname = expand('%:t')
+      return fname == 'ControlP' ? g:lightline.ctrlp_item :
+            \ fname == '__Tagbar__' ? g:lightline.fname :
+            \ fname =~ '__Gundo\|NERD_tree' ? '' :
+            \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
+            \ &ft == 'unite' ? unite#get_status_string() :
+            \ &ft == 'vimshell' ? vimshell#get_status_string() :
+            \ ('' != LightLineReadonly() ? LightLineReadonly() . ' ' : '') .
+            \ ('' != fname ? fname : '[No Name]') .
+            \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
+    endfunction
+
+    function! LightLineFugitive()
+      try
+        if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
+          let mark = ''  " edit here for cool mark
+          let _ = fugitive#head()
+          return strlen(_) ? mark._ : ''
+        endif
+      catch
+      endtry
+      return ''
+    endfunction
+
+    function! LightLineFileformat()
+      return winwidth(0) > 70 ? &fileformat : ''
+    endfunction
+
+    function! LightLineFiletype()
+      return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
+    endfunction
+
+    function! LightLineFileencoding()
+      return winwidth(0) > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
+    endfunction
+
+    function! LightLineMode()
+      let fname = expand('%:t')
+      return fname == '__Tagbar__' ? 'Tagbar' :
+            \ fname == 'ControlP' ? 'CtrlP' :
+            \ fname == '__Gundo__' ? 'Gundo' :
+            \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
+            \ fname =~ 'NERD_tree' ? 'NERDTree' :
+            \ &ft == 'unite' ? 'Unite' :
+            \ &ft == 'vimfiler' ? 'VimFiler' :
+            \ &ft == 'vimshell' ? 'VimShell' :
+            \ winwidth(0) > 60 ? lightline#mode() : ''
+    endfunction
+
+    function! CtrlPMark()
+      if expand('%:t') =~ 'ControlP'
+        call lightline#link('iR'[g:lightline.ctrlp_regex])
+        return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
+              \ , g:lightline.ctrlp_next], 0)
+      else
+        return ''
+      endif
+    endfunction
+
+    let g:ctrlp_status_func = {
+      \ 'main': 'CtrlPStatusFunc_1',
+      \ 'prog': 'CtrlPStatusFunc_2',
+      \ }
+
+    function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
+      let g:lightline.ctrlp_regex = a:regex
+      let g:lightline.ctrlp_prev = a:prev
+      let g:lightline.ctrlp_item = a:item
+      let g:lightline.ctrlp_next = a:next
+      return lightline#statusline(0)
+    endfunction
+
+    function! CtrlPStatusFunc_2(str)
+      return lightline#statusline(0)
+    endfunction
+
+    let g:tagbar_status_func = 'TagbarStatusFunc'
+
+    function! TagbarStatusFunc(current, sort, fname, ...) abort
+        let g:lightline.fname = a:fname
+      return lightline#statusline(0)
+    endfunction
+
+    if !exists('g:syntastic_mode_map')
+        let g:syntastic_mode_map = {}
+    endif
+    let g:syntastic_mode_map['mode'] = 'passive'
+
     augroup AutoSyntastic
       autocmd!
       autocmd BufWritePost * call s:syntastic()
@@ -1110,113 +1177,16 @@ if dein#tap('syntastic')
       SyntasticCheck
       call lightline#update()
     endfunction
+
+    let g:unite_force_overwrite_statusline = 0
+    let g:vimfiler_force_overwrite_statusline = 0
+    let g:vimshell_force_overwrite_statusline = 0
 endif
 
 " -------------------------------------------------------
-" vim-smartinput
+" lexima.vim
 " -------------------------------------------------------
-if dein#tap('vim-smartinput')
-    " 括弧内でのスペース入力と削除
-    call smartinput#map_to_trigger('i', '<Space>', '<Space>', '<Space>')
-    call smartinput#map_to_trigger('i', '<BS>', '<BS>', '<BS>')
-    call smartinput#define_rule({
-                \ 'at'    : '(\%#)',
-                \ 'char'  : '<Space>',
-                \ 'input' : '<Space><Space><Left>'
-                \ })
-    call smartinput#define_rule({
-                \ 'at'    : '( \%# )',
-                \ 'char'  : '<BS>',
-                \ 'input' : '<Del><BS>'
-                \ })
-    call smartinput#define_rule({
-                \   'at'    : '\[\%#\]',
-                \   'char'  : '<Space>',
-                \   'input' : '<Space><Space><Left>'
-                \   })
-    call smartinput#define_rule({
-                \   'at'    : '\[ \%# \]',
-                \   'char'  : '<BS>',
-                \   'input' : '<Del><BS>'
-                \   })
-    call smartinput#define_rule({
-                \   'at'    : '{\%#}',
-                \   'char'  : '<Space>',
-                \   'input' : '<Space><Space><Left>'
-                \   })
-    call smartinput#define_rule({
-                \   'at'    : '{ \%# }',
-                \   'char'  : '<BS>',
-                \   'input' : '<Del><BS>'
-                \   })
-    call smartinput#define_rule({
-                \   'at'    : '<\%#>',
-                \   'char'  : '<Space>',
-                \   'input' : '<Space><Space><Left>',
-                \   })
-    call smartinput#define_rule({
-                \   'at'    : '< \%# >',
-                \   'char'  : '<BS>',
-                \   'input' : '<Del><BS>',
-                \   })
-
-    " C/C++
-    call smartinput#map_to_trigger('i', ';', ';', ';')
-    call smartinput#define_rule({
-                \   'at'       : ';\%#',
-                \   'char'     : ';',
-                \   'input'    : '<BS>::',
-                \   'filetype' : ['cpp'],
-                \   })
-    " boost:: の補完
-    call smartinput#define_rule({
-                \   'at'       : '\<b;\%#',
-                \   'char'     : ';',
-                \   'input'    : '<BS>oost::',
-                \   'filetype' : ['cpp'],
-                \   })
-    " std:: の補完
-    call smartinput#define_rule({
-                \   'at'       : '\<s;\%#',
-                \   'char'     : ';',
-                \   'input'    : '<BS>td::',
-                \   'filetype' : ['cpp'],
-                \   })
-    " comment
-    call smartinput#map_to_trigger('i', '*', '*', '*')
-    call smartinput#define_rule({
-                \   'at'       : '/\%#',
-                \   'char'     : '*',
-                \   'input'    : '*  */<Left><Left><Left>',
-                \   'filetype' : ['c', 'cpp'],
-                \   })
-
-    " Ruby
-    call smartinput#map_to_trigger('i', '#', '#', '#')
-    call smartinput#define_rule({
-                \   'at'       : '\%#',
-                \   'char'     : '#',
-                \   'input'    : '#{}<Left>',
-                \   'filetype' : ['ruby'],
-                \   'syntax'   : ['Constant', 'Special'],
-                \   })
-
-    call smartinput#map_to_trigger('i', '<Bar>', '<Bar>', '<Bar>')
-    call smartinput#define_rule({
-                \   'at' : '\({\|\<do\>\)\s*\%#',
-                \   'char' : '<Bar>',
-                \   'input' : '<Bar><Bar><Left>',
-                \   'filetype' : ['ruby'],
-                \    })
-
-    " Vim Script
-    call smartinput#define_rule({
-                \   'at'       : '\\\%(\|%\|z\)\%#',
-                \   'char'     : '(',
-                \   'input'    : '(\)<Left><Left>',
-                \   'filetype' : ['vim'],
-                \   'syntax'   : ['String'],
-                \   })
+if dein#tap('lexima.vim')
 endif
 
 " -------------------------------------------------------
@@ -1256,4 +1226,11 @@ if dein#tap('vim-swoop')
     " let g:swoopLazyLoadFileType = 0
     " " Edit default HightLight
     " let g:swoopHighlight = ["hi! link SwoopBufferLineHi Warning", "hi! link SwoopPatternHi Error"]
+endif
+
+" -------------------------------------------------------
+" vim-polyglot
+" -------------------------------------------------------
+if dein#tap("vim-polyglot")
+    let g:polyglot_disabled = [ 'python' ]
 endif
