@@ -20,9 +20,6 @@ repo = 'cohama/lexima.vim'
 repo = 'tpope/vim-surround'
 
 [[plugins]]
-repo = 'Shougo/unite.vim'
-
-[[plugins]]
 repo = 'scrooloose/nerdtree'
 
 [[plugins]]

@@ -36,14 +36,6 @@ repo = 'terryma/vim-expand-region'
 on_map = ['<Plug>(expand_region_']
 
 [[plugins]]
-repo = 'Shougo/neomru.vim'
-on_source = ['unite.vim']
-
-[[plugins]]
-repo = 'Shougo/unite-outline'
-on_source = ['unite.vim']
-
-[[plugins]]
 repo = 'majutsushi/tagbar'
 on_cmd = ['TagbarToggle']
 

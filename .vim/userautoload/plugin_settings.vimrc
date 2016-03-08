@@ -137,118 +137,6 @@ if dein#tap("ctrlp.vim")
 endif
 
 " -------------------------------------------------------
-" unite.vim
-" -------------------------------------------------------
-if dein#tap("unite.vim")
-    call unite#custom#profile('default', 'context', {
-                \ 'start_insert': 1,
-                \ 'winheight': 10,
-                \ 'direction': 'botright',
-                \ })
-
-    " The items of in .gitignore doesn't display in the result of the unite.vim.
-    function! s:unite_setGitIgnoreSource()
-        let l:sources = []
-        let l:file    = getcwd() . '/.gitignore'
-        let l:dir     = getcwd() . '/.git'
-        if filereadable(l:file)
-            for l:line in readfile(l:file)
-                " a line of comment and empty line are skipping.
-                if l:line !~ "^#\\|^\s\*$"
-                    call add(l:sources, l:line)
-                endif
-            endfor
-        endif
-
-        if isdirectory(l:dir)
-            call add(l:sources, '.git')
-        endif
-
-        let l:pattern = escape(join(sources, '|'), './|')
-        call unite#custom#source('file_rec,file_rec/async,file_rec/git', 'ignore_pattern', l:pattern)
-    endfunction
-
-    call s:unite_setGitIgnoreSource()
-
-    " Enable yank history.
-    let g:unite_source_history_yank_enable = 1
-
-    " unite grep に ag(The Silver Searcher) を使う
-    if executable('ag')
-        " Use ag in unite grep source.
-        let g:unite_source_grep_command = 'ag'
-        let g:unite_source_grep_default_opts =
-                    \ '-i --vimgrep --hidden --ignore ' .
-                    \ '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.bzr'''
-        let g:unite_source_grep_recursive_opt = ''
-    elseif executable('pt')
-        " Use pt in unite grep source.
-        " https://github.com/monochromegane/the_platinum_searcher
-        let g:unite_source_grep_command = 'pt'
-        let g:unite_source_grep_default_opts = '--nogroup --nocolor'
-        let g:unite_source_grep_recursive_opt = ''
-    elseif executable('ack-grep')
-        " Use ack in unite grep source.
-        let g:unite_source_grep_command = 'ack-grep'
-        let g:unite_source_grep_default_opts =
-                    \ '-i --no-heading --no-color -k -H'
-        let g:unite_source_grep_recursive_opt = ''
-    elseif executable('jvgrep')
-        " For jvgrep.
-        let g:unite_source_grep_command = 'jvgrep'
-        let g:unite_source_grep_default_opts =
-        \ '-i --exclude ''\.(git|svn|hg|bzr)'''
-        let g:unite_source_grep_recursive_opt = '-R'
-    endif
-
-    function! DispatchUniteFileRecAsyncOrGit()
-        if isdirectory(getcwd()."/.git")
-            Unite file_rec/git:--cached:--others:--exclude-standard
-        else
-            Unite file_rec/async
-        endif
-    endfunction
-
-    " the prefix key.
-    nnoremap [unite] <Nop>
-    nmap , [unite]
-
-    nnoremap <silent> [unite]w :<C-u>Unite window tab<CR>
-    nnoremap <silent> [unite]a :<C-u>UniteBookmarkAdd<CR>
-    nnoremap <silent> [unite]b :<C-u>Unite buffer bookmark<CR>
-    nnoremap <silent> [unite]f :<C-u>Unite file<CR>
-    nnoremap <silent> [unite]m :<C-u>Unite file_mru<CR>
-    nnoremap <silent> [unite]d :<C-u>call DispatchUniteFileRecAsyncOrGit()<CR>
-    nnoremap <silent> [unite]u :<C-u>Unite register -buffer-name=register<CR>
-    nnoremap <silent> [unite]y :<C-u>Unite history/yank -toggle<CR>
-    nnoremap <silent> [unite]g :<C-u>Unite grep:. -buffer-name=search-buffer<CR>
-    nnoremap <silent> [unite]s :<C-u>Unite grep:. -buffer-name=search-buffer<CR><C-R><C-W><CR>
-    nnoremap <silent> [unite]r :<C-u>UniteResume search-buffer<CR>
-    nnoremap <silent> [unite]c :<C-u>UniteWithCursorWord line -no-quit -toggle<CR>
-    " unite-outline
-    nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
-
-    " unite.vim上でのキーマッピング
-    autocmd FileType unite call s:unite_my_settings()
-    function! s:unite_my_settings()
-        " 単語単位からパス単位で削除するように変更
-        imap <buffer> <C-w> <Plug>(unite_delete_backward_path)
-
-        " ウィンドウを分割して開く
-        nmap <silent> <buffer> <expr> <C-j> unite#do_action('split')
-        imap <silent> <buffer> <expr> <C-j> unite#do_action('split')
-
-        " ウィンドウを縦に分割して開く
-        nmap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
-        imap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
-
-        " ESCキーを2回押すと終了する
-        nmap <silent><buffer> <ESC><ESC> q
-        imap <silent><buffer> <ESC><ESC> <ESC>q
-    endfunction
-endif
-
-" -------------------------------------------------------
 " neocomplete
 " -------------------------------------------------------
 if dein#tap("neocomplete")
@@ -415,8 +303,6 @@ if dein#tap("Omnisharp")
 
         if dein#tap("ctrlp.vim")
             let g:OmniSharp_selector_ui = 'ctrlp'  " Use ctrlp.vim
-        elseif dein#tap("unite.vim")
-            let g:OmniSharp_selector_ui = 'unite'  " Use unite.vim
         endif
 
         " OmniSharp won't work without this setting
