@@ -43,7 +43,7 @@ curl https://raw.githubusercontent.com/seebi/dircolors-solarized/master/dircolor
 
 comment_dircolors="# dircolors for solarized of terminal."
 already_add_dircolors=$(grep --include $(basename $rc_path) -H -n -r "$comment_dircolors" $(dirname $rc_path))
-if test -z $already_add_dircolors; then
+if test -z "$already_add_dircolors"; then
     echo '' >> $rc_path
     echo $comment_dircolors >> $rc_path
     echo 'if [ -x /usr/bin/dircolors ]; then' >> $rc_path
