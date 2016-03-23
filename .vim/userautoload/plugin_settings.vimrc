@@ -279,7 +279,7 @@ if dein#tap("vim-clang-format")
                     \ "AccessModifierOffset" : -4,
                     \ "AllowShortIfStatementsOnASingleLine" : "true",
                     \ "AlwaysBreakTemplateDeclarations" : "true",
-                    \ "Standard" : "C++11"
+                    \ "Standard" : "C++11",
                     \ "BreakBeforeBraces" : "Stroustrup"
                     \ }
     endfunction
