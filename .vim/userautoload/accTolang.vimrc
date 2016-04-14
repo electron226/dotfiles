@@ -10,13 +10,27 @@ autocmd BufRead,BufNewFile *.nasm set filetype=nasm
 autocmd BufRead,BufNewFile *.json set filetype=json
 autocmd FileType lua setl fenc=cp932
 
+function! s:js_conf()
+    setlocal tabstop=2
+    setlocal shiftwidth=2
+    setlocal cindent
+endfunction
+autocmd FileType javascript call s:js_conf()
+
+function! s:json_conf()
+    setlocal tabstop=2
+    setlocal shiftwidth=2
+    setlocal cindent
+endfunction
+autocmd FileType json call s:json_conf()
+
 " 共通設定
 set textwidth=0
 if exists('&colorcolumn')
     set colorcolumn=+1
     " sh,cpp,perl,vim,...の部分は自分が使う
     " プログラミング言語のfiletypeに合わせてください
-    autocmd FileType sh,c,cpp,perl,vim,ruby,python,css,javascript,lua,asm,nasm setlocal textwidth=80
+    autocmd FileType sh,c,cpp,perl,vim,ruby,python,css,javascript,typescript,lua,asm,nasm setlocal textwidth=80
 endif
 
 " -------------------------------------------------------

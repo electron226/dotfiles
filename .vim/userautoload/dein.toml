@@ -8,6 +8,9 @@ repo = 'Shougo/vimproc'
     unix = 'gmake'
 
 [[plugins]]
+repo = 'altercation/vim-colors-solarized'
+
+[[plugins]]
 repo = 'tpope/vim-commentary'
 
 [[plugins]]
@@ -43,10 +46,14 @@ on_cmd = 'Ref'
 if = '''!(has('win32') && has('win64'))'''
 
 [[plugins]]
-repo = 'altercation/vim-colors-solarized'
+repo = 'Lokaltog/vim-easymotion'
 
 [[plugins]]
-repo = 'Lokaltog/vim-easymotion'
+repo = 'haya14busa/incsearch.vim'
+
+[[plugins]]
+repo = 'haya14busa/incsearch-easymotion.vim'
+on_source = ['vim-easymotion', 'incsearch.vim']
 
 [[plugins]]
 repo = 't9md/vim-textmanip'

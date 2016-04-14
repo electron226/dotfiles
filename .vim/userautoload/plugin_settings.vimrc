@@ -3,11 +3,6 @@ if exists('g:plugin_settings_loaded')
 endif
 let g:plugin_settings_loaded = 1
 
-" for using hook of dein.vim
-augroup MyAutoCmd
-  autocmd!
-augroup END
-
 " if dein#tap("plugin_name")
 "     function! s:test_on_source() abort
 "     endfunction
@@ -218,6 +213,17 @@ if dein#tap("neocomplete")
     " https://github.com/c9s/perlomni.vim
     "let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
 endif
+
+" " -------------------------------------------------------
+" " neocomplete
+" " -------------------------------------------------------
+" if dein#tap("neoinclude")
+"     function! s:neoinclude_conf() abort
+"     endfunction
+
+"     execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
+"             \ 'call s:neoinclude_conf()'
+" endif
 
 " -------------------------------------------------------
 " clang_complete
@@ -577,15 +583,15 @@ if dein#tap('vim-easymotion')
     nmap f <Plug>(easymotion-s2)
     nmap t <Plug>(easymotion-t2)
 
-    " n-character search motion
-    map  / <Plug>(easymotion-sn)
-    omap / <Plug>(easymotion-tn)
+    " " n-character search motion
+    " map  / <Plug>(easymotion-sn)
+    " omap / <Plug>(easymotion-tn)
 
-    " These `n` & `N` mappings are options. You do not have to map `n` & `N` to EasyMotion.
-    " Without these mappings, `n` & `N` works fine. (These mappings just provide
-    " different highlight method and have some other features )
-    map  n <Plug>(easymotion-next)
-    map  N <Plug>(easymotion-prev)
+    " " These `n` & `N` mappings are options. You do not have to map `n` & `N` to EasyMotion.
+    " " Without these mappings, `n` & `N` works fine. (These mappings just provide
+    " " different highlight method and have some other features )
+    " map  n <Plug>(easymotion-next)
+    " map  N <Plug>(easymotion-prev)
     
     " hjkl motions (already set (easymotion-j) and (easymotion-k) by default)
     map ;h <Plug>(easymotion-linebackward)
@@ -621,6 +627,34 @@ if dein#tap('vim-easymotion')
     " Migemo feature
     if has('migemo')
         let g:EasyMotion_use_migemo = 1
+    endif
+endif
+
+" -------------------------------------------------------
+" incsearch.vim
+" -------------------------------------------------------
+if dein#tap('incsearch.vim')
+    set hlsearch
+    let g:incsearch#auto_nohlsearch = 1
+
+    map n  <Plug>(incsearch-nohl-n)
+    map N  <Plug>(incsearch-nohl-N)
+    map *  <Plug>(incsearch-nohl-*)
+    map #  <Plug>(incsearch-nohl-#)
+    map g* <Plug>(incsearch-nohl-g*)
+    map g# <Plug>(incsearch-nohl-g#)
+
+    " map /  <Plug>(incsearch-forward)
+    " map ?  <Plug>(incsearch-backward)
+    " map g/ <Plug>(incsearch-stay)
+
+    " -------------------------------------------------------
+    " incsearch-easymotion.vim
+    " -------------------------------------------------------
+    if dein#tap('incsearch-easymotion.vim')
+        map / <Plug>(incsearch-easymotion-/)
+        map ? <Plug>(incsearch-easymotion-?)
+        map g/ <Plug>(incsearch-easymotion-stay)
     endif
 endif
 
@@ -737,6 +771,19 @@ if dein#tap("emmet-vim")
 
     execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
             \ 'call s:emmet_settings()'
+endif
+
+" -------------------------------------------------------
+" tsuquyomi
+" -------------------------------------------------------
+if dein#tap("tsuquyomi")
+    function! s:tsuquyomi_settings()
+        autocmd FileType typescript nmap <buffer> <Leader>r <Plug>(TsuquyomiRenameSymbol)
+        autocmd FileType typescript nmap <buffer> <Leader>R <Plug>(TsuquyomiRenameSymbolC)
+    endfunction
+
+    execute 'autocmd MyAutoCmd User' 'dein#source#' . g:dein#name
+            \ 'call s:tsuquyomi_settings()'
 endif
 
 " -------------------------------------------------------
@@ -924,7 +971,11 @@ if dein#tap('syntastic')
     let g:syntastic_css_csslint_args = '--ignore=adjoining-classes'
 
     " JavaScript
-    let g:syntastic_javascript_checkers = ['jshint']
+    let g:syntastic_javascript_checkers = ['eslint']
+
+    " TypeScript
+    let g:syntastic_typescript_checkers = []
+    " let g:syntastic_typescript_tsc_args = '--target ES6'
 
     " " ignore python for use python-mode.
     " let g:syntastic_ignore_files = ['\.py$']
@@ -1070,12 +1121,6 @@ if dein#tap("lightline.vim")
 endif
 
 " -------------------------------------------------------
-" lexima.vim
-" -------------------------------------------------------
-if dein#tap('lexima.vim')
-endif
-
-" -------------------------------------------------------
 " vim-easy-align
 " -------------------------------------------------------
 if dein#tap('vim-easy-align')
@@ -1118,5 +1163,5 @@ endif
 " vim-polyglot
 " -------------------------------------------------------
 if dein#tap("vim-polyglot")
-    let g:polyglot_disabled = [ 'python' ]
+    let g:polyglot_disabled = [ 'python', 'javascript' ]
 endif

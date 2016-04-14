@@ -33,10 +33,10 @@ set complete+=k        " 補完に辞書ファイル追加
 " -------------------------------------------------------
 syntax enable
 
-" colorscheme
+" colorscheme solarized
 set background=dark
 let g:solarized_termtrans=1
-colorscheme solarized " テーマ
+colorscheme solarized
 
 set shortmess+=I " 起動時のメッセージを表示しない
 set number       " 行番号を非表示 (number:表示)
