@@ -16,6 +16,32 @@ on_i = 1
 repo = 'Shougo/neosnippet.vim'
 on_i = 1
 on_source = ['neocomplete']
+hook_add = '''
+    let g:neosnippet#enable_snipmate_compatibility = 1
+
+    " For snippet_complete marker.
+    if has('conceal')
+        set conceallevel=2 concealcursor=i
+    endif
+
+    if !exists("g:neosnippet#snippets_directory")
+        let g:neosnippet#snippets_directory = ""
+    endif
+    let g:neosnippet#snippets_directory=expand($MY_VIMRUNTIME) . '.cache/dein/repos/github.com/honza/vim-snippets/snippets'
+
+    " Plugin key-mappings.
+    imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+    smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+    xmap <C-m>     <Plug>(neosnippet_expand_target)
+
+    " SuperTab like snippets behavior.
+    "imap <expr><TAB>
+    " \ pumvisible() ? "\<C-n>" :
+    " \ neosnippet#expandable_or_jumpable() ?
+    " \    "\<TAB>" : "\<Plug>(neosnippet_expand_or_jump)"
+    smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+                \ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+'''
 
 [[plugins]]
 repo = 'Shougo/neosnippet-snippets'
@@ -34,24 +60,126 @@ on_source = ['vim-surround', 'vim-commentary']
 [[plugins]]
 repo = 'terryma/vim-expand-region'
 on_map = ['<Plug>(expand_region_']
+hook_add = '''
+    map <SPACE> <Plug>(expand_region_expand)
+    map <S-SPACE> <Plug>(expand_region_shrink)
+'''
 
 [[plugins]]
 repo = 'majutsushi/tagbar'
 on_cmd = ['TagbarToggle']
+hook_add = '''
+    " you should run for use 'go get -u github.com/jstemmer/gotags'
+    let g:tagbar_type_go = {
+                \ 'ctagstype' : 'go',
+                \ 'kinds'     : [
+                \ 'p:package',
+                \ 'i:imports:1',
+                \ 'c:constants',
+                \ 'v:variables',
+                \ 't:types',
+                \ 'n:interfaces',
+                \ 'w:fields',
+                \ 'e:embedded',
+                \ 'm:methods',
+                \ 'r:constructor',
+                \ 'f:functions'
+                \ ],
+                \ 'sro' : '.',
+                \ 'kind2scope' : {
+                \ 't' : 'ctype',
+                \ 'n' : 'ntype'
+                \ },
+                \ 'scope2kind' : {
+                \ 'ctype' : 't',
+                \ 'ntype' : 'n'
+                \ },
+                \ 'ctagsbin'  : 'gotags',
+                \ 'ctagsargs' : '-sort -silent'
+                \ }
+
+    nmap <silent> <Leader>t :TagbarToggle<CR>
+'''
 
 [[plugins]]
 repo = 'wesleyche/SrcExpl'
 on_cmd = ['SrcExplToggle']
+hook_add = '''
+    " Set the height of Source Explorer window
+    "let g:SrcExpl_winHeight = 8
+    " Set 100 ms for refreshing the Source Explorer
+    let g:SrcExpl_refreshTime = 100
+
+    " Set "Enter" key to jump into the exact definition context
+    "let g:SrcExpl_jumpKey = "<ENTER>"
+
+    " Set "Space" key for back from the definition context
+    "let g:SrcExpl_gobackKey = "<SPACE>"
+
+    " // Enable/Disable the local definition searching, and note that this is not
+    " // guaranteed to work, the Source Explorer doesn't check the syntax for now.
+    " // It only searches for a match with the keyword according to command 'gd'
+    "let g:SrcExpl_searchLocalDef = 1
+
+    " // Do not let the Source Explorer update the tags file when opening
+    let g:SrcExpl_isUpdateTags = 0
+
+    " // Use 'Exuberant Ctags' with '--sort=foldcase -R .' or '-L cscope.files' to
+    " //  create/update a tags file
+    let g:SrcExpl_updateTagsCmd = "ctags --sort=foldcase -R ."
+
+    "
+    " // Set "<F12>" key for updating the tags file artificially
+    let g:SrcExpl_updateTagsKey = "<F12>"
+
+    " // Set "<F3>" key for displaying the previous definition in the jump list
+    "let g:SrcExpl_prevDefKey = "<F3>"
+    "
+    " // Set "<F4>" key for displaying the next definition in the jump list
+    "let g:SrcExpl_nextDefKey = "<F4>"
+
+    " SrcExplが競合を避けるために知っておくべきバッファ
+    let g:SrcExpl_pluginList = [
+                \ "__Tag_bar__",
+                \ "[vimfiler] - default",
+                \ "Source_Explorer",
+                \ "[場所リスト][-]",
+                \ "GoToFile",
+                \ "YankRing",
+                \ "__Gundo_Preview__",
+                \ "swoopBuf"
+                \ ]
+
+    nmap <silent> <Leader>e :SrcExplToggle<CR>
+'''
 
 [[plugins]]
 repo = 'junegunn/vim-easy-align'
 on_cmd = ['EasyAlign', 'LiveEasyAlign']
 on_map = ['<Plug>(EasyAlign)', '<Plug>(LiveEasyAlign)']
+hook_add = '''
+    " Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
+    " vmap <Enter> <Plug>(EasyAlign)
+    vmap ga <Plug>(EasyAlign)
+    vmap gl <Plug>(LiveEasyAlign)
+    " Start interactive EasyAlign for a motion/text object (e.g. gaip)
+    nmap ga <Plug>(EasyAlign)
+    nmap gl <Plug>(LiveEasyAlign)
+'''
 
 [[plugins]]
 repo = 'DoxygenToolkit.vim'
 on_cmd = [ 'Dox', 'DoxAuthor', 'DoxLic', 'DoxUndoc', 'DoxBlock' ]
 on_ft = [ 'c', 'cpp', 'python' ]
+hook_add = '''
+    let g:DoxygenToolkit_returnTag="@retval "
+
+    au FileType c,cpp,python nmap <Leader>dc :Dox<CR>
+    au FileType c,cpp,python nmap <Leader>da :DoxAuthor<CR>
+    au FileType c,cpp,python nmap <Leader>dl :DoxLic<CR>
+    au FileType c,cpp,python nmap <Leader>du :DoxUndoc<CR>
+    au FileType c,cpp,python nmap <Leader>db :DoxBlock<CR>
+'''
 
 [[plugins]]
 repo = 'Rip-Rip/clang_complete'
@@ -62,40 +190,235 @@ on_source = ['neocomplete']
 repo = 'rhysd/vim-clang-format'
 on_ft = ['c', 'cpp', 'objc']
 on_source = ['vimproc']
+hook_add = '''
+    " base style.
+    " llvm, google, chromium, or mozilla. set Google by default.
+    " let g:clang_format#code_style = 'Google'
+
+    " Coding style options as dictionary.
+    let g:clang_format#style_options = {
+                \ "AccessModifierOffset" : -4,
+                \ "AllowShortIfStatementsOnASingleLine" : "true",
+                \ "AlwaysBreakTemplateDeclarations" : "true",
+                \ "Standard" : "C++11",
+                \ "BreakBeforeBraces" : "Stroustrup"
+                \ }
+
+    au FileType c,cpp,objc nmap <buffer><Leader>cf :<C-u>ClangFormat<CR>
+    au FileType c,cpp,objc vmap <buffer><Leader>cf :ClangFormat<CR>
+'''
 
 [[plugins]]
 repo = 'OmniSharp/omnisharp-vim'
 on_ft = 'cs'
-    [plugins.build]
-    windows = 'msbuild server/OmniSharp.sln /p:Configuration=Release /p:Platform="Any CPU"'
-    mac = 'cd server && xbuild'
-    linux = 'cd server && xbuild'
-    unix = 'cd server && xbuild'
-    others = 'echo "Please build Omnisharp manually."'
+on_source = ['ctrlp.vim']
+hook_add = '''
+    if dein#tap("ctrlp.vim")
+        let g:OmniSharp_selector_ui = 'ctrlp'  " Use ctrlp.vim
+    endif
+
+    " OmniSharp won't work without this setting
+    filetype plugin on
+
+    "This is the default value, setting it isn't actually necessary
+    let g:OmniSharp_host = "http://localhost:2000"
+
+    "Set the type lookup function to use the preview window instead of the status line
+    "let g:OmniSharp_typeLookupInPreview = 1
+
+    "Timeout in seconds to wait for a response from the server
+    let g:OmniSharp_timeout = 1
+
+    "Showmatch significantly slows down omnicomplete
+    "when the first match contains parentheses.
+    set noshowmatch
+
+    "Super tab settings - uncomment the next 4 lines
+    "let g:SuperTabDefaultCompletionType = 'context'
+    "let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+    "let g:SuperTabDefaultCompletionTypeDiscovery = ["&omnifunc:<c-x><c-o>","&completefunc:<c-x><c-n>"]
+    "let g:SuperTabClosePreviewOnPopupClose = 1
+
+    "don't autoselect first item in omnicomplete, show if only one item (for preview)
+    "remove preview if you don't want to see any documentation whatsoever.
+    set completeopt=longest,menuone,preview
+    " Fetch full documentation during omnicomplete requests.
+    " There is a performance penalty with this (especially on Mono)
+    " By default, only Type/Method signatures are fetched. Full documentation can still be fetched when
+    " you need it with the :OmniSharpDocumentation command.
+    " let g:omnicomplete_fetch_documentation=1
+
+    "Move the preview window (code documentation) to the bottom of the screen, so it doesn't move the code!
+    "You might also want to look at the echodoc plugin
+    set splitbelow
+
+    " Get Code Issues and syntax errors
+    if dein#tap("syntastic")
+        let g:syntastic_cs_checkers = ['syntax', 'semantic', 'issues']
+        " If you are using the omnisharp-roslyn backend, use the following
+        " let g:syntastic_cs_checkers = ['code_checker']
+    endif
+
+    " this setting controls how long to wait (in ms) before fetching type / symbol information.
+    set updatetime=500
+    " Remove 'Press Enter to continue' message when type information is longer than one line.
+    set cmdheight=2
+
+    "Don't ask to save when changing buffers (i.e. when jumping to a type definition)
+    set hidden
+
+    augroup omnisharp_commands
+        autocmd!
+
+        if !exists('g:neocomplete#force_omni_input_patterns')
+          let g:neocomplete#force_omni_input_patterns = {}
+        endif
+        let g:neocomplete#force_omni_input_patterns.cs = '.*[^=\);]'
+
+        "Set autocomplete function to OmniSharp (if not using YouCompleteMe completion plugin)
+        autocmd FileType cs setlocal omnifunc=OmniSharp#Complete
+
+        " Synchronous build (blocks Vim)
+        "autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuild<cr>
+        " Builds can also run asynchronously with vim-dispatch installed
+        autocmd FileType cs nnoremap <leader>b :wa!<cr>:OmniSharpBuildAsync<cr>
+        " automatic syntax check on events (TextChanged requires Vim 7.4)
+        if dein#tap("syntastic")
+            autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
+        endif
+
+        " Automatically add new cs files to the nearest project on save
+        autocmd BufWritePost *.cs call OmniSharp#AddToProject()
+
+        "show type information automatically when the cursor stops moving
+        autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
+
+        "The following commands are contextual, based on the current cursor position.
+
+        autocmd FileType cs nnoremap gd :OmniSharpGotoDefinition<cr>
+        autocmd FileType cs nnoremap <leader>oi :OmniSharpFindImplementations<cr>
+        autocmd FileType cs nnoremap <leader>ot :OmniSharpFindType<cr>
+        autocmd FileType cs nnoremap <leader>os :OmniSharpFindSymbol<cr>
+        autocmd FileType cs nnoremap <leader>ou :OmniSharpFindUsages<cr>
+        "finds members in the current buffer
+        autocmd FileType cs nnoremap <leader>om :OmniSharpFindMembers<cr>
+        " cursor can be anywhere on the line containing an issue
+        autocmd FileType cs nnoremap <leader>of  :OmniSharpFixIssue<cr>
+        autocmd FileType cs nnoremap <leader>ox :OmniSharpFixUsings<cr>
+        autocmd FileType cs nnoremap <leader>ot :OmniSharpTypeLookup<cr>
+        autocmd FileType cs nnoremap <leader>oc :OmniSharpDocumentation<cr>
+        "navigate up by method/property/field
+        autocmd FileType cs nnoremap <C-K> :OmniSharpNavigateUp<cr>
+        "navigate down by method/property/field
+        autocmd FileType cs nnoremap <C-J> :OmniSharpNavigateDown<cr>
+
+    augroup END
+
+    " Contextual code actions (requires CtrlP or unite.vim)
+    nnoremap <leader><space> :OmniSharpGetCodeActions<cr>
+    " Run code actions with text selected in visual mode to extract method
+    vnoremap <leader><space> :call OmniSharp#GetCodeActions('visual')<cr>
+
+    " rename with dialog
+    nnoremap <leader>nm :OmniSharpRename<cr>
+    nnoremap <F2> :OmniSharpRename<cr>
+    " rename without dialog - with cursor on the symbol to rename... ':Rename newname'
+    command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
+
+    " Force OmniSharp to reload the solution. Useful when switching branches etc.
+    nnoremap <leader>rl :OmniSharpReloadSolution<cr>
+    nnoremap <leader>cf :OmniSharpCodeFormat<cr>
+    " Load the current .cs file to the nearest project
+    nnoremap <leader>ap :OmniSharpAddToProject<cr>
+
+    " (Experimental - uses vim-dispatch or vimproc plugin) - Start the omnisharp server for the current solution
+    nnoremap <leader>ss :OmniSharpStartServer<cr>
+    nnoremap <leader>sp :OmniSharpStopServer<cr>
+
+    " Add syntax highlighting for types and interfaces
+    nnoremap <leader>th :OmniSharpHighlightTypes<cr>
+'''
+hook_post_update = '''
+    if dein#util#_is_windows()
+        let cmd = 'msbuild server/OmniSharp.sln /p:Configuration=Release /p:Platform="Any CPU"'
+    else
+        let cmd = 'cd server && xbuild'
+    endif
+    let g:dein#plugin.build = cmd
+'''
 
 [[plugins]]
 repo = 'fatih/vim-go'
 on_ft = ['go']
+hook_add = '''
+    let g:go_snippet_engine = "neosnippet"
+
+    "Disable opening browser after posting to your snippet to play.golang.org
+    "let g:go_play_open_browser = 0
+
+    "By default vim-go shows errors for the fmt command, to disable it
+    "let g:go_fmt_fail_silently = 1
+
+    "Enable goimports to automatically insert import paths instead of gofmt
+    let g:go_fmt_command = "goimports"
+
+    "Disable auto fmt on save
+    " let g:go_fmt_autosave = 0
+
+    "By default binaries are installed to $GOBIN or $GOPATH/bin. To change it:
+    "let g:go_bin_path = expand("~/.gotools")
+    "let g:go_bin_path = "/home/fatih/.mypath"      "or give absolute path
+
+    " " By default syntax-highlighting for Functions, Methods and Structs is disabled. To change it:
+    " let g:go_highlight_functions = 1
+    " let g:go_highlight_methods = 1
+    " let g:go_highlight_structs = 1
+
+    " gocode
+    exe "set rtp+=".globpath($GOPATH, 'src/github.com/nsf/gocode/vim')
+
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+	let g:neocomplete#force_omni_input_patterns.go = '\h\w\.\w*'
+
+    au FileType go nmap <Leader>ds <Plug>(go-implements)
+    au FileType go nmap <Leader>di <Plug>(go-info)
+    au FileType go nmap <Leader>dd <Plug>(go-doc)
+    au FileType go nmap <Leader>dv <Plug>(go-doc-vertical)
+    au FileType go nmap <Leader>db <Plug>(go-doc-browser)
+    au FileType go nmap <Leader>dr <Plug>(go-run)
+    au FileType go nmap <Leader>db <Plug>(go-build)
+    au FileType go nmap <Leader>dt <Plug>(go-test)
+    au FileType go nmap <Leader>dc <Plug>(go-coverage)
+    au FileType go nmap vd <Plug>(go-def)
+    au FileType go nmap <Leader>vs <Plug>(go-def-split)
+    au FileType go nmap <Leader>vv <Plug>(go-def-vertical)
+    au FileType go nmap <Leader>vt <Plug>(go-def-tab)
+    au FileType go nmap <Leader>de <Plug>(go-rename)
+'''
+hook_post_update = '''
+    execute "GoInstallBinaries"
+'''
 
 [[plugins]]
 repo = 'Blackrush/vim-gocode'
 on_ft = ['go']
-    [plugins.build]
-    windows = 'go get -ldflags -H=windowsgui github.com/nsf/gocode'
-    mac = 'go get github.com/nsf/gocode'
-    linux = 'go get github.com/nsf/gocode'
-    unix = 'go get github.com/nsf/gocode'
-    others = 'echo "Please install vim-gocode manually."'
+hook_post_update = '''
+    if dein#util#_is_windows()
+        let cmd = 'go get -ldflags -H=windowsgui github.com/nsf/gocode'
+    else
+        let cmd = 'go get github.com/nsf/gocode'
+    endif
+    let g:dein#plugin.build = cmd
+'''
 
 [[plugins]]
 repo = 'dgryski/vim-godef'
 on_ft = ['go']
-    [plugins.build]
-    windows = 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef'
-    mac = 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef'
-    linux = 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef'
-    unix = 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef'
-    others = 'echo "Please install vim-godef manually."'
+hook_post_update = '''
+    let g:dein#plugin.build = 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef'
+'''
 
 [[plugins]]
 repo = 'hdima/python-syntax'
@@ -105,16 +428,67 @@ on_ft = ['python']
 repo = 'davidhalter/jedi-vim'
 on_ft = ['python']
 on_source = ['neocomplete']
-    [plugins.build]
-    windows = 'pip3 install jedi'
-    mac = 'pip3 install jedi'
-    linux = 'pip3 install jedi'
-    unix = 'pip3 install jedi'
-    others = 'echo "Please install jedi manually."'
+hook_add = '''
+    let g:jedi#completions_enabled = 0
+    let g:jedi#auto_vim_configuration = 0
+    let g:jedi#goto_command = "<leader>pd"
+    let g:jedi#goto_assignments_command = "<leader>pg"
+    let g:jedi#goto_definitions_command = ""
+    let g:jedi#documentation_command = "K"
+    let g:jedi#usages_command = "<leader>pn"
+    let g:jedi#completions_command = "<C-Space>"
+    let g:jedi#rename_command = "<leader>pr"
+
+    setl completeopt-=preview
+    setl omnifunc=jedi#completions
+
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+    let g:neocomplete#force_omni_input_patterns.python = '\h\w*\|[^. \t]\.\w*'
+'''
+hook_post_update = '''
+    let g:dein#plugin.build = 'pip3 install jedi'
+'''
 
 [[plugins]]
 repo = 'mattn/emmet-vim'
 on_ft = ['html']
+hook_add = '''
+    " オムニ補完
+    let g:use_emmet_complete_tag = 1
+
+    " キーマップ
+    let g:user_emmet_expandabbr_key = '<Leader>z,'
+    let g:user_emmet_expandword_key = '<Leader>z;'
+    let g:user_emmet_balancetaginward_key = '<Leader>zd'
+    let g:user_emmet_balancetagoutward_key = '<Leader>zD'
+    let g:user_emmet_next_key = '<Leader>zn'
+    let g:user_emmet_prev_key = '<Leader>zN'
+    let g:user_emmet_imagesize_key = '<Leader>zi'
+    let g:user_emmet_togglecomment_key = '<Leader>z/'
+    let g:user_emmet_splitjointag_key = '<Leader>zj'
+    let g:user_emmet_removetag_key = '<Leader>zk'
+    let g:user_emmet_anchorizeurl_key = '<Leader>za'
+    let g:user_emmet_anchorizesummary_key = '<Leader>zA'
+    let g:user_emmet_mergelines_key = '<Leader>zm'
+    let g:user_emmet_codepretty_key = '<Leader>zc'
+
+    let g:user_emmet_settings = {
+                \  'lang': "jp",
+                \  'html': {
+                \       'default_attributes': {
+                \           'link:less': [
+                \               { 'rel': 'stylesheet/less',
+                \                 'type': 'text/css',
+                \                 'href': '|style.less',
+                \                 'media': 'all'
+                \               }
+                \           ],
+                \       },
+                \   },
+                \ }
+'''
 
 [[plugins]]
 repo = 'gorodinskiy/vim-coloresque'
@@ -123,12 +497,9 @@ on_ft = ['html', 'css', 'less', 'scss']
 [[plugins]]
 repo = 'marijnh/tern_for_vim'
 on_ft = ['html', 'javascript', 'coffee']
-    [plugins.build]
-    windows = 'npm install'
-    mac = 'npm install'
-    linux = 'npm install'
-    unix = 'npm install'
-    others = 'echo "Please install tern_for_vim manually."'
+hook_post_update = '''
+    let g:dein#plugin.build = 'npm install'
+'''
 
 [[plugins]]
 repo = 'moll/vim-node'
@@ -137,6 +508,9 @@ on_ft = ['javascript', 'coffee', 'typescript']
 [[plugins]]
 repo = 'heavenshell/vim-jsdoc'
 on_ft = ['javascript', 'coffee', 'typescript']
+hook_add = '''
+    au FileType javascript,coffee,typescript nmap <Leader>d :JsDoc<CR>
+'''
 
 [[plugins]]
 repo = 'othree/yajs.vim'
@@ -144,5 +518,31 @@ on_ft = ['javascript', 'coffee', 'typescript']
 
 [[plugins]]
 repo = 'Quramy/tsuquyomi'
-on_source = ['vimproc']
+on_source = ['vimproc', 'syntastic']
 on_ft = ['typescript']
+hook_add = '''
+    au FileType typescript nmap <buffer> <Leader>r <Plug>(TsuquyomiRenameSymbol)
+    au FileType typescript nmap <buffer> <Leader>R <Plug>(TsuquyomiRenameSymbolC)
+
+    setl omnifunc=tsuquyomi#complete
+
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+    let g:neocomplete#force_omni_input_patterns.typescript = '[^. *\t]\.\w*\|\h\w*::'
+
+    " TypeScript
+    if dein#tap('syntastic')
+        let g:tsuquyomi_disable_quickfix = 1
+        let g:syntastic_typescript_checkers = ['tsuquyomi']
+    endif
+'''
+
+[[plugins]]
+repo = 'Shougo/context_filetype.vim'
+on_ft = ['toml']
+
+[[plugins]]
+repo = 'osyo-manga/vim-precious'
+on_source = ['context_filetype']
+on_ft = ['toml']

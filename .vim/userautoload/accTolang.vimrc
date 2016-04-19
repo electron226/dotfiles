@@ -15,7 +15,7 @@ function! s:js_conf()
     setlocal shiftwidth=2
     setlocal cindent
 endfunction
-autocmd FileType javascript call s:js_conf()
+autocmd FileType javascript,coffee,typescript call s:js_conf()
 
 function! s:json_conf()
     setlocal tabstop=2
@@ -43,3 +43,4 @@ autocmd BufNewFile *.py 0r $MY_VIMRUNTIME/template/python.py
 autocmd BufNewFile *.rb 0r $MY_VIMRUNTIME/template/ruby.rb
 autocmd BufNewFile *.html 0r $MY_VIMRUNTIME/template/html5.html
 autocmd BufNewFile *.js 0r $MY_VIMRUNTIME/template/javascript.js
+autocmd BufNewFile *.ts 0r $MY_VIMRUNTIME/template/typescript.ts

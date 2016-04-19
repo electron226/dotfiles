@@ -1,9 +1,11 @@
-(function(global) => {
+/*jshint latedef:false, sub:true */
+/// <reference path="./typings/main.d.ts" />
+(function(global: any) {
   "use strict";
   
-  // var isBrowser    = "document" in global;
-  // var isWebWorkers = "WorkerLocation" in global;
-  // var isNode       = "process" in global;
+  // let isBrowser    = "document" in global;
+  // let isWebWorkers = "WorkerLocation" in global;
+  // let isNode       = "process" in global;
 
   // Class ------------------------------------------------//{{{
   function YourModule()//{{{
