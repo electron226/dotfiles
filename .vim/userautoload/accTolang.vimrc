@@ -30,7 +30,7 @@ if exists('&colorcolumn')
     set colorcolumn=+1
     " sh,cpp,perl,vim,...の部分は自分が使う
     " プログラミング言語のfiletypeに合わせてください
-    autocmd FileType sh,c,cpp,perl,vim,ruby,python,css,javascript,typescript,lua,asm,nasm setlocal textwidth=80
+    autocmd FileType sh,c,cpp,perl,vim,ruby,python,css,javascript,typescript,lua,asm,nasm,go setlocal textwidth=80
 endif
 
 " -------------------------------------------------------

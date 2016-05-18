@@ -1,7 +1,6 @@
 snippet main_template
 abbr    (function(global) { // class, export })(global)
 alias   maint
-    /*jshint latedef:false, sub:true */
     (function(global) {
       "use strict";
       
@@ -112,3 +111,8 @@ snippet console
 abbr    console.${1:log}();
 alias   log
     console.${1:log}(${2});
+
+snippet assert
+abbr    console.assert
+alias   assert
+    console.assert(${1:condition}, "${2:output}");

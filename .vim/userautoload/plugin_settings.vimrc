@@ -419,6 +419,9 @@ if dein#tap('syntastic')
     " JavaScript
     let g:syntastic_javascript_checkers = ['eslint']
 
+    " TypeScript
+    "let g:syntastic_typescript_checkers = ['tslint']
+
     " " ignore python for use python-mode.
     " let g:syntastic_ignore_files = ['\.py$']
 endif

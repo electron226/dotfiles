@@ -25,9 +25,12 @@ hook_add = '''
     endif
 
     if !exists("g:neosnippet#snippets_directory")
-        let g:neosnippet#snippets_directory = ""
+        let g:neosnippet#snippets_directory = []
     endif
-    let g:neosnippet#snippets_directory=expand($MY_VIMRUNTIME) . '.cache/dein/repos/github.com/honza/vim-snippets/snippets'
+    let g:neosnippet#snippets_directory += [
+                \ expand($MY_VIMRUNTIME) . '/.cache/dein/repos/github.com/honza/vim-snippets/snippets',
+                \ expand($MY_VIMRUNTIME) . '/snippets'
+                \ ]
 
     " Plugin key-mappings.
     imap <C-k>     <Plug>(neosnippet_expand_or_jump)
@@ -340,7 +343,7 @@ hook_add = '''
 '''
 hook_post_update = '''
     if dein#util#_is_windows()
-        let cmd = 'msbuild server/OmniSharp.sln /p:Configuration=Release /p:Platform="Any CPU"'
+        let cmd = 'msbuild server/OmniSharp.sln /p:Platform="Any CPU"'
     else
         let cmd = 'cd server && xbuild'
     endif
@@ -375,7 +378,11 @@ hook_add = '''
     " let g:go_highlight_structs = 1
 
     " gocode
-    exe "set rtp+=".globpath($GOPATH, 'src/github.com/nsf/gocode/vim')
+    if !isdirectory(expand('$GOPATH'))
+        echo 'you must set $GOPATH of environment Variables.'
+    else
+        exe "set rtp+=".globpath($GOPATH, 'src/github.com/nsf/gocode/vim')
+    endif
 
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
@@ -398,7 +405,11 @@ hook_add = '''
     au FileType go nmap <Leader>de <Plug>(go-rename)
 '''
 hook_post_update = '''
-    execute "GoInstallBinaries"
+    if isdirectory(expand('$GOPATH'))
+        execute "GoInstallBinaries"
+    else
+        echo 'you must set $GOPATH of environment Variables.'
+    endif
 '''
 
 [[plugins]]
@@ -417,7 +428,11 @@ hook_post_update = '''
 repo = 'dgryski/vim-godef'
 on_ft = ['go']
 hook_post_update = '''
-    let g:dein#plugin.build = 'go get -v code.google.com/p/rog-go/exp/cmd/godef && go install -v code.google.com/p/rog-go/exp/cmd/godef'
+    if !isdirectory(expand('$GOPATH'))
+        echo 'you must set $GOPATH of environment Variables.'
+    else
+        let g:dein#plugin.build = 'go get -v github.com/rogpeppe/godef && cd $GOPATH/src/github.com/rogpeppe/godef && go clean -r -i && go install -v'
+    endif
 '''
 
 [[plugins]]
@@ -495,7 +510,7 @@ repo = 'gorodinskiy/vim-coloresque'
 on_ft = ['html', 'css', 'less', 'scss']
 
 [[plugins]]
-repo = 'marijnh/tern_for_vim'
+repo = 'ternjs/tern_for_vim'
 on_ft = ['html', 'javascript', 'coffee']
 hook_post_update = '''
     let g:dein#plugin.build = 'npm install'
@@ -534,7 +549,7 @@ hook_add = '''
     " TypeScript
     if dein#tap('syntastic')
         let g:tsuquyomi_disable_quickfix = 1
-        let g:syntastic_typescript_checkers = ['tsuquyomi']
+        let g:syntastic_typescript_checkers = ['tsuquyomi', 'tslint']
     endif
 '''
 

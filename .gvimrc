@@ -48,9 +48,9 @@ set guioptions-=T
 set guioptions-=m
 
 if has('win32') || has('win64')
-    " Enable DirectWrite
-    "set rop=type:directx
-    set guifont=Ricty\ Diminished\ Discord:h12
+  " Enable DirectWrite
+  set rop=type:directx
+  set guifont=Ricty\ Diminished\ Discord:h12
   " 行間隔の設定
   set linespace=1
   " 一部のUCS文字の幅を自動計測して決める
@@ -58,15 +58,15 @@ if has('win32') || has('win64')
     set ambiwidth=auto
   endif
 else
-    set guifont=Ricty\ Diminished\ Discord\ 12
+  set guifont=Ricty\ Diminished\ Discord\ 12
 endif
 
 highlight CursorIM guibg=Purple guifg=NONE " IME ON時のカーソルの色を設定
-set iminsert=0 imsearch=0 " 挿入モード・検索モードでのデフォルトのIME状態設定
+set iminsert=0 imsearch=0                  " 挿入モード・検索モードでのデフォルトのIME状態設定
 
-set mouse=a	" どのモードでもマウスを使えるようにする
+set mouse=a      " どのモードでもマウスを使えるようにする
 set nomousefocus " マウスの移動でフォーカスを自動的に切替えない
-set mousehide " 入力時にマウスポインタを隠す
+set mousehide    " 入力時にマウスポインタを隠す
 
 " -------------------------------------------------------
 " ウィンドウ
