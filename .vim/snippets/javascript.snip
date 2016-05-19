@@ -106,13 +106,3 @@ alias   sliceloop
     Array.prototype.slice.call(${1:obj}).forEach(${2:pValue} => {
         ${3}
     });
-
-snippet console
-abbr    console.${1:log}();
-alias   log
-    console.${1:log}(${2});
-
-snippet assert
-abbr    console.assert
-alias   assert
-    console.assert(${1:condition}, "${2:output}");
