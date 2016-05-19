@@ -24,6 +24,13 @@ function! s:json_conf()
 endfunction
 autocmd FileType json call s:json_conf()
 
+function! s:html_conf()
+    setlocal tabstop=2
+    setlocal shiftwidth=2
+    setlocal cindent
+endfunction
+autocmd FileType html call s:html_conf()
+
 " 共通設定
 set textwidth=0
 if exists('&colorcolumn')
