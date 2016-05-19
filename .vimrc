@@ -74,5 +74,6 @@ endif
 " -------------------------------------------------------
 " 設定ファイル読み込み
 " -------------------------------------------------------
-set runtimepath+=$MY_VIMRUNTIME/userautoload/
-runtime! *.vimrc
+set runtimepath+=$MY_VIMRUNTIME/
+runtime! userautoload/*.vimrc
+runtime! plugin/*.vim
